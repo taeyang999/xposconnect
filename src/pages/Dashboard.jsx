@@ -32,9 +32,7 @@ export default function Dashboard() {
   const { data: customers = [], isLoading: loadingCustomers } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => {
-      const result = isAdmin 
-        ? await base44.entities.Customer.list('-created_date', 100)
-        : await base44.entities.Customer.filter({ assigned_employee: user?.email }, '-created_date', 100);
+      const result = await base44.entities.Customer.list('-created_date', 100);
       return result || [];
     },
     enabled: !!user,
