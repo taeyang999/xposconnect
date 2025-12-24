@@ -356,7 +356,7 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
                   <SelectItem value={null}>Unassigned</SelectItem>
                   {employees.map((emp) => (
                     <SelectItem key={emp.id} value={emp.email}>
-                      {emp.full_name || emp.email}
+                      {emp.firstname && emp.lastname ? `${emp.firstname} ${emp.lastname}` : emp.full_name || emp.email}
                     </SelectItem>
                   ))}
                 </SelectContent>
