@@ -21,6 +21,8 @@ import { Loader2 } from 'lucide-react';
 
 export default function EmployeeForm({ open, onClose, employee, onSave }) {
   const [formData, setFormData] = useState({
+    firstname: '',
+    lastname: '',
     phone: '',
     department: '',
     title: '',
@@ -32,6 +34,8 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
   useEffect(() => {
     if (employee) {
       setFormData({
+        firstname: employee.firstname || '',
+        lastname: employee.lastname || '',
         phone: employee.phone || '',
         department: employee.department || '',
         title: employee.title || '',
@@ -40,6 +44,8 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
       });
     } else {
       setFormData({
+        firstname: '',
+        lastname: '',
         phone: '',
         department: '',
         title: '',
@@ -71,6 +77,29 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstname">First Name</Label>
+              <Input
+                id="firstname"
+                value={formData.firstname}
+                onChange={(e) => setFormData({ ...formData, firstname: e.target.value })}
+                placeholder="John"
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="lastname">Last Name</Label>
+              <Input
+                id="lastname"
+                value={formData.lastname}
+                onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
+                placeholder="Doe"
+                className="mt-1.5"
+              />
+            </div>
+          </div>
+
           <div>
             <Label htmlFor="title">Job Title</Label>
             <Input

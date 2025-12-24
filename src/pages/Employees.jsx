@@ -140,7 +140,7 @@ export default function Employees() {
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12">
                     <AvatarFallback className="bg-slate-800 text-white font-medium">
-                      {employee.full_name?.charAt(0) || employee.email?.charAt(0).toUpperCase()}
+                      {employee.firstname?.charAt(0)?.toUpperCase() || ''}{employee.lastname?.charAt(0)?.toUpperCase() || employee.full_name?.charAt(0) || employee.email?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
