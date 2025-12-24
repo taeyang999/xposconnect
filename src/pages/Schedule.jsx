@@ -8,6 +8,7 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,6 +80,22 @@ export default function Schedule() {
     return customers.find(c => c.id === customerId)?.name || '';
   };
 
+  const getEmployeeInitials = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname.charAt(0)}${emp.lastname.charAt(0)}`.toUpperCase();
+    }
+    return email?.charAt(0).toUpperCase() || 'U';
+  };
+
+  const getEmployeeName = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname} ${emp.lastname}`;
+    }
+    return email || 'Unknown';
+  };
+
   const handleDelete = async () => {
     if (deleteEvent) {
       await base44.entities.ScheduleEvent.delete(deleteEvent.id);
@@ -96,14 +113,27 @@ export default function Schedule() {
 
   // Convert events to React Big Calendar format
   const calendarEvents = useMemo(() => {
-    return events.map(event => ({
-      ...event,
-      title: event.title,
-      start: new Date(event.start_datetime),
-      end: new Date(event.end_datetime),
-      resource: event,
-    }));
-  }, [events]);
+    return events.map(event => {
+      const customerName = event.customer_id ? getCustomerName(event.customer_id) : '';
+      const employeeName = event.assigned_employee ? getEmployeeName(event.assigned_employee) : '';
+      
+      let displayTitle = event.title;
+      if (customerName) {
+        displayTitle += ` - ${customerName}`;
+      }
+      if (employeeName) {
+        displayTitle += ` (${employeeName})`;
+      }
+      
+      return {
+        ...event,
+        title: displayTitle,
+        start: new Date(event.start_datetime),
+        end: new Date(event.end_datetime),
+        resource: event,
+      };
+    });
+  }, [events, customers, employees]);
 
   const eventStyleGetter = (event) => {
     const typeColors = {
@@ -125,10 +155,13 @@ export default function Schedule() {
       style: {
         backgroundColor: statusColors[event.status] || typeColors[event.event_type] || '#3b82f6',
         borderRadius: '6px',
-        opacity: 0.9,
+        opacity: event.status === 'completed' ? 0.7 : 0.95,
         color: 'white',
         border: 'none',
         display: 'block',
+        fontSize: '0.8125rem',
+        fontWeight: '500',
+        padding: '2px 6px',
       },
     };
   };
