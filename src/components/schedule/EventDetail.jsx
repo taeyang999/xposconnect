@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { format, parseISO } from 'date-fns';
-import { Calendar, Clock, MapPin, User, Building2, Pencil, Trash2, X } from 'lucide-react';
+import { Calendar, MapPin, User, Building2, Pencil, Trash2, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -48,30 +48,19 @@ export default function EventDetail({ event, customerName, onClose, onEdit, onDe
             </Badge>
           </div>
 
-          {/* Date & Time */}
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Calendar className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Date</p>
-                <p className="font-medium text-slate-900">
-                  {format(parseISO(event.start_datetime), 'EEEE, MMMM d, yyyy')}
-                </p>
-              </div>
+          {/* Date Range */}
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Calendar className="h-4 w-4 text-slate-600" />
             </div>
-
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Clock className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Time</p>
-                <p className="font-medium text-slate-900">
-                  {format(parseISO(event.start_datetime), 'h:mm a')} - {format(parseISO(event.end_datetime), 'h:mm a')}
-                </p>
-              </div>
+            <div>
+              <p className="text-sm text-slate-500">Date Range</p>
+              <p className="font-medium text-slate-900">
+                {format(parseISO(event.start_datetime), 'MMM d, yyyy')}
+                {format(parseISO(event.start_datetime), 'yyyy-MM-dd') !== format(parseISO(event.end_datetime), 'yyyy-MM-dd') && 
+                  ` - ${format(parseISO(event.end_datetime), 'MMM d, yyyy')}`
+                }
+              </p>
             </div>
           </div>
 
