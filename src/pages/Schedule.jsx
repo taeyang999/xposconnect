@@ -116,8 +116,10 @@ export default function Schedule() {
 
   const getEventsForDay = (day) => {
     return events.filter(event => {
-      const eventDate = parseISO(event.start_datetime);
-      return isSameDay(eventDate, day);
+      const eventStart = startOfDay(parseISO(event.start_datetime));
+      const eventEnd = startOfDay(parseISO(event.end_datetime));
+      const checkDay = startOfDay(day);
+      return checkDay >= eventStart && checkDay <= eventEnd;
     });
   };
 
