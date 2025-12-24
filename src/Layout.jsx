@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -159,6 +160,22 @@ export default function Layout({ children, currentPageName }) {
                   type="text" 
                   placeholder="Search customers, services..."
                   className="bg-transparent text-sm text-slate-600 placeholder-slate-400 outline-none w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      if (currentPageName === 'Customers') {
+                        window.dispatchEvent(new CustomEvent('global-search', { detail: searchQuery }));
+                      } else if (currentPageName === 'ServiceLogs') {
+                        window.dispatchEvent(new CustomEvent('global-search', { detail: searchQuery }));
+                      } else {
+                        navigate(createPageUrl('Customers'));
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('global-search', { detail: searchQuery }));
+                        }, 100);
+                      }
+                    }
+                  }}
                 />
               </div>
             </div>

@@ -48,6 +48,12 @@ export default function Customers() {
     if (urlParams.get('action') === 'new') {
       setShowForm(true);
     }
+
+    const handleGlobalSearch = (e) => {
+      setSearchQuery(e.detail);
+    };
+    window.addEventListener('global-search', handleGlobalSearch);
+    return () => window.removeEventListener('global-search', handleGlobalSearch);
   }, []);
 
   const isAdmin = user?.role === 'admin';
