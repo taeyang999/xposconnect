@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -92,6 +93,19 @@ export default function CustomerDetail() {
     queryFn: () => base44.entities.CustomerPhoto.filter({ customer_id: customerId }, '-created_date'),
     enabled: !!customerId,
   });
+
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const getEmployeeInitials = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname.charAt(0)}${emp.lastname.charAt(0)}`.toUpperCase();
+    }
+    return email?.charAt(0).toUpperCase() || 'U';
+  };
 
   const handleDelete = async () => {
     if (deleteItem && deleteType) {
@@ -343,9 +357,11 @@ export default function CustomerDetail() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
           {customer.assigned_employee && (
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <User className="h-4 w-4 text-slate-600" />
-              </div>
+              <Avatar className="h-8 w-8">
+                <AvatarFallback className="bg-slate-800 text-white text-xs font-medium">
+                  {getEmployeeInitials(customer.assigned_employee)}
+                </AvatarFallback>
+              </Avatar>
               <div>
                 <p className="text-xs text-slate-500">Assigned To</p>
                 <p className="text-sm font-medium text-slate-900">{customer.assigned_employee}</p>
@@ -435,7 +451,11 @@ export default function CustomerDetail() {
                           </span>
                           {log.assigned_employee && (
                             <span className="flex items-center gap-1">
-                              <User className="h-3 w-3" />
+                              <Avatar className="h-4 w-4">
+                                <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
+                                  {getEmployeeInitials(log.assigned_employee)}
+                                </AvatarFallback>
+                              </Avatar>
                               {log.assigned_employee}
                             </span>
                           )}

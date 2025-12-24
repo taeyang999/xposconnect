@@ -7,6 +7,9 @@ import {
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +20,19 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function CustomerCard({ customer, onEdit, onDelete }) {
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const getEmployeeInitials = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname.charAt(0)}${emp.lastname.charAt(0)}`.toUpperCase();
+    }
+    return email?.charAt(0).toUpperCase() || 'U';
+  };
+
   const statusColors = {
     active: 'bg-emerald-100 text-emerald-700',
     inactive: 'bg-slate-100 text-slate-600',
@@ -87,7 +103,11 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
         )}
         {customer.assigned_employee && (
           <div className="flex items-center gap-2 text-slate-600">
-            <User className="h-4 w-4 text-slate-400" />
+            <Avatar className="h-5 w-5">
+              <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
+                {getEmployeeInitials(customer.assigned_employee)}
+              </AvatarFallback>
+            </Avatar>
             <span className="truncate">{customer.assigned_employee}</span>
           </div>
         )}

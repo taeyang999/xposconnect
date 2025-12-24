@@ -11,6 +11,7 @@ import { format, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -86,8 +87,21 @@ export default function ServiceLogs() {
     queryFn: () => base44.entities.Customer.list(),
   });
 
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
   const getCustomerName = (customerId) => {
     return customers.find(c => c.id === customerId)?.name || 'Unknown';
+  };
+
+  const getEmployeeInitials = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname.charAt(0)}${emp.lastname.charAt(0)}`.toUpperCase();
+    }
+    return email?.charAt(0).toUpperCase() || 'U';
   };
 
   const filteredLogs = serviceLogs.filter(log => {
@@ -255,7 +269,11 @@ export default function ServiceLogs() {
                   <TableCell>
                     {log.assigned_employee && (
                       <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <User className="h-4 w-4 text-slate-400" />
+                        <Avatar className="h-5 w-5">
+                          <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
+                            {getEmployeeInitials(log.assigned_employee)}
+                          </AvatarFallback>
+                        </Avatar>
                         {log.assigned_employee}
                       </div>
                     )}

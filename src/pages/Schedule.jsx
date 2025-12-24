@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -69,8 +70,22 @@ export default function Schedule() {
     enabled: !!user,
   });
 
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: !!user,
+  });
+
   const getCustomerName = (customerId) => {
     return customers.find(c => c.id === customerId)?.name || '';
+  };
+
+  const getEmployeeInitials = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname.charAt(0)}${emp.lastname.charAt(0)}`.toUpperCase();
+    }
+    return email?.charAt(0).toUpperCase() || 'U';
   };
 
   const handleDelete = async () => {
@@ -346,7 +361,11 @@ export default function Schedule() {
                         )}
                         {event.assigned_employee && (
                           <span className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
+                            <Avatar className="h-4 w-4">
+                              <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
+                                {getEmployeeInitials(event.assigned_employee)}
+                              </AvatarFallback>
+                            </Avatar>
                             {event.assigned_employee}
                           </span>
                         )}
