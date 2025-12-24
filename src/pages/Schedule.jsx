@@ -231,7 +231,7 @@ export default function Schedule() {
                 <div
                   key={idx}
                   className={cn(
-                    "min-h-[120px] p-2 border-b border-r border-slate-100 transition-colors",
+                    "min-h-[160px] p-2 border-b border-r border-slate-100 transition-colors",
                     !isCurrentMonth && "bg-slate-50/50",
                     isToday(day) && "bg-blue-50/50"
                   )}
@@ -244,7 +244,7 @@ export default function Schedule() {
                     {format(day, 'd')}
                   </div>
                   <div className="space-y-1">
-                    {dayEvents.slice(0, 3).map((event) => (
+                    {dayEvents.slice(0, 5).map((event) => (
                       <button
                         key={event.id}
                         onClick={() => setSelectedEvent(event)}
@@ -257,9 +257,9 @@ export default function Schedule() {
                         <span className="ml-1 text-slate-600">{event.title}</span>
                       </button>
                     ))}
-                    {dayEvents.length > 3 && (
+                    {dayEvents.length > 5 && (
                       <button className="text-xs text-slate-500 hover:text-slate-700 pl-1">
-                        +{dayEvents.length - 3} more
+                        +{dayEvents.length - 5} more
                       </button>
                     )}
                   </div>
