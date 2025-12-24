@@ -115,14 +115,10 @@ export default function Schedule() {
   const calendarEvents = useMemo(() => {
     return events.map(event => {
       const customerName = event.customer_id ? getCustomerName(event.customer_id) : '';
-      const employeeName = event.assigned_employee ? getEmployeeName(event.assigned_employee) : '';
       
       let displayTitle = event.title;
       if (customerName) {
         displayTitle += ` - ${customerName}`;
-      }
-      if (employeeName) {
-        displayTitle += ` (${employeeName})`;
       }
       
       return {
@@ -218,7 +214,7 @@ export default function Schedule() {
       {/* Event Detail */}
       <EventDetail
         event={selectedEvent}
-        customerName={selectedEvent?.customer_id ? getCustomerName(selectedEvent.customer_id) : null}
+        customer={selectedEvent?.customer_id ? customers.find(c => c.id === selectedEvent.customer_id) : null}
         onClose={() => setSelectedEvent(null)}
         onEdit={handleEdit}
         onDelete={() => setDeleteEvent(selectedEvent)}
