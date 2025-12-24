@@ -104,6 +104,14 @@ export default function ServiceLogs() {
     return email?.charAt(0).toUpperCase() || 'U';
   };
 
+  const getEmployeeName = (email) => {
+    const emp = employees.find(e => e.email === email);
+    if (emp?.firstname && emp?.lastname) {
+      return `${emp.firstname} ${emp.lastname}`;
+    }
+    return emp?.full_name || email;
+  };
+
   const filteredLogs = serviceLogs.filter(log => {
     const matchesSearch = 
       log.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -274,7 +282,7 @@ export default function ServiceLogs() {
                             {getEmployeeInitials(log.assigned_employee)}
                           </AvatarFallback>
                         </Avatar>
-                        {log.assigned_employee}
+                        {getEmployeeName(log.assigned_employee)}
                       </div>
                     )}
                   </TableCell>
