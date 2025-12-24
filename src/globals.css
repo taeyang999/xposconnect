@@ -88,7 +88,7 @@
 
 .rbc-event {
   padding: 0px 1px;
-  font-size: 0.5rem;
+  font-size: 12px;
   font-weight: 500;
   border: none;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -101,7 +101,7 @@
 }
 
 .rbc-event-label {
-  font-size: 0.4375rem;
+  font-size: 12px;
 }
 
 .rbc-event-content {
@@ -112,12 +112,12 @@
 
 .rbc-day-slot .rbc-event {
   padding: 0px 1px;
-  font-size: 0.4375rem;
+  font-size: 12px;
 }
 
 .rbc-month-view .rbc-event {
   padding: 0px 1px;
-  font-size: 0.4375rem;
+  font-size: 12px;
 }
 
 .rbc-month-view {
