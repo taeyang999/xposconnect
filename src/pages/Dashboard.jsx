@@ -67,6 +67,25 @@ export default function Dashboard() {
   const pendingServices = serviceLogs.filter(l => l.status === 'scheduled' || l.status === 'in_progress').length;
   const maintenanceItems = inventory.filter(i => i.status === 'maintenance').length;
 
+  // Alerts logic
+  const todayEvents = events.filter(e => {
+    const eventDate = parseISO(e.start_datetime);
+    return isToday(eventDate) && e.status !== 'cancelled';
+  });
+
+  const expiringWarranties = inventory.filter(item => {
+    if (!item.warranty_expiry) return false;
+    const expiry = parseISO(item.warranty_expiry);
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+    return expiry <= threeMonthsFromNow && expiry >= new Date();
+  });
+
+  const overdueServices = serviceLogs.filter(log => {
+    if (!log.service_date || log.status === 'completed' || log.status === 'cancelled') return false;
+    return parseISO(log.service_date) < new Date();
+  });
+
   const getEventDateLabel = (dateStr) => {
     const date = parseISO(dateStr);
     if (isToday(date)) return 'Today';
@@ -86,10 +105,51 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <PageHeader 
-        title={`Welcome back${user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}`}
-        description="Here's what's happening with your business today."
-      />
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900">
+          Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+        </h1>
+        <p className="text-slate-500 mt-1">
+          {format(new Date(), 'EEEE, MMMM d, yyyy')}
+        </p>
+      </div>
+
+      {/* Alerts Section */}
+      {!isLoading && (todayEvents.length > 0 || expiringWarranties.length > 0 || overdueServices.length > 0) && (
+        <Card className="mb-8 border-l-4 border-l-amber-500 bg-amber-50/50">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="p-2 rounded-lg bg-amber-100">
+                <AlertCircle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900">Alerts & Reminders</h3>
+                <p className="text-sm text-slate-600">Important items that need your attention</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {todayEvents.length > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4 text-blue-600" />
+                  <span className="font-medium text-slate-900">{todayEvents.length} event{todayEvents.length > 1 ? 's' : ''} scheduled for today</span>
+                </div>
+              )}
+              {overdueServices.length > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-red-600" />
+                  <span className="font-medium text-slate-900">{overdueServices.length} overdue service{overdueServices.length > 1 ? 's' : ''}</span>
+                </div>
+              )}
+              {expiringWarranties.length > 0 && (
+                <div className="flex items-center gap-2 text-sm">
+                  <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <span className="font-medium text-slate-900">{expiringWarranties.length} warrant{expiringWarranties.length > 1 ? 'ies' : 'y'} expiring soon</span>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
@@ -129,6 +189,47 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* Today's Schedule Highlight */}
+      {!isLoading && todayEvents.length > 0 && (
+        <Card className="mb-8 border-slate-200/80 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              Today's Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {todayEvents.slice(0, 3).map((event) => (
+                <div key={event.id} className="flex items-center justify-between p-3 rounded-xl bg-white shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="text-center">
+                      <div className="text-xs text-slate-500">{format(parseISO(event.start_datetime), 'h:mm')}</div>
+                      <div className="text-xs font-medium text-slate-700">{format(parseISO(event.start_datetime), 'a')}</div>
+                    </div>
+                    <div className="h-10 w-px bg-slate-200" />
+                    <div>
+                      <p className="font-medium text-slate-900">{event.title}</p>
+                      <p className="text-sm text-slate-500">{event.location || 'No location'}</p>
+                    </div>
+                  </div>
+                  <Badge className={statusColors[event.status] || statusColors.scheduled}>
+                    {event.status}
+                  </Badge>
+                </div>
+              ))}
+              {todayEvents.length > 3 && (
+                <Link to={createPageUrl('Schedule')}>
+                  <Button variant="ghost" size="sm" className="w-full text-blue-600 hover:text-blue-700">
+                    View all {todayEvents.length} events <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
