@@ -6,7 +6,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   ArrowLeft, Mail, Phone, MapPin, User, Calendar,
   FileText, Package, Image, Pencil, Plus, Trash2, 
-  MoreVertical, Upload, X, Eye, Download
+  MoreVertical, Upload, X, Eye, Download, Building2,
+  CreditCard, Wifi, ShieldAlert, Ban
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -159,9 +160,23 @@ export default function CustomerDetail() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">{customer.name}</h1>
-              <Badge className={`mt-2 ${statusColors[customer.status] || statusColors.active}`}>
-                {customer.status || 'active'}
-              </Badge>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <Badge className={statusColors[customer.status] || statusColors.active}>
+                  {customer.status || 'active'}
+                </Badge>
+                {customer.is_disabled && (
+                  <Badge className="bg-red-100 text-red-700">
+                    <Ban className="h-3 w-3 mr-1" />
+                    Disabled
+                  </Badge>
+                )}
+                {customer.has_hotspot && (
+                  <Badge className="bg-green-100 text-green-700">
+                    <Wifi className="h-3 w-3 mr-1" />
+                    Hotspot
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
           <Button onClick={() => setShowEditForm(true)} variant="outline" className="rounded-xl">
@@ -170,6 +185,59 @@ export default function CustomerDetail() {
           </Button>
         </div>
 
+        {/* Owner & Business Info */}
+        {(customer.owner_firstname || customer.owner_lastname || customer.corporation || customer.business_type) && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
+            {(customer.owner_firstname || customer.owner_lastname) && (
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-100">
+                  <User className="h-4 w-4 text-slate-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Owner</p>
+                  <p className="text-sm font-medium text-slate-900">
+                    {[customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')}
+                  </p>
+                </div>
+              </div>
+            )}
+            {customer.corporation && (
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-100">
+                  <Building2 className="h-4 w-4 text-slate-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Corporation</p>
+                  <p className="text-sm font-medium text-slate-900">{customer.corporation}</p>
+                </div>
+              </div>
+            )}
+            {customer.business_type && (
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-100">
+                  <Building2 className="h-4 w-4 text-slate-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Business Type</p>
+                  <p className="text-sm font-medium text-slate-900">{customer.business_type}</p>
+                </div>
+              </div>
+            )}
+            {customer.merchant_id && (
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-100">
+                  <CreditCard className="h-4 w-4 text-slate-600" />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Merchant ID</p>
+                  <p className="text-sm font-medium text-slate-900">{customer.merchant_id}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Contact Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
           {customer.email && (
             <div className="flex items-center gap-3">
@@ -177,8 +245,30 @@ export default function CustomerDetail() {
                 <Mail className="h-4 w-4 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Email</p>
+                <p className="text-xs text-slate-500">Primary Email</p>
                 <p className="text-sm font-medium text-slate-900">{customer.email}</p>
+              </div>
+            </div>
+          )}
+          {customer.email_1 && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <Mail className="h-4 w-4 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Email #1</p>
+                <p className="text-sm font-medium text-slate-900">{customer.email_1}</p>
+              </div>
+            </div>
+          )}
+          {customer.email_2 && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <Mail className="h-4 w-4 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Email #2</p>
+                <p className="text-sm font-medium text-slate-900">{customer.email_2}</p>
               </div>
             </div>
           )}
@@ -188,8 +278,30 @@ export default function CustomerDetail() {
                 <Phone className="h-4 w-4 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Phone</p>
+                <p className="text-xs text-slate-500">Primary Phone</p>
                 <p className="text-sm font-medium text-slate-900">{customer.phone}</p>
+              </div>
+            </div>
+          )}
+          {customer.cell_phone_1 && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <Phone className="h-4 w-4 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Cell #1</p>
+                <p className="text-sm font-medium text-slate-900">{customer.cell_phone_1}</p>
+              </div>
+            </div>
+          )}
+          {customer.cell_phone_2 && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <Phone className="h-4 w-4 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Cell #2</p>
+                <p className="text-sm font-medium text-slate-900">{customer.cell_phone_2}</p>
               </div>
             </div>
           )}
@@ -206,6 +318,21 @@ export default function CustomerDetail() {
               </div>
             </div>
           )}
+          {customer.platform && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <Building2 className="h-4 w-4 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Platform</p>
+                <p className="text-sm font-medium text-slate-900">{customer.platform}</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Additional Info */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
           {customer.assigned_employee && (
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-100">
@@ -214,6 +341,19 @@ export default function CustomerDetail() {
               <div>
                 <p className="text-xs text-slate-500">Assigned To</p>
                 <p className="text-sm font-medium text-slate-900">{customer.assigned_employee}</p>
+              </div>
+            </div>
+          )}
+          {customer.pci_expire_date && (
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-slate-100">
+                <ShieldAlert className="h-4 w-4 text-slate-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">PCI Expire Date</p>
+                <p className="text-sm font-medium text-slate-900">
+                  {format(parseISO(customer.pci_expire_date), 'MMM d, yyyy')}
+                </p>
               </div>
             </div>
           )}
