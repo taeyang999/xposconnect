@@ -8,7 +8,7 @@ import {
 import { 
   format, startOfMonth, endOfMonth, startOfWeek, endOfWeek,
   eachDayOfInterval, isSameMonth, isSameDay, parseISO, addMonths,
-  subMonths, isToday, addDays, startOfDay, endOfDay
+  subMonths, isToday, addDays, startOfDay, endOfDay, differenceInDays
 } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -270,52 +270,102 @@ export default function Schedule() {
           </div>
         </Card>
       ) : view === 'week' ? (
-        <Card className="overflow-hidden border-slate-200/80">
-          <div className="grid grid-cols-7">
-            {weekDays.map((day, idx) => {
-              const dayEvents = getEventsForDay(day);
-              
-              return (
-                <div key={idx} className="border-r border-slate-100 last:border-r-0">
-                  <div className={cn(
-                    "p-3 text-center border-b border-slate-100",
-                    isToday(day) && "bg-blue-50"
-                  )}>
-                    <div className="text-xs text-slate-500">{format(day, 'EEE')}</div>
-                    <div className={cn(
-                      "text-lg font-semibold",
-                      isToday(day) ? "text-blue-600" : "text-slate-900"
-                    )}>
-                      {format(day, 'd')}
+        <Card className="overflow-hidden border-slate-200/80 p-6">
+          <div className="space-y-4">
+            {events
+              .filter(event => {
+                const eventStart = startOfDay(parseISO(event.start_datetime));
+                const eventEnd = startOfDay(parseISO(event.end_datetime));
+                return weekDays.some(day => {
+                  const checkDay = startOfDay(day);
+                  return checkDay >= eventStart && checkDay <= eventEnd;
+                });
+              })
+              .map((event) => {
+                const eventStart = startOfDay(parseISO(event.start_datetime));
+                const eventEnd = startOfDay(parseISO(event.end_datetime));
+                const weekStartDay = startOfDay(weekStart);
+                const weekEndDay = startOfDay(addDays(weekStart, 6));
+                
+                // Calculate position and width
+                const displayStart = eventStart < weekStartDay ? weekStartDay : eventStart;
+                const displayEnd = eventEnd > weekEndDay ? weekEndDay : eventEnd;
+                const startOffset = differenceInDays(displayStart, weekStartDay);
+                const duration = differenceInDays(displayEnd, displayStart) + 1;
+                
+                return (
+                  <button
+                    key={event.id}
+                    onClick={() => setSelectedEvent(event)}
+                    className={cn(
+                      "relative h-16 rounded-lg border-l-4 bg-slate-50 hover:bg-slate-100 transition-colors p-3 text-left group",
+                      typeColors[event.event_type] || typeColors.appointment
+                    )}
+                    style={{
+                      marginLeft: `${(startOffset / 7) * 100}%`,
+                      width: `${(duration / 7) * 100}%`
+                    }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-slate-900 truncate">{event.title}</div>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                          <span>{format(parseISO(event.start_datetime), 'MMM d')}</span>
+                          {differenceInDays(eventEnd, eventStart) > 0 && (
+                            <>
+                              <span>→</span>
+                              <span>{format(parseISO(event.end_datetime), 'MMM d')}</span>
+                            </>
+                          )}
+                          {event.assigned_employee && (
+                            <Avatar className="h-4 w-4 ml-2">
+                              <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
+                                {getEmployeeInitials(event.assigned_employee)}
+                              </AvatarFallback>
+                            </Avatar>
+                          )}
+                        </div>
+                      </div>
+                      <Badge className={`${statusColors[event.status]} text-white text-xs ml-2`}>
+                        {event.status}
+                      </Badge>
                     </div>
-                  </div>
-                  <div className="p-2 min-h-[400px] space-y-2">
-                    {dayEvents.map((event) => (
-                      <button
-                        key={event.id}
-                        onClick={() => setSelectedEvent(event)}
-                        className={cn(
-                          "w-full text-left text-xs p-2 rounded-lg border-l-2 bg-slate-50 hover:bg-slate-100 transition-colors",
-                          typeColors[event.event_type] || typeColors.appointment
-                        )}
-                      >
-                        <div className="font-medium text-slate-900 truncate">{event.title}</div>
-                        {hasConflict(event) && (
-                          <div className="flex items-center gap-1 text-amber-600 mt-1">
-                            <AlertCircle className="h-3 w-3" />
-                            <span>Conflict</span>
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                  </button>
+                );
+              })}
+            {events.filter(event => {
+              const eventStart = startOfDay(parseISO(event.start_datetime));
+              const eventEnd = startOfDay(parseISO(event.end_datetime));
+              return weekDays.some(day => {
+                const checkDay = startOfDay(day);
+                return checkDay >= eventStart && checkDay <= eventEnd;
+              });
+            }).length === 0 && (
+              <div className="text-center py-12 text-slate-500">
+                <CalendarIcon className="h-8 w-8 mx-auto mb-2 text-slate-300" />
+                <p>No events scheduled for this week</p>
+              </div>
+            )}
+          </div>
+          <div className="grid grid-cols-7 gap-2 mt-6 pt-6 border-t">
+            {weekDays.map((day, idx) => (
+              <div key={idx} className={cn(
+                "text-center p-2 rounded-lg",
+                isToday(day) && "bg-blue-50"
+              )}>
+                <div className="text-xs text-slate-500">{format(day, 'EEE')}</div>
+                <div className={cn(
+                  "text-sm font-semibold",
+                  isToday(day) ? "text-blue-600" : "text-slate-900"
+                )}>
+                  {format(day, 'd')}
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         </Card>
       ) : (
-        // Day View
+        // Day View - Timeline
         <Card className="overflow-hidden border-slate-200/80 p-6">
           <div className={cn(
             "text-center mb-6 pb-4 border-b",
@@ -331,52 +381,70 @@ export default function Schedule() {
                 <p>No events scheduled for this day</p>
               </div>
             ) : (
-              getEventsForDay(currentDate).map((event) => (
-                <button
-                  key={event.id}
-                  onClick={() => setSelectedEvent(event)}
-                  className={cn(
-                    "w-full text-left p-4 rounded-xl border-l-4 bg-slate-50 hover:bg-slate-100 transition-colors",
-                    typeColors[event.event_type] || typeColors.appointment
-                  )}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="font-semibold text-slate-900">{event.title}</h4>
-                      {event.description && (
-                        <p className="text-sm text-slate-600 mt-1">{event.description}</p>
-                      )}
-                      <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                        {event.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {event.location}
-                          </span>
+              getEventsForDay(currentDate).map((event) => {
+                const eventStart = parseISO(event.start_datetime);
+                const eventEnd = parseISO(event.end_datetime);
+                const duration = differenceInDays(endOfDay(eventEnd), startOfDay(eventStart)) + 1;
+                
+                return (
+                  <button
+                    key={event.id}
+                    onClick={() => setSelectedEvent(event)}
+                    className={cn(
+                      "w-full text-left p-4 rounded-xl border-l-4 bg-slate-50 hover:bg-slate-100 transition-colors",
+                      typeColors[event.event_type] || typeColors.appointment
+                    )}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3">
+                          <h4 className="font-semibold text-slate-900">{event.title}</h4>
+                          {duration > 1 && (
+                            <Badge variant="outline" className="text-xs">
+                              {duration} days
+                            </Badge>
+                          )}
+                        </div>
+                        {event.description && (
+                          <p className="text-sm text-slate-600 mt-1">{event.description}</p>
                         )}
-                        {event.assigned_employee && (
+                        <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
                           <span className="flex items-center gap-1">
-                            <Avatar className="h-4 w-4">
-                              <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
-                                {getEmployeeInitials(event.assigned_employee)}
-                              </AvatarFallback>
-                            </Avatar>
-                            {event.assigned_employee}
+                            <CalendarIcon className="h-3 w-3" />
+                            {format(eventStart, 'MMM d')}
+                            {duration > 1 && ` - ${format(eventEnd, 'MMM d')}`}
                           </span>
-                        )}
+                          {event.location && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {event.location}
+                            </span>
+                          )}
+                          {event.assigned_employee && (
+                            <span className="flex items-center gap-1">
+                              <Avatar className="h-4 w-4">
+                                <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
+                                  {getEmployeeInitials(event.assigned_employee)}
+                                </AvatarFallback>
+                              </Avatar>
+                              {event.assigned_employee}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <Badge className={`${statusColors[event.status]} text-white`}>
+                        {event.status}
+                      </Badge>
                     </div>
-                    <Badge className={`${statusColors[event.status]} text-white`}>
-                      {event.status}
-                    </Badge>
-                  </div>
-                  {hasConflict(event) && (
-                    <div className="flex items-center gap-1 text-amber-600 mt-2 text-xs">
-                      <AlertCircle className="h-3 w-3" />
-                      <span>Schedule conflict detected</span>
-                    </div>
-                  )}
-                </button>
-              ))
+                    {hasConflict(event) && (
+                      <div className="flex items-center gap-1 text-amber-600 mt-2 text-xs">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>Schedule conflict detected</span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })
             )}
           </div>
         </Card>
