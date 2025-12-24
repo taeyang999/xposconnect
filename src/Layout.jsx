@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from './utils';
+import { useQuery } from '@tanstack/react-query';
 import { 
   LayoutDashboard, Users, Calendar, Package, FileText, 
   Settings, Menu, X, LogOut, ChevronDown, Bell, Search,
@@ -22,6 +23,8 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,7 +37,52 @@ export default function Layout({ children, currentPageName }) {
       }
     };
     loadUser();
+
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const { data: customers = [] } = useQuery({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const result = await base44.entities.Customer.list();
+      return result || [];
+    },
+    enabled: !!user,
+  });
+
+  const { data: serviceLogs = [] } = useQuery({
+    queryKey: ['serviceLogs'],
+    queryFn: async () => {
+      const result = await base44.entities.ServiceLog.list();
+      return result || [];
+    },
+    enabled: !!user,
+  });
+
+  const getCustomerName = (customerId) => {
+    return customers.find(c => c.id === customerId)?.name || 'Unknown';
+  };
+
+  const searchResults = searchQuery.trim() ? {
+    customers: customers.filter(c => 
+      c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.phone?.includes(searchQuery)
+    ).slice(0, 5),
+    serviceLogs: serviceLogs.filter(s => 
+      s.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getCustomerName(s.customer_id)?.toLowerCase().includes(searchQuery.toLowerCase())
+    ).slice(0, 5)
+  } : { customers: [], serviceLogs: [] };
+
+  const hasResults = searchResults.customers.length > 0 || searchResults.serviceLogs.length > 0;
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -154,29 +202,83 @@ export default function Layout({ children, currentPageName }) {
               >
                 <Menu className="h-6 w-6 text-slate-600" />
               </button>
-              <div className="hidden md:flex items-center gap-3 px-4 py-2.5 bg-slate-100/80 rounded-xl w-80">
-                <Search className="h-4 w-4 text-slate-400" />
-                <input 
-                  type="text" 
-                  placeholder="Search customers, services..."
-                  className="bg-transparent text-sm text-slate-600 placeholder-slate-400 outline-none w-full"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && searchQuery.trim()) {
-                      if (currentPageName === 'Customers') {
-                        window.dispatchEvent(new CustomEvent('global-search', { detail: searchQuery }));
-                      } else if (currentPageName === 'ServiceLogs') {
-                        window.dispatchEvent(new CustomEvent('global-search', { detail: searchQuery }));
-                      } else {
-                        navigate(createPageUrl('Customers'));
-                        setTimeout(() => {
-                          window.dispatchEvent(new CustomEvent('global-search', { detail: searchQuery }));
-                        }, 100);
-                      }
-                    }
-                  }}
-                />
+              <div className="hidden md:block relative w-80" ref={searchRef}>
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-slate-100/80 rounded-xl">
+                  <Search className="h-4 w-4 text-slate-400" />
+                  <input 
+                    type="text" 
+                    placeholder="Search customers, services..."
+                    className="bg-transparent text-sm text-slate-600 placeholder-slate-400 outline-none w-full"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowResults(true);
+                    }}
+                    onFocus={() => searchQuery && setShowResults(true)}
+                  />
+                </div>
+
+                {showResults && searchQuery && (
+                  <div className="absolute top-full mt-2 w-full bg-white rounded-xl shadow-lg border border-slate-200 max-h-96 overflow-y-auto z-50">
+                    {hasResults ? (
+                      <>
+                        {searchResults.customers.length > 0 && (
+                          <div className="p-2">
+                            <div className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase">Customers</div>
+                            {searchResults.customers.map(customer => (
+                              <button
+                                key={customer.id}
+                                onClick={() => {
+                                  navigate(createPageUrl('CustomerDetail') + `?id=${customer.id}`);
+                                  setSearchQuery('');
+                                  setShowResults(false);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Building2 className="h-4 w-4 text-slate-400" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-slate-900 truncate">{customer.name}</p>
+                                    <p className="text-xs text-slate-500 truncate">{customer.email || customer.phone}</p>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+
+                        {searchResults.serviceLogs.length > 0 && (
+                          <div className="p-2 border-t border-slate-100">
+                            <div className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase">Service Logs</div>
+                            {searchResults.serviceLogs.map(log => (
+                              <button
+                                key={log.id}
+                                onClick={() => {
+                                  navigate(createPageUrl('CustomerDetail') + `?id=${log.customer_id}`);
+                                  setSearchQuery('');
+                                  setShowResults(false);
+                                }}
+                                className="w-full text-left px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <FileText className="h-4 w-4 text-slate-400" />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-slate-900 truncate">{log.title}</p>
+                                    <p className="text-xs text-slate-500 truncate">{getCustomerName(log.customer_id)}</p>
+                                  </div>
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="p-8 text-center text-slate-500 text-sm">
+                        No results found
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
