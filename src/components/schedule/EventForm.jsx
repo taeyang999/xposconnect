@@ -18,8 +18,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from 'lucide-react';
+import { Loader2, CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export default function EventForm({ open, onClose, event, onSave }) {
   const [formData, setFormData] = useState({
@@ -27,12 +34,11 @@ export default function EventForm({ open, onClose, event, onSave }) {
     description: '',
     customer_id: '',
     assigned_employee: '',
-    start_date: '',
-    end_date: '',
     event_type: 'appointment',
     status: 'scheduled',
     location: '',
   });
+  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined });
   const [saving, setSaving] = useState(false);
 
   const { data: employees = [] } = useQuery({
@@ -55,11 +61,13 @@ export default function EventForm({ open, onClose, event, onSave }) {
         description: event.description || '',
         customer_id: event.customer_id || '',
         assigned_employee: event.assigned_employee || '',
-        start_date: event.start_datetime ? format(new Date(event.start_datetime), "yyyy-MM-dd") : '',
-        end_date: event.end_datetime ? format(new Date(event.end_datetime), "yyyy-MM-dd") : '',
         event_type: event.event_type || 'appointment',
         status: event.status || 'scheduled',
         location: event.location || '',
+      });
+      setDateRange({
+        from: event.start_datetime ? new Date(event.start_datetime) : undefined,
+        to: event.end_datetime ? new Date(event.end_datetime) : undefined,
       });
     } else {
       const now = new Date();
@@ -68,23 +76,24 @@ export default function EventForm({ open, onClose, event, onSave }) {
         description: '',
         customer_id: '',
         assigned_employee: '',
-        start_date: format(now, "yyyy-MM-dd"),
-        end_date: format(now, "yyyy-MM-dd"),
         event_type: 'appointment',
         status: 'scheduled',
         location: '',
       });
+      setDateRange({ from: now, to: now });
     }
   }, [event, open]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!dateRange?.from) return;
+    
     setSaving(true);
     try {
-      const startDate = new Date(formData.start_date);
+      const startDate = new Date(dateRange.from);
       startDate.setHours(0, 0, 0, 0);
       
-      const endDate = new Date(formData.end_date);
+      const endDate = new Date(dateRange.to || dateRange.from);
       endDate.setHours(23, 59, 59, 999);
       
       const data = {
@@ -183,30 +192,43 @@ export default function EventForm({ open, onClose, event, onSave }) {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="start">Start Date *</Label>
-              <Input
-                id="start"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                required
-                className="mt-1.5"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="end">End Date *</Label>
-              <Input
-                id="end"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                required
-                className="mt-1.5"
-              />
-            </div>
+          <div>
+            <Label>Date Range *</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal mt-1.5",
+                    !dateRange?.from && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                        {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div>
