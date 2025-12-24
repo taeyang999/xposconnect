@@ -74,9 +74,10 @@ export default function ServiceLogs() {
 
   const { data: serviceLogs = [], isLoading } = useQuery({
     queryKey: ['serviceLogs'],
-    queryFn: () => isAdmin
-      ? base44.entities.ServiceLog.list('-service_date')
-      : base44.entities.ServiceLog.filter({ assigned_employee: user?.email }, '-service_date'),
+    queryFn: async () => {
+      const result = await base44.entities.ServiceLog.list('-service_date');
+      return result || [];
+    },
     enabled: !!user,
   });
 
