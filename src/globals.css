@@ -87,12 +87,12 @@
 }
 
 .rbc-event {
-  padding: 2px 4px;
-  font-size: 0.6875rem;
+  padding: 1px 2px;
+  font-size: 0.625rem;
   font-weight: 500;
   border: none;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .rbc-event:hover {
@@ -101,7 +101,7 @@
 }
 
 .rbc-event-label {
-  font-size: 0.625rem;
+  font-size: 0.5625rem;
 }
 
 .rbc-event-content {
@@ -111,11 +111,13 @@
 }
 
 .rbc-day-slot .rbc-event {
-  padding: 1px 3px;
+  padding: 0px 2px;
+  font-size: 0.5625rem;
 }
 
 .rbc-month-view .rbc-event {
-  padding: 1px 3px;
+  padding: 0px 2px;
+  font-size: 0.5625rem;
 }
 
 .rbc-month-view {
