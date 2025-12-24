@@ -18,17 +18,31 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from 'lucide-react';
 
 export default function CustomerForm({ open, onClose, customer, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
+    owner_firstname: '',
+    owner_lastname: '',
+    corporation: '',
+    business_type: '',
+    platform: '',
+    merchant_id: '',
     email: '',
+    email_1: '',
+    email_2: '',
     phone: '',
+    cell_phone_1: '',
+    cell_phone_2: '',
     address: '',
     city: '',
     state: '',
     zip_code: '',
+    has_hotspot: false,
+    is_disabled: false,
+    pci_expire_date: '',
     notes: '',
     status: 'active',
     assigned_employee: '',
@@ -47,12 +61,25 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
     if (customer) {
       setFormData({
         name: customer.name || '',
+        owner_firstname: customer.owner_firstname || '',
+        owner_lastname: customer.owner_lastname || '',
+        corporation: customer.corporation || '',
+        business_type: customer.business_type || '',
+        platform: customer.platform || '',
+        merchant_id: customer.merchant_id || '',
         email: customer.email || '',
+        email_1: customer.email_1 || '',
+        email_2: customer.email_2 || '',
         phone: customer.phone || '',
+        cell_phone_1: customer.cell_phone_1 || '',
+        cell_phone_2: customer.cell_phone_2 || '',
         address: customer.address || '',
         city: customer.city || '',
         state: customer.state || '',
         zip_code: customer.zip_code || '',
+        has_hotspot: customer.has_hotspot || false,
+        is_disabled: customer.is_disabled || false,
+        pci_expire_date: customer.pci_expire_date || '',
         notes: customer.notes || '',
         status: customer.status || 'active',
         assigned_employee: customer.assigned_employee || '',
@@ -60,12 +87,25 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
     } else {
       setFormData({
         name: '',
+        owner_firstname: '',
+        owner_lastname: '',
+        corporation: '',
+        business_type: '',
+        platform: '',
+        merchant_id: '',
         email: '',
+        email_1: '',
+        email_2: '',
         phone: '',
+        cell_phone_1: '',
+        cell_phone_2: '',
         address: '',
         city: '',
         state: '',
         zip_code: '',
+        has_hotspot: false,
+        is_disabled: false,
+        pci_expire_date: '',
         notes: '',
         status: 'active',
         assigned_employee: '',
@@ -110,9 +150,77 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
                 className="mt-1.5"
               />
             </div>
+
+            <div>
+              <Label htmlFor="owner_firstname">Owner's First Name</Label>
+              <Input
+                id="owner_firstname"
+                value={formData.owner_firstname}
+                onChange={(e) => setFormData({ ...formData, owner_firstname: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="owner_lastname">Owner's Last Name</Label>
+              <Input
+                id="owner_lastname"
+                value={formData.owner_lastname}
+                onChange={(e) => setFormData({ ...formData, owner_lastname: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="corporation">Corporation</Label>
+              <Input
+                id="corporation"
+                value={formData.corporation}
+                onChange={(e) => setFormData({ ...formData, corporation: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="business_type">Business Type</Label>
+              <Select
+                value={formData.business_type}
+                onValueChange={(value) => setFormData({ ...formData, business_type: value })}
+              >
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Retail">Retail</SelectItem>
+                  <SelectItem value="Restaurant">Restaurant</SelectItem>
+                  <SelectItem value="QSR">QSR</SelectItem>
+                  <SelectItem value="Market">Market</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="platform">Platform</Label>
+              <Input
+                id="platform"
+                value={formData.platform}
+                onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="merchant_id">Merchant ID</Label>
+              <Input
+                id="merchant_id"
+                value={formData.merchant_id}
+                onChange={(e) => setFormData({ ...formData, merchant_id: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
             
             <div>
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Primary Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -122,14 +230,56 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
                 className="mt-1.5"
               />
             </div>
+
+            <div>
+              <Label htmlFor="email_1">Email #1</Label>
+              <Input
+                id="email_1"
+                type="email"
+                value={formData.email_1}
+                onChange={(e) => setFormData({ ...formData, email_1: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="email_2">Email #2</Label>
+              <Input
+                id="email_2"
+                type="email"
+                value={formData.email_2}
+                onChange={(e) => setFormData({ ...formData, email_2: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
             
             <div>
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Primary Phone</Label>
               <Input
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="(555) 123-4567"
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="cell_phone_1">Cell #1</Label>
+              <Input
+                id="cell_phone_1"
+                value={formData.cell_phone_1}
+                onChange={(e) => setFormData({ ...formData, cell_phone_1: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="cell_phone_2">Cell #2</Label>
+              <Input
+                id="cell_phone_2"
+                value={formData.cell_phone_2}
+                onChange={(e) => setFormData({ ...formData, cell_phone_2: e.target.value })}
                 className="mt-1.5"
               />
             </div>
@@ -211,6 +361,35 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="pci_expire_date">PCI Expire Date</Label>
+              <Input
+                id="pci_expire_date"
+                type="date"
+                value={formData.pci_expire_date}
+                onChange={(e) => setFormData({ ...formData, pci_expire_date: e.target.value })}
+                className="mt-1.5"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2 md:col-span-2">
+              <Checkbox
+                id="has_hotspot"
+                checked={formData.has_hotspot}
+                onCheckedChange={(checked) => setFormData({ ...formData, has_hotspot: checked })}
+              />
+              <Label htmlFor="has_hotspot" className="cursor-pointer">Hotspot</Label>
+            </div>
+
+            <div className="flex items-center space-x-2 md:col-span-2">
+              <Checkbox
+                id="is_disabled"
+                checked={formData.is_disabled}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_disabled: checked })}
+              />
+              <Label htmlFor="is_disabled" className="cursor-pointer">Disable Account</Label>
             </div>
 
             <div className="md:col-span-2">
