@@ -5,6 +5,8 @@ import Schedule from './pages/Schedule';
 import ServiceLogs from './pages/ServiceLogs';
 import Inventory from './pages/Inventory';
 import Employees from './pages/Employees';
+import Reports from './pages/Reports';
+import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +18,8 @@ export const PAGES = {
     "ServiceLogs": ServiceLogs,
     "Inventory": Inventory,
     "Employees": Employees,
+    "Reports": Reports,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {
