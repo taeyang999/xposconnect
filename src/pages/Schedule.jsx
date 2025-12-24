@@ -253,8 +253,7 @@ export default function Schedule() {
                           typeColors[event.event_type] || typeColors.appointment
                         )}
                       >
-                        <span className="font-medium">{format(parseISO(event.start_datetime), 'h:mm a')}</span>
-                        <span className="ml-1 text-slate-600">{event.title}</span>
+                        <span className="font-medium text-slate-900">{event.title}</span>
                       </button>
                     ))}
                     {dayEvents.length > 5 && (
@@ -299,9 +298,6 @@ export default function Schedule() {
                         )}
                       >
                         <div className="font-medium text-slate-900 truncate">{event.title}</div>
-                        <div className="text-slate-500 mt-0.5">
-                          {format(parseISO(event.start_datetime), 'h:mm a')}
-                        </div>
                         {hasConflict(event) && (
                           <div className="flex items-center gap-1 text-amber-600 mt-1">
                             <AlertCircle className="h-3 w-3" />
@@ -349,10 +345,6 @@ export default function Schedule() {
                         <p className="text-sm text-slate-600 mt-1">{event.description}</p>
                       )}
                       <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {format(parseISO(event.start_datetime), 'h:mm a')} - {format(parseISO(event.end_datetime), 'h:mm a')}
-                        </span>
                         {event.location && (
                           <span className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />

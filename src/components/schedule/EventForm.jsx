@@ -19,7 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from 'lucide-react';
-import { format, addHours } from 'date-fns';
+import { format } from 'date-fns';
 
 export default function EventForm({ open, onClose, event, onSave }) {
   const [formData, setFormData] = useState({
@@ -27,8 +27,8 @@ export default function EventForm({ open, onClose, event, onSave }) {
     description: '',
     customer_id: '',
     assigned_employee: '',
-    start_datetime: '',
-    end_datetime: '',
+    start_date: '',
+    end_date: '',
     event_type: 'appointment',
     status: 'scheduled',
     location: '',
@@ -55,22 +55,21 @@ export default function EventForm({ open, onClose, event, onSave }) {
         description: event.description || '',
         customer_id: event.customer_id || '',
         assigned_employee: event.assigned_employee || '',
-        start_datetime: event.start_datetime ? format(new Date(event.start_datetime), "yyyy-MM-dd'T'HH:mm") : '',
-        end_datetime: event.end_datetime ? format(new Date(event.end_datetime), "yyyy-MM-dd'T'HH:mm") : '',
+        start_date: event.start_datetime ? format(new Date(event.start_datetime), "yyyy-MM-dd") : '',
+        end_date: event.end_datetime ? format(new Date(event.end_datetime), "yyyy-MM-dd") : '',
         event_type: event.event_type || 'appointment',
         status: event.status || 'scheduled',
         location: event.location || '',
       });
     } else {
       const now = new Date();
-      now.setMinutes(0, 0, 0);
       setFormData({
         title: '',
         description: '',
         customer_id: '',
         assigned_employee: '',
-        start_datetime: format(now, "yyyy-MM-dd'T'HH:mm"),
-        end_datetime: format(addHours(now, 1), "yyyy-MM-dd'T'HH:mm"),
+        start_date: format(now, "yyyy-MM-dd"),
+        end_date: format(now, "yyyy-MM-dd"),
         event_type: 'appointment',
         status: 'scheduled',
         location: '',
@@ -82,10 +81,22 @@ export default function EventForm({ open, onClose, event, onSave }) {
     e.preventDefault();
     setSaving(true);
     try {
+      const startDate = new Date(formData.start_date);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(formData.end_date);
+      endDate.setHours(23, 59, 59, 999);
+      
       const data = {
-        ...formData,
-        start_datetime: new Date(formData.start_datetime).toISOString(),
-        end_datetime: new Date(formData.end_datetime).toISOString(),
+        title: formData.title,
+        description: formData.description,
+        customer_id: formData.customer_id,
+        assigned_employee: formData.assigned_employee,
+        start_datetime: startDate.toISOString(),
+        end_datetime: endDate.toISOString(),
+        event_type: formData.event_type,
+        status: formData.status,
+        location: formData.location,
       };
       
       if (event) {
@@ -174,24 +185,24 @@ export default function EventForm({ open, onClose, event, onSave }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="start">Start Date & Time *</Label>
+              <Label htmlFor="start">Start Date *</Label>
               <Input
                 id="start"
-                type="datetime-local"
-                value={formData.start_datetime}
-                onChange={(e) => setFormData({ ...formData, start_datetime: e.target.value })}
+                type="date"
+                value={formData.start_date}
+                onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
                 required
                 className="mt-1.5"
               />
             </div>
 
             <div>
-              <Label htmlFor="end">End Date & Time *</Label>
+              <Label htmlFor="end">End Date *</Label>
               <Input
                 id="end"
-                type="datetime-local"
-                value={formData.end_datetime}
-                onChange={(e) => setFormData({ ...formData, end_datetime: e.target.value })}
+                type="date"
+                value={formData.end_date}
+                onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
                 required
                 className="mt-1.5"
               />

@@ -204,16 +204,9 @@ export default function Dashboard() {
             <div className="space-y-3">
               {todayEvents.slice(0, 3).map((event) => (
                 <div key={event.id} className="flex items-center justify-between p-3 rounded-xl bg-white shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="text-center">
-                      <div className="text-xs text-slate-500">{format(parseISO(event.start_datetime), 'h:mm')}</div>
-                      <div className="text-xs font-medium text-slate-700">{format(parseISO(event.start_datetime), 'a')}</div>
-                    </div>
-                    <div className="h-10 w-px bg-slate-200" />
-                    <div>
-                      <p className="font-medium text-slate-900">{event.title}</p>
-                      <p className="text-sm text-slate-500">{event.location || 'No location'}</p>
-                    </div>
+                  <div>
+                    <p className="font-medium text-slate-900">{event.title}</p>
+                    <p className="text-sm text-slate-500">{event.location || 'No location'}</p>
                   </div>
                   <Badge className={statusColors[event.status] || statusColors.scheduled}>
                     {event.status}
