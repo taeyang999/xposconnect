@@ -156,8 +156,8 @@ export default function Schedule() {
       />
 
       {/* Calendar */}
-      <Card className="overflow-hidden border-slate-200/80 p-6">
-        <div style={{ height: '700px' }}>
+      <Card className="overflow-hidden border-slate-200/80 p-4">
+        <div style={{ height: 'calc(100vh - 250px)', minHeight: '600px' }}>
           <Calendar
             localizer={localizer}
             events={calendarEvents}
