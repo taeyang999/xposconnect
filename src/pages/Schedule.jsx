@@ -5,7 +5,9 @@ import { Plus } from 'lucide-react';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,6 +36,8 @@ const localizer = dateFnsLocalizer({
   getDay,
   locales,
 });
+
+const DnDCalendar = withDragAndDrop(Calendar);
 
 export default function Schedule() {
   const [user, setUser] = useState(null);
@@ -162,6 +166,22 @@ export default function Schedule() {
     setShowForm(true);
   };
 
+  const handleEventDrop = async ({ event, start, end }) => {
+    await base44.entities.ScheduleEvent.update(event.id, {
+      start_datetime: start.toISOString(),
+      end_datetime: end.toISOString(),
+    });
+    queryClient.invalidateQueries({ queryKey: ['events'] });
+  };
+
+  const handleEventResize = async ({ event, start, end }) => {
+    await base44.entities.ScheduleEvent.update(event.id, {
+      start_datetime: start.toISOString(),
+      end_datetime: end.toISOString(),
+    });
+    queryClient.invalidateQueries({ queryKey: ['events'] });
+  };
+
   return (
     <div>
       <PageHeader
@@ -178,14 +198,17 @@ export default function Schedule() {
       {/* Calendar */}
       <Card className="overflow-hidden border-slate-200/80 p-6">
         <div style={{ height: '700px' }}>
-          <Calendar
+          <DnDCalendar
             localizer={localizer}
             events={calendarEvents}
             startAccessor="start"
             endAccessor="end"
             onSelectEvent={handleSelectEvent}
             onSelectSlot={handleSelectSlot}
+            onEventDrop={handleEventDrop}
+            onEventResize={handleEventResize}
             selectable
+            resizable
             eventPropGetter={eventStyleGetter}
             views={['month', 'week', 'day', 'agenda']}
             defaultView="month"
