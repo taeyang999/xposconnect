@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { format, parseISO } from 'date-fns';
-import { Calendar, MapPin, User, Building2, Pencil, Trash2, X } from 'lucide-react';
+import { Calendar, MapPin, User, Building2, Pencil, Trash2, X, Phone, Mail } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,7 +12,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-export default function EventDetail({ event, customerName, onClose, onEdit, onDelete }) {
+export default function EventDetail({ event, customer, onClose, onEdit, onDelete }) {
   if (!event) return null;
 
   const statusColors = {
@@ -78,20 +78,46 @@ export default function EventDetail({ event, customerName, onClose, onEdit, onDe
           )}
 
           {/* Customer */}
-          {customerName && (
-            <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Building2 className="h-4 w-4 text-slate-600" />
+          {customer && (
+            <div className="p-4 rounded-xl bg-slate-50 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-white">
+                  <Building2 className="h-4 w-4 text-slate-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm text-slate-500">Customer</p>
+                  <Link 
+                    to={createPageUrl('CustomerDetail') + `?id=${event.customer_id}`}
+                    className="font-medium text-blue-600 hover:text-blue-700"
+                  >
+                    {customer.name}
+                  </Link>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-slate-500">Customer</p>
-                <Link 
-                  to={createPageUrl('CustomerDetail') + `?id=${event.customer_id}`}
-                  className="font-medium text-blue-600 hover:text-blue-700"
-                >
-                  {customerName}
-                </Link>
-              </div>
+              
+              {customer.phone && (
+                <div className="flex items-center gap-2 text-sm pl-11">
+                  <Phone className="h-3 w-3 text-slate-400" />
+                  <span className="text-slate-700">{customer.phone}</span>
+                </div>
+              )}
+              
+              {customer.email && (
+                <div className="flex items-center gap-2 text-sm pl-11">
+                  <Mail className="h-3 w-3 text-slate-400" />
+                  <span className="text-slate-700">{customer.email}</span>
+                </div>
+              )}
+              
+              {customer.address && (
+                <div className="flex items-center gap-2 text-sm pl-11">
+                  <MapPin className="h-3 w-3 text-slate-400" />
+                  <span className="text-slate-700">
+                    {customer.address}
+                    {(customer.city || customer.state) && `, ${[customer.city, customer.state].filter(Boolean).join(', ')}`}
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
