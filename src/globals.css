@@ -87,12 +87,11 @@
 }
 
 .rbc-event {
-  padding: 0px 1px;
-  font-size: 12px;
+  padding: 4px 6px;
+  font-size: 0.8125rem;
   font-weight: 500;
   border: none;
   box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  line-height: 1;
 }
 
 .rbc-event:hover {
@@ -101,23 +100,7 @@
 }
 
 .rbc-event-label {
-  font-size: 12px;
-}
-
-.rbc-event-content {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rbc-day-slot .rbc-event {
-  padding: 0px 1px;
-  font-size: 12px;
-}
-
-.rbc-month-view .rbc-event {
-  padding: 0px 1px;
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .rbc-month-view {
