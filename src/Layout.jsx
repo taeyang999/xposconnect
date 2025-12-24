@@ -142,7 +142,7 @@ export default function Layout({ children, currentPageName }) {
                 <Building2 className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-slate-900">xPOSConnect</h1>
+                <h1 className="text-lg font-bold text-slate-900">ERP System</h1>
                 <p className="text-xs text-slate-500">Business Management</p>
               </div>
             </div>
