@@ -276,14 +276,11 @@ export default function ServiceLogs() {
                   </TableCell>
                   <TableCell>
                     {log.assigned_employee && (
-                      <div className="flex items-center gap-2 text-sm text-slate-600">
-                        <Avatar className="h-5 w-5">
-                          <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
-                            {getEmployeeInitials(log.assigned_employee)}
-                          </AvatarFallback>
-                        </Avatar>
-                        {getEmployeeName(log.assigned_employee)}
-                      </div>
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
+                          {getEmployeeInitials(log.assigned_employee)}
+                        </AvatarFallback>
+                      </Avatar>
                     )}
                   </TableCell>
                   <TableCell>
