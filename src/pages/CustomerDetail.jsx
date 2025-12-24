@@ -53,6 +53,7 @@ export default function CustomerDetail() {
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleteType, setDeleteType] = useState(null);
   const [viewPhoto, setViewPhoto] = useState(null);
+  const [photoCategoryFilter, setPhotoCategoryFilter] = useState('all');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -537,7 +538,22 @@ export default function CustomerDetail() {
         <TabsContent value="photos">
           <Card className="border-slate-200/80">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Photos & Documents</CardTitle>
+              <div className="flex items-center gap-4">
+                <CardTitle>Photos & Documents</CardTitle>
+                <Select value={photoCategoryFilter} onValueChange={setPhotoCategoryFilter}>
+                  <SelectTrigger className="w-40 rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="service">Service</SelectItem>
+                    <SelectItem value="inventory">Inventory</SelectItem>
+                    <SelectItem value="site">Site</SelectItem>
+                    <SelectItem value="documentation">Documentation</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <Button onClick={() => setShowPhotoUploader(true)} className="bg-slate-900 hover:bg-slate-800">
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Photo
@@ -550,14 +566,14 @@ export default function CustomerDetail() {
                     <Skeleton key={i} className="aspect-square rounded-xl" />
                   ))}
                 </div>
-              ) : photos.length === 0 ? (
+              ) : photos.filter(p => photoCategoryFilter === 'all' || p.category === photoCategoryFilter).length === 0 ? (
                 <div className="text-center py-12 text-slate-500">
                   <Image className="h-8 w-8 mx-auto mb-2 text-slate-300" />
                   <p>No photos uploaded</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {photos.map((photo) => (
+                  {photos.filter(p => photoCategoryFilter === 'all' || p.category === photoCategoryFilter).map((photo) => (
                     <div key={photo.id} className="group relative aspect-square rounded-xl overflow-hidden bg-slate-100">
                       <img 
                         src={photo.file_url} 
@@ -582,10 +598,10 @@ export default function CustomerDetail() {
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                      {photo.category && (
-                        <Badge className="absolute top-2 left-2 bg-white/90 text-slate-700 text-xs">
-                          {photo.category}
-                        </Badge>
+                      {photo.title && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                          <p className="text-white text-xs font-medium truncate">{photo.title}</p>
+                        </div>
                       )}
                     </div>
                   ))}
