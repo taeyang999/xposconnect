@@ -113,23 +113,14 @@ export default function Schedule() {
 
   // Convert events to React Big Calendar format
   const calendarEvents = useMemo(() => {
-    return events.map(event => {
-      const customerName = event.customer_id ? getCustomerName(event.customer_id) : '';
-      
-      let displayTitle = event.title;
-      if (customerName) {
-        displayTitle += ` - ${customerName}`;
-      }
-      
-      return {
-        ...event,
-        title: displayTitle,
-        start: new Date(event.start_datetime),
-        end: new Date(event.end_datetime),
-        resource: event,
-      };
-    });
-  }, [events, customers, employees]);
+    return events.map(event => ({
+      ...event,
+      title: event.title,
+      start: new Date(event.start_datetime),
+      end: new Date(event.end_datetime),
+      resource: event,
+    }));
+  }, [events]);
 
   const eventStyleGetter = (event) => {
     const typeColors = {
