@@ -37,9 +37,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import CustomerForm from '@/components/customers/CustomerForm';
-import ServiceLogForm from '@/components/servicelogs/ServiceLogForm';
-import InventoryForm from '@/components/inventory/InventoryForm';
-import PhotoUploader from '@/components/customers/PhotoUploader';
+import ServiceLogForm from '@/components/servicelogs/ServiceLogForm.jsx';
+import InventoryForm from '@/components/inventory/InventoryForm.jsx';
+import PhotoUploader from '@/components/customers/PhotoUploader.jsx';
 
 export default function CustomerDetail() {
   const [customerId, setCustomerId] = useState(null);
