@@ -59,9 +59,7 @@ export default function Schedule() {
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
-    queryFn: () => isAdmin
-      ? base44.entities.ScheduleEvent.list('-start_datetime')
-      : base44.entities.ScheduleEvent.filter({ assigned_employee: user?.email }, '-start_datetime'),
+    queryFn: () => base44.entities.ScheduleEvent.list('-start_datetime'),
     enabled: !!user,
   });
 
