@@ -49,6 +49,7 @@ import CustomerForm from '@/components/customers/CustomerForm';
 import ServiceLogForm from '@/components/servicelogs/ServiceLogForm.jsx';
 import InventoryForm from '@/components/inventory/InventoryForm.jsx';
 import PhotoUploader from '@/components/customers/PhotoUploader.jsx';
+import ServiceLogComments from '@/components/servicelogs/ServiceLogComments.jsx';
 
 export default function CustomerDetail() {
   const [customerId, setCustomerId] = useState(null);
@@ -788,7 +789,7 @@ export default function CustomerDetail() {
 
               {photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).length > 0 && (
                 <div>
-                  <p className="text-xs text-slate-500 mb-2">Attachments ({photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).length})</p>
+                  <p className="text-xs text-slate-500 mb-2">Service Attachments ({photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).length})</p>
                   <div className="grid grid-cols-4 gap-2">
                     {photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).map((photo) => (
                       <div 
@@ -809,6 +810,10 @@ export default function CustomerDetail() {
                   </div>
                 </div>
               )}
+
+              <div className="border-t pt-4 mt-4">
+                <ServiceLogComments serviceLogId={viewServiceLogFromPhoto.id} />
+              </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button variant="outline" onClick={() => setViewServiceLogFromPhoto(null)}>
