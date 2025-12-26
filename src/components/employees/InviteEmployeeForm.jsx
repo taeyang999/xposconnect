@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +27,16 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
+  // Fetch role templates
+  const { data: roleTemplates } = useQuery({
+    queryKey: ['roleTemplates'],
+    queryFn: async () => {
+      const result = await base44.entities.Permission.filter({ user_email: 'role_templates' });
+      return result && result.length > 0 ? result[0] : null;
+    },
+    enabled: open,
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSending(true);
@@ -34,65 +45,91 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
       const inviteRole = role === 'admin' ? 'admin' : 'user';
       await base44.users.inviteUser(email, inviteRole);
       
-      // Create default permission record for the user
-      const permissionDefaults = {
-        admin: {
-          can_manage_customers: true,
-          can_delete_customers: true,
-          can_view_customers: true,
-          can_manage_schedule: true,
-          can_delete_schedule: true,
-          can_view_schedule: true,
-          can_manage_service_logs: true,
-          can_delete_service_logs: true,
-          can_view_service_logs: true,
-          can_manage_inventory: true,
-          can_delete_inventory: true,
-          can_view_inventory: true,
-          can_manage_employees: true,
-          can_view_reports: true,
-          can_export_data: true,
-        },
-        manager: {
-          can_manage_customers: true,
-          can_delete_customers: true,
-          can_view_customers: true,
-          can_manage_schedule: true,
-          can_delete_schedule: true,
-          can_view_schedule: true,
-          can_manage_service_logs: true,
-          can_delete_service_logs: true,
-          can_view_service_logs: true,
-          can_manage_inventory: true,
-          can_delete_inventory: true,
-          can_view_inventory: true,
-          can_manage_employees: false,
-          can_view_reports: true,
-          can_export_data: true,
-        },
-        employee: {
-          can_manage_customers: true,
-          can_delete_customers: true,
-          can_view_customers: true,
-          can_manage_schedule: true,
-          can_delete_schedule: true,
-          can_view_schedule: true,
-          can_manage_service_logs: true,
-          can_delete_service_logs: true,
-          can_view_service_logs: true,
-          can_manage_inventory: true,
-          can_delete_inventory: true,
-          can_view_inventory: true,
-          can_manage_employees: false,
-          can_view_reports: false,
-          can_export_data: false,
-        },
+      // Get permissions from role templates or use defaults
+      const getPermissionsForRole = (roleName) => {
+        if (!roleTemplates) {
+          // Fallback defaults if no templates exist
+          const fallbackDefaults = {
+            admin: {
+              can_manage_customers: true,
+              can_delete_customers: true,
+              can_view_customers: true,
+              can_manage_schedule: true,
+              can_delete_schedule: true,
+              can_view_schedule: true,
+              can_manage_service_logs: true,
+              can_delete_service_logs: true,
+              can_view_service_logs: true,
+              can_manage_inventory: true,
+              can_delete_inventory: true,
+              can_view_inventory: true,
+              can_manage_employees: true,
+              can_view_reports: true,
+              can_export_data: true,
+            },
+            manager: {
+              can_manage_customers: true,
+              can_delete_customers: true,
+              can_view_customers: true,
+              can_manage_schedule: true,
+              can_delete_schedule: true,
+              can_view_schedule: true,
+              can_manage_service_logs: true,
+              can_delete_service_logs: true,
+              can_view_service_logs: true,
+              can_manage_inventory: true,
+              can_delete_inventory: true,
+              can_view_inventory: true,
+              can_manage_employees: false,
+              can_view_reports: true,
+              can_export_data: true,
+            },
+            employee: {
+              can_manage_customers: true,
+              can_delete_customers: false,
+              can_view_customers: true,
+              can_manage_schedule: true,
+              can_delete_schedule: false,
+              can_view_schedule: true,
+              can_manage_service_logs: true,
+              can_delete_service_logs: false,
+              can_view_service_logs: true,
+              can_manage_inventory: false,
+              can_delete_inventory: false,
+              can_view_inventory: false,
+              can_manage_employees: false,
+              can_view_reports: false,
+              can_export_data: false,
+            },
+          };
+          return fallbackDefaults[roleName];
+        }
+
+        // Load from templates
+        const prefix = `${roleName}_`;
+        return {
+          can_manage_customers: roleTemplates[`${prefix}can_manage_customers`] !== undefined ? roleTemplates[`${prefix}can_manage_customers`] : true,
+          can_delete_customers: roleTemplates[`${prefix}can_delete_customers`] !== undefined ? roleTemplates[`${prefix}can_delete_customers`] : (roleName === 'employee' ? false : true),
+          can_view_customers: roleTemplates[`${prefix}can_view_customers`] !== undefined ? roleTemplates[`${prefix}can_view_customers`] : true,
+          can_manage_schedule: roleTemplates[`${prefix}can_manage_schedule`] !== undefined ? roleTemplates[`${prefix}can_manage_schedule`] : true,
+          can_delete_schedule: roleTemplates[`${prefix}can_delete_schedule`] !== undefined ? roleTemplates[`${prefix}can_delete_schedule`] : (roleName === 'employee' ? false : true),
+          can_view_schedule: roleTemplates[`${prefix}can_view_schedule`] !== undefined ? roleTemplates[`${prefix}can_view_schedule`] : true,
+          can_manage_service_logs: roleTemplates[`${prefix}can_manage_service_logs`] !== undefined ? roleTemplates[`${prefix}can_manage_service_logs`] : true,
+          can_delete_service_logs: roleTemplates[`${prefix}can_delete_service_logs`] !== undefined ? roleTemplates[`${prefix}can_delete_service_logs`] : (roleName === 'employee' ? false : true),
+          can_view_service_logs: roleTemplates[`${prefix}can_view_service_logs`] !== undefined ? roleTemplates[`${prefix}can_view_service_logs`] : true,
+          can_manage_inventory: roleTemplates[`${prefix}can_manage_inventory`] !== undefined ? roleTemplates[`${prefix}can_manage_inventory`] : (roleName === 'employee' ? false : true),
+          can_delete_inventory: roleTemplates[`${prefix}can_delete_inventory`] !== undefined ? roleTemplates[`${prefix}can_delete_inventory`] : (roleName === 'employee' ? false : true),
+          can_view_inventory: roleTemplates[`${prefix}can_view_inventory`] !== undefined ? roleTemplates[`${prefix}can_view_inventory`] : (roleName === 'employee' ? false : true),
+          can_manage_employees: roleTemplates[`${prefix}can_manage_employees`] !== undefined ? roleTemplates[`${prefix}can_manage_employees`] : (roleName === 'admin'),
+          can_view_reports: roleTemplates[`${prefix}can_view_reports`] !== undefined ? roleTemplates[`${prefix}can_view_reports`] : (roleName !== 'employee'),
+          can_export_data: roleTemplates[`${prefix}can_export_data`] !== undefined ? roleTemplates[`${prefix}can_export_data`] : (roleName !== 'employee'),
+        };
       };
 
       await base44.entities.Permission.create({
         user_email: email,
         role: role,
-        ...permissionDefaults[role],
+        ...getPermissionsForRole(role),
       });
 
       setSent(true);
