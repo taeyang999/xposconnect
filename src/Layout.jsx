@@ -107,7 +107,6 @@ export default function Layout({ children, currentPageName }) {
       { name: 'Customers', href: 'Customers', icon: Users, requiresPermission: 'can_view_customers' },
       { name: 'Schedule', href: 'Schedule', icon: Calendar, requiresPermission: 'can_view_schedule' },
       { name: 'Service Logs', href: 'ServiceLogs', icon: FileText, requiresPermission: 'can_view_service_logs' },
-      { name: 'Inventory', href: 'Inventory', icon: Package, requiresPermission: 'can_view_inventory' },
     ];
 
     if (isAdmin || isManager) {
@@ -123,6 +122,7 @@ export default function Layout({ children, currentPageName }) {
 
   const getFilteredAdminNavigation = () => {
     const adminNav = [
+      { name: 'Inventory', href: 'Inventory', icon: Package, requiresPermission: 'can_view_inventory' },
       { name: 'Reports', href: 'Reports', icon: Building2, requiresPermission: 'can_view_reports' },
       { name: 'Employees', href: 'Employees', icon: UserCircle, requiresPermission: 'can_manage_employees' },
       { name: 'Permissions', href: 'EmployeePermissions', icon: Shield, requiresAdmin: true },
