@@ -89,8 +89,7 @@ export default function ServiceLogComments({ serviceLogId }) {
     setAttachments(attachments.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!comment.trim()) {
       toast.error('Please enter a comment');
       return;
