@@ -46,21 +46,30 @@ export default function Layout({ children, currentPageName }) {
           
           // Get the user's role from permission record
           const userRole = userPerm?.role || 'employee';
+          const prefix = `${userRole}_`;
           
-          // Build effective permissions based on role template
-          if (roleTemplate && userRole === 'manager') {
-            setPermissions({
-              ...userPerm,
-              can_view_inventory: roleTemplate.manager_can_view_inventory !== false,
-              can_manage_inventory: roleTemplate.manager_can_manage_inventory !== false,
-              can_delete_inventory: roleTemplate.manager_can_delete_inventory !== false,
-              can_view_reports: roleTemplate.manager_can_view_reports !== false,
-              can_export_data: roleTemplate.manager_can_export_data !== false,
-              can_manage_employees: roleTemplate.manager_can_manage_employees === true,
-            });
-          } else if (userPerm) {
-            setPermissions(userPerm);
-          }
+          // Build effective permissions based on role - always use role template as the source of truth
+          const effectivePermissions = {
+            role: userRole,
+            // Use role template values, fall back to sensible defaults per role
+            can_view_customers: roleTemplate?.[`${prefix}can_view_customers`] ?? true,
+            can_manage_customers: roleTemplate?.[`${prefix}can_manage_customers`] ?? true,
+            can_delete_customers: roleTemplate?.[`${prefix}can_delete_customers`] ?? (userRole !== 'employee'),
+            can_view_schedule: roleTemplate?.[`${prefix}can_view_schedule`] ?? true,
+            can_manage_schedule: roleTemplate?.[`${prefix}can_manage_schedule`] ?? true,
+            can_delete_schedule: roleTemplate?.[`${prefix}can_delete_schedule`] ?? (userRole !== 'employee'),
+            can_view_service_logs: roleTemplate?.[`${prefix}can_view_service_logs`] ?? true,
+            can_manage_service_logs: roleTemplate?.[`${prefix}can_manage_service_logs`] ?? true,
+            can_delete_service_logs: roleTemplate?.[`${prefix}can_delete_service_logs`] ?? (userRole !== 'employee'),
+            can_view_inventory: roleTemplate?.[`${prefix}can_view_inventory`] ?? (userRole !== 'employee'),
+            can_manage_inventory: roleTemplate?.[`${prefix}can_manage_inventory`] ?? (userRole !== 'employee'),
+            can_delete_inventory: roleTemplate?.[`${prefix}can_delete_inventory`] ?? (userRole !== 'employee'),
+            can_view_reports: roleTemplate?.[`${prefix}can_view_reports`] ?? (userRole !== 'employee'),
+            can_export_data: roleTemplate?.[`${prefix}can_export_data`] ?? (userRole !== 'employee'),
+            can_manage_employees: roleTemplate?.[`${prefix}can_manage_employees`] ?? false,
+          };
+          
+          setPermissions(effectivePermissions);
         }
       } catch (e) {
         console.log('User not logged in');
