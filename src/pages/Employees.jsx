@@ -32,7 +32,7 @@ export default function Employees() {
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
 
-  const canManageEmployees = isAdmin || permissions?.can_manage_employees;
+  const canManageEmployees = isAdmin || permissions?.can_manage_employees || false;
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ['employees'],
