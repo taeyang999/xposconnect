@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { 
   LayoutDashboard, Users, Calendar, Package, FileText, 
   Settings, Menu, X, LogOut, ChevronDown, Bell, Search,
-  Building2, UserCircle
+  Building2, UserCircle, Shield
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
@@ -98,6 +98,7 @@ export default function Layout({ children, currentPageName }) {
 
   const adminNavigation = [
     { name: 'Employees', href: 'Employees', icon: UserCircle },
+    { name: 'Permissions', href: 'EmployeePermissions', icon: Shield },
     { name: 'Reports', href: 'Reports', icon: Building2 },
   ];
 

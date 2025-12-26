@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import Reports from './pages/Reports';
 import Schedule from './pages/Schedule';
 import ServiceLogs from './pages/ServiceLogs';
+import EmployeePermissions from './pages/EmployeePermissions';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "Reports": Reports,
     "Schedule": Schedule,
     "ServiceLogs": ServiceLogs,
+    "EmployeePermissions": EmployeePermissions,
 }
 
 export const pagesConfig = {
