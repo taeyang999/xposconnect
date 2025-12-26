@@ -22,7 +22,7 @@ import { toast } from "sonner";
 
 export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState('employee');
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
@@ -30,7 +30,71 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
     e.preventDefault();
     setSending(true);
     try {
-      await base44.users.inviteUser(email, role);
+      // Determine the user role for invitation (admin or user)
+      const inviteRole = role === 'admin' ? 'admin' : 'user';
+      await base44.users.inviteUser(email, inviteRole);
+      
+      // Create default permission record for the user
+      const permissionDefaults = {
+        admin: {
+          can_manage_customers: true,
+          can_delete_customers: true,
+          can_view_customers: true,
+          can_manage_schedule: true,
+          can_delete_schedule: true,
+          can_view_schedule: true,
+          can_manage_service_logs: true,
+          can_delete_service_logs: true,
+          can_view_service_logs: true,
+          can_manage_inventory: true,
+          can_delete_inventory: true,
+          can_view_inventory: true,
+          can_manage_employees: true,
+          can_view_reports: true,
+          can_export_data: true,
+        },
+        manager: {
+          can_manage_customers: true,
+          can_delete_customers: true,
+          can_view_customers: true,
+          can_manage_schedule: true,
+          can_delete_schedule: true,
+          can_view_schedule: true,
+          can_manage_service_logs: true,
+          can_delete_service_logs: true,
+          can_view_service_logs: true,
+          can_manage_inventory: true,
+          can_delete_inventory: true,
+          can_view_inventory: true,
+          can_manage_employees: false,
+          can_view_reports: true,
+          can_export_data: true,
+        },
+        employee: {
+          can_manage_customers: true,
+          can_delete_customers: true,
+          can_view_customers: true,
+          can_manage_schedule: true,
+          can_delete_schedule: true,
+          can_view_schedule: true,
+          can_manage_service_logs: true,
+          can_delete_service_logs: true,
+          can_view_service_logs: true,
+          can_manage_inventory: true,
+          can_delete_inventory: true,
+          can_view_inventory: true,
+          can_manage_employees: false,
+          can_view_reports: false,
+          can_export_data: false,
+        },
+      };
+
+      await base44.entities.Permission.create({
+        user_email: email,
+        role: role,
+        ...permissionDefaults[role],
+      });
+
       setSent(true);
       toast.success('Invitation sent successfully!');
       onSuccess();
@@ -46,7 +110,7 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
 
   const handleClose = () => {
     setEmail('');
-    setRole('user');
+    setRole('employee');
     setSent(false);
     onClose();
   };
@@ -96,10 +160,16 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="user">
+                  <SelectItem value="employee">
                     <div>
                       <p className="font-medium">Employee</p>
-                      <p className="text-xs text-slate-500">Can view assigned customers and schedules</p>
+                      <p className="text-xs text-slate-500">Standard access to daily operations</p>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="manager">
+                    <div>
+                      <p className="font-medium">Manager</p>
+                      <p className="text-xs text-slate-500">Can manage operations and view reports</p>
                     </div>
                   </SelectItem>
                   <SelectItem value="admin">
@@ -116,17 +186,24 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
               <h4 className="text-sm font-medium text-slate-900 mb-2">Permission Summary</h4>
               {role === 'admin' ? (
                 <ul className="text-sm text-slate-600 space-y-1">
-                  <li>• Full access to all customers</li>
+                  <li>• Full access to all features</li>
                   <li>• Can manage employees and permissions</li>
-                  <li>• Can edit inventory and service logs</li>
+                  <li>• Can edit and delete all records</li>
                   <li>• Access to reports and analytics</li>
+                </ul>
+              ) : role === 'manager' ? (
+                <ul className="text-sm text-slate-600 space-y-1">
+                  <li>• Can manage operations</li>
+                  <li>• View and export reports</li>
+                  <li>• Full access to customers and schedule</li>
+                  <li>• Cannot manage employees</li>
                 </ul>
               ) : (
                 <ul className="text-sm text-slate-600 space-y-1">
-                  <li>• View only assigned customers</li>
-                  <li>• Manage own schedule and tasks</li>
-                  <li>• Add service logs to assigned customers</li>
-                  <li>• View-only access to inventory</li>
+                  <li>• Access to daily operations</li>
+                  <li>• Manage customers and schedule</li>
+                  <li>• Create and edit service logs</li>
+                  <li>• Limited administrative access</li>
                 </ul>
               )}
             </div>
