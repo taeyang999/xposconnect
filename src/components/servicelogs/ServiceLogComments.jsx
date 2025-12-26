@@ -182,7 +182,7 @@ export default function ServiceLogComments({ serviceLogId }) {
 
       {/* Add Comment Form */}
       <div className="border-t pt-4">
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="space-y-3">
           <div className="flex gap-3">
             <Avatar className="h-8 w-8 flex-shrink-0">
               <AvatarFallback className="bg-slate-800 text-white text-xs font-medium">
@@ -254,7 +254,8 @@ export default function ServiceLogComments({ serviceLogId }) {
                   )}
                 </Button>
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={handleSubmit}
                   disabled={saving || !comment.trim()}
                   size="sm"
                   className="ml-auto bg-slate-900 hover:bg-slate-800"
@@ -274,7 +275,7 @@ export default function ServiceLogComments({ serviceLogId }) {
               </div>
             </div>
           </div>
-        </form>
+        </div>
       </div>
 
       {/* File Viewer Dialog */}
