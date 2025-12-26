@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logAudit } from '../components/audit/auditLogger';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { Plus } from 'lucide-react';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
@@ -48,20 +49,16 @@ export default function Schedule() {
   const [deleteEvent, setDeleteEvent] = useState(null);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
+  const canView = permissions?.can_view_schedule !== false;
+  const canManage = isAdmin || permissions?.can_manage_schedule;
+  const canDelete = isAdmin || permissions?.can_delete_schedule;
 
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('action') === 'new') {
       setShowForm(true);
     }
   }, []);
-
-  const isAdmin = user?.role === 'admin';
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
