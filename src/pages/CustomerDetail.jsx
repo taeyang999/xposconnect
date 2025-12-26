@@ -62,6 +62,7 @@ export default function CustomerDetail() {
   const [deleteType, setDeleteType] = useState(null);
   const [viewPhoto, setViewPhoto] = useState(null);
   const [photoCategoryFilter, setPhotoCategoryFilter] = useState('all');
+  const [viewServiceLogFromPhoto, setViewServiceLogFromPhoto] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -687,18 +688,145 @@ export default function CustomerDetail() {
 
       {/* Photo Viewer */}
       <Dialog open={!!viewPhoto} onOpenChange={() => setViewPhoto(null)}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden">
-          <DialogHeader className="absolute top-4 right-4 z-10">
-            <Button size="icon" variant="secondary" onClick={() => setViewPhoto(null)}>
-              <X className="h-4 w-4" />
-            </Button>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>{viewPhoto?.title || 'Photo'}</DialogTitle>
+            {viewPhoto?.description && (
+              <p className="text-sm text-slate-500">{viewPhoto.description}</p>
+            )}
           </DialogHeader>
           {viewPhoto && (
-            <img 
-              src={viewPhoto.file_url} 
-              alt={viewPhoto.title || 'Photo'} 
-              className="w-full h-auto max-h-[80vh] object-contain"
-            />
+            <div className="space-y-4">
+              <img 
+                src={viewPhoto.file_url} 
+                alt={viewPhoto.title || 'Photo'} 
+                className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
+              />
+              {viewPhoto.service_log_id && (
+                <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 mb-1">Linked to Service Log</p>
+                      <p className="text-xs text-slate-500">
+                        {serviceLogs.find(l => l.id === viewPhoto.service_log_id)?.title || 'Service Log'}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const log = serviceLogs.find(l => l.id === viewPhoto.service_log_id);
+                        if (log) {
+                          setViewServiceLogFromPhoto(log);
+                          setViewPhoto(null);
+                        }
+                      }}
+                    >
+                      <FileText className="h-4 w-4 mr-2" />
+                      View Service Log
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Service Log Viewer from Photo */}
+      <Dialog open={!!viewServiceLogFromPhoto} onOpenChange={() => setViewServiceLogFromPhoto(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Service Log Details</DialogTitle>
+          </DialogHeader>
+          {viewServiceLogFromPhoto && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <h3 className="text-lg font-semibold text-slate-900">{viewServiceLogFromPhoto.title}</h3>
+                <Badge className={statusColors[viewServiceLogFromPhoto.status] || statusColors.scheduled}>
+                  {viewServiceLogFromPhoto.status?.replace('_', ' ')}
+                </Badge>
+              </div>
+              
+              {viewServiceLogFromPhoto.description && (
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Description</p>
+                  <p className="text-sm text-slate-700">{viewServiceLogFromPhoto.description}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Service Date</p>
+                  <p className="text-sm text-slate-900 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {viewServiceLogFromPhoto.service_date && format(parseISO(viewServiceLogFromPhoto.service_date), 'MMM d, yyyy')}
+                  </p>
+                </div>
+                
+                {viewServiceLogFromPhoto.assigned_employee && (
+                  <div>
+                    <p className="text-xs text-slate-500 mb-1">Assigned To</p>
+                    <p className="text-sm text-slate-900 flex items-center gap-2">
+                      <Avatar className="h-5 w-5">
+                        <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
+                          {getEmployeeInitials(viewServiceLogFromPhoto.assigned_employee)}
+                        </AvatarFallback>
+                      </Avatar>
+                      {viewServiceLogFromPhoto.assigned_employee}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {viewServiceLogFromPhoto.notes && (
+                <div>
+                  <p className="text-xs text-slate-500 mb-1">Notes</p>
+                  <p className="text-sm text-slate-700">{viewServiceLogFromPhoto.notes}</p>
+                </div>
+              )}
+
+              {photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).length > 0 && (
+                <div>
+                  <p className="text-xs text-slate-500 mb-2">Attachments ({photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).length})</p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {photos.filter(p => p.service_log_id === viewServiceLogFromPhoto.id).map((photo) => (
+                      <div 
+                        key={photo.id} 
+                        className="aspect-square rounded-lg overflow-hidden bg-slate-100 cursor-pointer hover:opacity-80"
+                        onClick={() => {
+                          setViewServiceLogFromPhoto(null);
+                          setViewPhoto(photo);
+                        }}
+                      >
+                        <img 
+                          src={photo.file_url} 
+                          alt={photo.title || 'Attachment'} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => setViewServiceLogFromPhoto(null)}>
+                  Close
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setEditingServiceLog(viewServiceLogFromPhoto);
+                    setShowServiceLogForm(true);
+                    setViewServiceLogFromPhoto(null);
+                  }}
+                  className="bg-slate-900 hover:bg-slate-800"
+                >
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit Service Log
+                </Button>
+              </div>
+            </div>
           )}
         </DialogContent>
       </Dialog>
