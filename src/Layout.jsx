@@ -132,7 +132,12 @@ export default function Layout({ children, currentPageName }) {
     return adminNav.filter(item => {
       if (item.requiresAdmin) return isAdmin;
       if (item.requiresPermission) {
-        return isAdmin || isManager || permissions?.[item.requiresPermission] === true;
+        // For admins, always show
+        if (isAdmin) return true;
+        // For managers, check permission explicitly
+        if (isManager) return permissions?.[item.requiresPermission] !== false;
+        // For employees, only show if permission is explicitly true
+        return permissions?.[item.requiresPermission] === true;
       }
       return false;
     });
