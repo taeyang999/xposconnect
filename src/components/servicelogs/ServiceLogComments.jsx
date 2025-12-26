@@ -70,7 +70,7 @@ export default function ServiceLogComments({ serviceLogId }) {
       const uploadPromises = files.map(async (file) => {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
         return {
-          file_url,
+          file_url: file_url,
           file_name: file.name,
           file_type: file.type,
         };
@@ -79,6 +79,7 @@ export default function ServiceLogComments({ serviceLogId }) {
       setAttachments([...attachments, ...uploaded]);
       toast.success(`${files.length} file(s) uploaded`);
     } catch (error) {
+      console.error('Upload error:', error);
       toast.error('Failed to upload files');
     } finally {
       setUploading(false);
@@ -153,24 +154,32 @@ export default function ServiceLogComments({ serviceLogId }) {
                   <p className="text-sm text-slate-700 whitespace-pre-wrap">{c.comment}</p>
                   
                   {c.attachments && c.attachments.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {c.attachments.map((att, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setViewFile(att)}
-                          className="flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors text-left"
-                        >
-                          {att.file_type?.startsWith('image/') ? (
-                            <ImageIcon className="h-4 w-4 text-slate-600 flex-shrink-0" />
-                          ) : (
-                            <FileText className="h-4 w-4 text-slate-600 flex-shrink-0" />
-                          )}
-                          <span className="text-xs text-slate-700 truncate max-w-[150px]">
-                            {att.file_name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
+                   <div className="mt-2 flex flex-wrap gap-2">
+                     {c.attachments.map((att, idx) => {
+                       const isImage = att.file_type?.startsWith('image/') || att.file_url?.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+                       return (
+                         <button
+                           key={idx}
+                           type="button"
+                           onClick={(e) => {
+                             e.preventDefault();
+                             e.stopPropagation();
+                             setViewFile(att);
+                           }}
+                           className="flex items-center gap-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 rounded-lg border border-slate-200 transition-colors text-left"
+                         >
+                           {isImage ? (
+                             <ImageIcon className="h-4 w-4 text-slate-600 flex-shrink-0" />
+                           ) : (
+                             <FileText className="h-4 w-4 text-slate-600 flex-shrink-0" />
+                           )}
+                           <span className="text-xs text-slate-700 truncate max-w-[150px]">
+                             {att.file_name || 'Attachment'}
+                           </span>
+                         </button>
+                       );
+                     })}
+                   </div>
                   )}
                 </div>
               </div>
@@ -286,16 +295,20 @@ export default function ServiceLogComments({ serviceLogId }) {
           </DialogHeader>
           {viewFile && (
             <div className="space-y-4">
-              {viewFile.file_type?.startsWith('image/') ? (
+              {(viewFile.file_type?.startsWith('image/') || viewFile.file_url?.match(/\.(jpg|jpeg|png|gif|webp)$/i)) ? (
                 <img 
                   src={viewFile.file_url} 
-                  alt={viewFile.file_name} 
+                  alt={viewFile.file_name || 'Image'} 
                   className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+                  onError={(e) => {
+                    console.error('Image load error:', viewFile.file_url);
+                    e.target.style.display = 'none';
+                  }}
                 />
               ) : (
                 <div className="p-8 text-center">
                   <FileText className="h-16 w-16 mx-auto mb-4 text-slate-400" />
-                  <p className="text-sm text-slate-600 mb-4">{viewFile.file_name}</p>
+                  <p className="text-sm text-slate-600 mb-4">{viewFile.file_name || 'File'}</p>
                   <Button asChild variant="outline">
                     <a href={viewFile.file_url} target="_blank" rel="noopener noreferrer">
                       <Eye className="h-4 w-4 mr-2" />
