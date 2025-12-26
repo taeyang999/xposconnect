@@ -17,11 +17,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Upload, X, Loader2, Image } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
 
 export default function PhotoUploader({ open, onClose, customerId, onSave }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [category, setCategory] = useState('other');
   const [uploading, setUploading] = useState(false);
 
@@ -46,6 +48,7 @@ export default function PhotoUploader({ open, onClose, customerId, onSave }) {
         customer_id: customerId,
         file_url,
         title: title || file.name,
+        description,
         category,
       });
       
@@ -60,6 +63,7 @@ export default function PhotoUploader({ open, onClose, customerId, onSave }) {
     setFile(null);
     setPreview(null);
     setTitle('');
+    setDescription('');
     setCategory('other');
     onClose();
   };
@@ -122,8 +126,8 @@ export default function PhotoUploader({ open, onClose, customerId, onSave }) {
             <Label htmlFor="description">Description (optional)</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               placeholder="Add a description..."
               rows={2}
               className="mt-1.5"
