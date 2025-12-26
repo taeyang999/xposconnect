@@ -59,8 +59,9 @@ export default function ServiceLogs() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState({
-    assignedEmployee: 'all',
-    customer: 'all',
+    assigned_employee: 'all',
+    customer_id: 'all',
+    status: 'all',
     dateFrom: '',
     dateTo: '',
   });
@@ -126,11 +127,12 @@ export default function ServiceLogs() {
       log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       getCustomerName(log.customer_id).toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || log.status === statusFilter;
-    const matchesEmployee = advancedFilters.assignedEmployee === 'all' || log.assigned_employee === advancedFilters.assignedEmployee;
-    const matchesCustomer = advancedFilters.customer === 'all' || log.customer_id === advancedFilters.customer;
+    const matchesAdvancedStatus = advancedFilters.status === 'all' || log.status === advancedFilters.status;
+    const matchesEmployee = advancedFilters.assigned_employee === 'all' || log.assigned_employee === advancedFilters.assigned_employee;
+    const matchesCustomer = advancedFilters.customer_id === 'all' || log.customer_id === advancedFilters.customer_id;
     const matchesDateFrom = !advancedFilters.dateFrom || log.service_date >= advancedFilters.dateFrom;
     const matchesDateTo = !advancedFilters.dateTo || log.service_date <= advancedFilters.dateTo;
-    return matchesSearch && matchesStatus && matchesEmployee && matchesCustomer && matchesDateFrom && matchesDateTo;
+    return matchesSearch && matchesStatus && matchesAdvancedStatus && matchesEmployee && matchesCustomer && matchesDateFrom && matchesDateTo;
   });
 
   const activeAdvancedFilterCount = Object.entries(advancedFilters).filter(([key, value]) => {
@@ -171,10 +173,11 @@ export default function ServiceLogs() {
   };
 
   const statusColors = {
-    scheduled: 'bg-blue-100 text-blue-700',
+    new: 'bg-purple-100 text-purple-700',
+    assigned: 'bg-blue-100 text-blue-700',
     in_progress: 'bg-amber-100 text-amber-700',
     completed: 'bg-emerald-100 text-emerald-700',
-    cancelled: 'bg-slate-100 text-slate-600',
+    on_hold: 'bg-slate-100 text-slate-600',
   };
 
   return (
@@ -209,10 +212,11 @@ export default function ServiceLogs() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="scheduled">Scheduled</SelectItem>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="assigned">Assigned</SelectItem>
               <SelectItem value="in_progress">In Progress</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="on_hold">On Hold</SelectItem>
             </SelectContent>
           </Select>
           <Button 
@@ -305,12 +309,19 @@ export default function ServiceLogs() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {log.assigned_employee && (
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
-                          {getEmployeeInitials(log.assigned_employee)}
-                        </AvatarFallback>
-                      </Avatar>
+                    {log.assigned_employee ? (
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-6 w-6">
+                          <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
+                            {getEmployeeInitials(log.assigned_employee)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-slate-600 hidden md:inline">
+                          {getEmployeeName(log.assigned_employee)}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-slate-400">Unassigned</span>
                     )}
                   </TableCell>
                   <TableCell>
