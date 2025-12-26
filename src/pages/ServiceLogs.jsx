@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { logAudit } from '../components/audit/auditLogger';
 import { 
   Plus, Search, Filter, Calendar, User, Building2,
   MoreVertical, Pencil, Trash2, Eye, Download, SlidersHorizontal
@@ -143,6 +144,7 @@ export default function ServiceLogs() {
   const handleDelete = async () => {
     if (deleteLog) {
       await base44.entities.ServiceLog.delete(deleteLog.id);
+      await logAudit('ServiceLog', deleteLog.id, deleteLog.title, 'delete', {}, 'Service log deleted');
       queryClient.invalidateQueries({ queryKey: ['serviceLogs'] });
       setDeleteLog(null);
     }

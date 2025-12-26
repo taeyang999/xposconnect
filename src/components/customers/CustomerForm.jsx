@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { logAudit } from '../audit/auditLogger';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -119,8 +120,10 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
     try {
       if (customer) {
         await base44.entities.Customer.update(customer.id, formData);
+        await logAudit('Customer', customer.id, formData.name, 'update', formData);
       } else {
-        await base44.entities.Customer.create(formData);
+        const newCustomer = await base44.entities.Customer.create(formData);
+        await logAudit('Customer', newCustomer.id, formData.name, 'create', formData);
       }
       onSave();
       onClose();

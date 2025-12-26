@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getAllAuditLogs } from '../utils/auditLog';
+import { getAllAuditLogs } from '../components/audit/auditLogger';
 import { base44 } from '@/api/base44Client';
 import { format, parseISO } from 'date-fns';
 import { Search, Filter, Clock, Shield } from 'lucide-react';

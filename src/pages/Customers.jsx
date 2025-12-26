@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { logAudit } from '../components/audit/auditLogger';
 import { Plus, Search, Filter, Grid3X3, List, Download, SlidersHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +93,7 @@ export default function Customers() {
   const handleDelete = async () => {
     if (deleteCustomer) {
       await base44.entities.Customer.delete(deleteCustomer.id);
+      await logAudit('Customer', deleteCustomer.id, deleteCustomer.name, 'delete', {}, 'Customer deleted');
       queryClient.invalidateQueries({ queryKey: ['customers'] });
       setDeleteCustomer(null);
     }

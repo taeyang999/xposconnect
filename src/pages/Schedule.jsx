@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { logAudit } from '../components/audit/auditLogger';
 import { Plus } from 'lucide-react';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
@@ -103,6 +104,7 @@ export default function Schedule() {
   const handleDelete = async () => {
     if (deleteEvent) {
       await base44.entities.ScheduleEvent.delete(deleteEvent.id);
+      await logAudit('ScheduleEvent', deleteEvent.id, deleteEvent.title, 'delete', {}, 'Event deleted');
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setDeleteEvent(null);
       setSelectedEvent(null);

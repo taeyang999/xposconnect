@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { logAudit } from '../audit/auditLogger';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -111,12 +112,14 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
     try {
       let logId;
       const isNewAssignment = formData.assigned_employee && formData.assigned_employee !== previousEmployee;
-      
+
       if (serviceLog) {
         await base44.entities.ServiceLog.update(serviceLog.id, formData);
+        await logAudit('ServiceLog', serviceLog.id, formData.title, 'update', formData);
         logId = serviceLog.id;
       } else {
         const newLog = await base44.entities.ServiceLog.create(formData);
+        await logAudit('ServiceLog', newLog.id, formData.title, 'create', formData);
         logId = newLog.id;
       }
 
