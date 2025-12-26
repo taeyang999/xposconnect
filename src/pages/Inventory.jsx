@@ -51,7 +51,7 @@ import EmptyState from '@/components/ui/EmptyState';
 import InventoryForm from '@/components/inventory/InventoryForm';
 
 export default function Inventory() {
-  const [user, setUser] = useState(null);
+  const { user, permissions, isAdmin, isManager } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [deleteItem, setDeleteItem] = useState(null);
@@ -60,49 +60,22 @@ export default function Inventory() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('action') === 'new') {
       setShowForm(true);
     }
   }, []);
 
-  const [hasAccess, setHasAccess] = useState(false);
-
-  useEffect(() => {
-    const checkPermissions = async () => {
-      if (!user) return;
-      
-      if (user.role === 'admin') {
-        setHasAccess(true);
-        return;
-      }
-
-      try {
-        const permissions = await base44.entities.Permission.filter({ user_email: user.email });
-        if (permissions && permissions.length > 0) {
-          setHasAccess(permissions[0].can_view_inventory === true);
-        } else {
-          setHasAccess(false);
-        }
-      } catch (error) {
-        setHasAccess(false);
-      }
-    };
-    checkPermissions();
-  }, [user]);
+  const canView = isAdmin || isManager || permissions?.can_view_inventory;
+  const canManage = isAdmin || isManager || permissions?.can_manage_inventory;
+  const canDelete = isAdmin || isManager || permissions?.can_delete_inventory;
 
   const { data: inventory = [], isLoading } = useQuery({
     queryKey: ['inventory'],
     queryFn: async () => {
       return await base44.entities.InventoryItem.list('-created_date');
     },
-    enabled: !!user && hasAccess,
+    enabled: !!user && canView,
   });
 
   const { data: customers = [] } = useQuery({
@@ -171,7 +144,7 @@ export default function Inventory() {
     pending: 'bg-purple-100 text-purple-700',
   };
 
-  if (user && !hasAccess) {
+  if (user && !canView) {
     return (
       <div>
         <PageHeader
@@ -185,7 +158,7 @@ export default function Inventory() {
             </div>
             <h3 className="text-xl font-semibold text-slate-900 mb-2">Access Restricted</h3>
             <p className="text-slate-600">
-              This page is only accessible to administrators and managers. Please contact your administrator if you need access.
+              You don't have permission to access inventory. Please contact your administrator if you need access.
             </p>
           </div>
         </Card>
