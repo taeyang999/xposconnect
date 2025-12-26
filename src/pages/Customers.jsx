@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logAudit } from '../components/audit/auditLogger';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { Plus, Search, Filter, Grid3X3, List, Download, SlidersHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,20 +48,17 @@ export default function Customers() {
   });
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
+  const canView = permissions?.can_view_customers !== false;
+  const canManage = isAdmin || permissions?.can_manage_customers;
+  const canDelete = isAdmin || permissions?.can_delete_customers;
+  const canExport = isAdmin || permissions?.can_export_data;
 
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('action') === 'new') {
       setShowForm(true);
     }
   }, []);
-
-  const isAdmin = user?.role === 'admin';
 
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ['customers'],
