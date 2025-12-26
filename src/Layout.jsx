@@ -34,11 +34,32 @@ export default function Layout({ children, currentPageName }) {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        // Load permissions
+        // Load permissions and role templates
         if (currentUser && currentUser.role !== 'admin') {
-          const perms = await base44.entities.Permission.filter({ user_email: currentUser.email });
-          if (perms && perms.length > 0) {
-            setPermissions(perms[0]);
+          const [perms, templates] = await Promise.all([
+            base44.entities.Permission.filter({ user_email: currentUser.email }),
+            base44.entities.Permission.filter({ user_email: 'role_templates' })
+          ]);
+          
+          const userPerm = perms && perms.length > 0 ? perms[0] : null;
+          const roleTemplate = templates && templates.length > 0 ? templates[0] : null;
+          
+          // Get the user's role from permission record
+          const userRole = userPerm?.role || 'employee';
+          
+          // Build effective permissions based on role template
+          if (roleTemplate && userRole === 'manager') {
+            setPermissions({
+              ...userPerm,
+              can_view_inventory: roleTemplate.manager_can_view_inventory !== false,
+              can_manage_inventory: roleTemplate.manager_can_manage_inventory !== false,
+              can_delete_inventory: roleTemplate.manager_can_delete_inventory !== false,
+              can_view_reports: roleTemplate.manager_can_view_reports !== false,
+              can_export_data: roleTemplate.manager_can_export_data !== false,
+              can_manage_employees: roleTemplate.manager_can_manage_employees === true,
+            });
+          } else if (userPerm) {
+            setPermissions(userPerm);
           }
         }
       } catch (e) {
