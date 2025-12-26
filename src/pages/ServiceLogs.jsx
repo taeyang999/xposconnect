@@ -279,7 +279,16 @@ export default function ServiceLogs() {
             </TableHeader>
             <TableBody>
               {filteredLogs.map((log) => (
-                <TableRow key={log.id} className="hover:bg-slate-50/50">
+                <TableRow 
+                  key={log.id} 
+                  className="hover:bg-slate-50/50 cursor-pointer"
+                  onClick={(e) => {
+                    if (e.target.closest('[data-radix-popper-content-wrapper]') || e.target.closest('button') || e.target.closest('a')) {
+                      return;
+                    }
+                    window.location.href = createPageUrl('CustomerDetail') + `?id=${log.customer_id}`;
+                  }}
+                >
                   <TableCell>
                     <div>
                       <p className="font-medium text-slate-900">{log.title}</p>
@@ -292,6 +301,7 @@ export default function ServiceLogs() {
                     <Link 
                       to={createPageUrl('CustomerDetail') + `?id=${log.customer_id}`}
                       className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <Building2 className="h-4 w-4" />
                       {getCustomerName(log.customer_id)}
