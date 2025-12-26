@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2, Paperclip, X, Image as ImageIcon, FileText } from 'lucide-react';
+import ServiceLogComments from './ServiceLogComments';
 
 export default function ServiceLogForm({ open, onClose, serviceLog, customerId, onSave }) {
   const [formData, setFormData] = useState({
@@ -317,6 +318,12 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
               )}
             </div>
           </div>
+
+          {serviceLog && serviceLog.id && (
+            <div className="pt-4 border-t">
+              <ServiceLogComments serviceLogId={serviceLog.id} />
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button type="button" variant="outline" onClick={onClose}>
