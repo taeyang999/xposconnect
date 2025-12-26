@@ -48,25 +48,25 @@ export default function Layout({ children, currentPageName }) {
           const userRole = userPerm?.role || 'employee';
           const prefix = `${userRole}_`;
           
-          // Build effective permissions based on role - always use role template as the source of truth
+          // ALWAYS use role template as the source of truth for permissions
+          // This ensures when role changes, permissions update immediately
           const effectivePermissions = {
             role: userRole,
-            // Use role template values, fall back to sensible defaults per role
-            can_view_customers: roleTemplate?.[`${prefix}can_view_customers`] ?? true,
-            can_manage_customers: roleTemplate?.[`${prefix}can_manage_customers`] ?? true,
-            can_delete_customers: roleTemplate?.[`${prefix}can_delete_customers`] ?? (userRole !== 'employee'),
-            can_view_schedule: roleTemplate?.[`${prefix}can_view_schedule`] ?? true,
-            can_manage_schedule: roleTemplate?.[`${prefix}can_manage_schedule`] ?? true,
-            can_delete_schedule: roleTemplate?.[`${prefix}can_delete_schedule`] ?? (userRole !== 'employee'),
-            can_view_service_logs: roleTemplate?.[`${prefix}can_view_service_logs`] ?? true,
-            can_manage_service_logs: roleTemplate?.[`${prefix}can_manage_service_logs`] ?? true,
-            can_delete_service_logs: roleTemplate?.[`${prefix}can_delete_service_logs`] ?? (userRole !== 'employee'),
-            can_view_inventory: roleTemplate?.[`${prefix}can_view_inventory`] ?? (userRole !== 'employee'),
-            can_manage_inventory: roleTemplate?.[`${prefix}can_manage_inventory`] ?? (userRole !== 'employee'),
-            can_delete_inventory: roleTemplate?.[`${prefix}can_delete_inventory`] ?? (userRole !== 'employee'),
-            can_view_reports: roleTemplate?.[`${prefix}can_view_reports`] ?? (userRole !== 'employee'),
-            can_export_data: roleTemplate?.[`${prefix}can_export_data`] ?? (userRole !== 'employee'),
-            can_manage_employees: roleTemplate?.[`${prefix}can_manage_employees`] ?? false,
+            can_view_customers: roleTemplate?.[`${prefix}can_view_customers`] === true,
+            can_manage_customers: roleTemplate?.[`${prefix}can_manage_customers`] === true,
+            can_delete_customers: roleTemplate?.[`${prefix}can_delete_customers`] === true,
+            can_view_schedule: roleTemplate?.[`${prefix}can_view_schedule`] === true,
+            can_manage_schedule: roleTemplate?.[`${prefix}can_manage_schedule`] === true,
+            can_delete_schedule: roleTemplate?.[`${prefix}can_delete_schedule`] === true,
+            can_view_service_logs: roleTemplate?.[`${prefix}can_view_service_logs`] === true,
+            can_manage_service_logs: roleTemplate?.[`${prefix}can_manage_service_logs`] === true,
+            can_delete_service_logs: roleTemplate?.[`${prefix}can_delete_service_logs`] === true,
+            can_view_inventory: roleTemplate?.[`${prefix}can_view_inventory`] === true,
+            can_manage_inventory: roleTemplate?.[`${prefix}can_manage_inventory`] === true,
+            can_delete_inventory: roleTemplate?.[`${prefix}can_delete_inventory`] === true,
+            can_view_reports: roleTemplate?.[`${prefix}can_view_reports`] === true,
+            can_export_data: roleTemplate?.[`${prefix}can_export_data`] === true,
+            can_manage_employees: roleTemplate?.[`${prefix}can_manage_employees`] === true,
           };
           
           setPermissions(effectivePermissions);
