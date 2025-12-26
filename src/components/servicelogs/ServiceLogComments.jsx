@@ -98,16 +98,11 @@ export default function ServiceLogComments({ serviceLogId }) {
 
     setSaving(true);
     try {
-      const commentData = {
+      await base44.entities.ServiceLogComment.create({
         service_log_id: serviceLogId,
         comment: comment.trim(),
-      };
-      
-      if (attachments.length > 0) {
-        commentData.attachments = attachments;
-      }
-      
-      await base44.entities.ServiceLogComment.create(commentData);
+        attachments: attachments,
+      });
       
       setComment('');
       setAttachments([]);
@@ -115,7 +110,7 @@ export default function ServiceLogComments({ serviceLogId }) {
       toast.success('Comment added');
     } catch (error) {
       console.error('Comment error:', error);
-      toast.error('Failed to add comment');
+      toast.error(error?.message || 'Failed to add comment');
     } finally {
       setSaving(false);
     }
