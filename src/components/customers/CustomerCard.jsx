@@ -39,8 +39,19 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
     prospect: 'bg-blue-100 text-blue-700',
   };
 
+  const handleCardClick = (e) => {
+    // Prevent navigation when clicking on dropdown menu
+    if (e.target.closest('[data-radix-popper-content-wrapper]') || e.target.closest('button')) {
+      return;
+    }
+    window.location.href = createPageUrl('CustomerDetail') + `?id=${customer.id}`;
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 p-5 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300">
+    <div 
+      onClick={handleCardClick}
+      className="bg-white rounded-xl border border-slate-200/80 p-5 hover:shadow-lg hover:shadow-slate-200/50 transition-all duration-300 cursor-pointer hover:border-slate-300"
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-500 flex items-center justify-center text-white font-semibold text-lg">
@@ -113,13 +124,6 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
         )}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-100">
-        <Link to={createPageUrl('CustomerDetail') + `?id=${customer.id}`}>
-          <Button variant="outline" className="w-full rounded-lg text-sm">
-            View Full Profile
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 }
