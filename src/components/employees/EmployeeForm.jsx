@@ -156,7 +156,7 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
         <DialogHeader>
           <DialogTitle>Edit Employee Details</DialogTitle>
           <DialogDescription>
-            Update additional information for {employee?.full_name || employee?.email}
+            Update additional information for {[employee?.firstname, employee?.lastname].filter(Boolean).join(' ') || employee?.email}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">

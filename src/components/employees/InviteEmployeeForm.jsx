@@ -47,14 +47,12 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
       const inviteRole = role === 'admin' ? 'admin' : 'user';
       await base44.users.inviteUser(email, inviteRole);
       
-      // Update the user with firstname, lastname, and fullname
+      // Update the user with firstname and lastname
       const users = await base44.entities.User.filter({ email: email });
       if (users && users.length > 0) {
-        const fullname = `${firstname} ${lastname}`.trim();
         await base44.entities.User.update(users[0].id, {
           firstname,
-          lastname,
-          fullname
+          lastname
         });
       }
       

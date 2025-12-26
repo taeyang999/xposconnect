@@ -41,8 +41,9 @@ export default function Employees() {
   });
 
   const filteredEmployees = employees.filter(emp => {
+    const fullName = [emp.firstname, emp.lastname].filter(Boolean).join(' ');
     return (
-      emp.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      fullName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       emp.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       emp.department?.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -133,11 +134,11 @@ export default function Employees() {
                 <div className="flex items-center gap-4">
                   <Avatar className="h-12 w-12">
                     <AvatarFallback className="bg-slate-800 text-white font-medium">
-                      {employee.firstname?.charAt(0)?.toUpperCase() || ''}{employee.lastname?.charAt(0)?.toUpperCase() || employee.full_name?.charAt(0) || employee.email?.charAt(0).toUpperCase()}
+                      {employee.firstname?.charAt(0)?.toUpperCase() || ''}{employee.lastname?.charAt(0)?.toUpperCase() || employee.email?.charAt(0)?.toUpperCase() || 'U'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{employee.full_name || 'Unnamed'}</h3>
+                    <h3 className="font-semibold text-slate-900">{[employee.firstname, employee.lastname].filter(Boolean).join(' ') || 'Unnamed'}</h3>
                     <p className="text-sm text-slate-500">{employee.title || 'Employee'}</p>
                   </div>
                 </div>
