@@ -97,6 +97,23 @@ export default function AdvancedServiceLogFilters({ open, onClose, filters, onFi
           </div>
 
           <div>
+            <Label>Status</Label>
+            <Select value={localFilters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
+              <SelectTrigger className="mt-1.5">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+                <SelectItem value="assigned">Assigned</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="on_hold">On Hold</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
             <Label>Date From</Label>
             <Input
               type="date"

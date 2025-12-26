@@ -28,10 +28,11 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
     title: '',
     description: '',
     service_date: '',
-    status: 'scheduled',
+    status: 'new',
     assigned_employee: '',
     notes: '',
   });
+  const [previousEmployee, setPreviousEmployee] = useState('');
   const [saving, setSaving] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -57,20 +58,22 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
         title: serviceLog.title || '',
         description: serviceLog.description || '',
         service_date: serviceLog.service_date || '',
-        status: serviceLog.status || 'scheduled',
+        status: serviceLog.status || 'new',
         assigned_employee: serviceLog.assigned_employee || '',
         notes: serviceLog.notes || '',
       });
+      setPreviousEmployee(serviceLog.assigned_employee || '');
     } else {
       setFormData({
         customer_id: customerId || '',
         title: '',
         description: '',
         service_date: new Date().toISOString().split('T')[0],
-        status: 'scheduled',
+        status: 'new',
         assigned_employee: '',
         notes: '',
       });
+      setPreviousEmployee('');
     }
   }, [serviceLog, customerId, open]);
 
@@ -107,6 +110,8 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
     setSaving(true);
     try {
       let logId;
+      const isNewAssignment = formData.assigned_employee && formData.assigned_employee !== previousEmployee;
+      
       if (serviceLog) {
         await base44.entities.ServiceLog.update(serviceLog.id, formData);
         logId = serviceLog.id;
@@ -128,6 +133,21 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
             })
           )
         );
+      }
+
+      // Send notification if employee was assigned
+      if (isNewAssignment) {
+        try {
+          const customerName = customers.find(c => c.id === formData.customer_id)?.name || 'a customer';
+          await base44.integrations.Core.SendEmail({
+            to: formData.assigned_employee,
+            subject: `New Service Log Assigned: ${formData.title}`,
+            body: `You have been assigned a new service log.\n\nTitle: ${formData.title}\nCustomer: ${customerName}\nService Date: ${formData.service_date}\nStatus: ${formData.status}\n\nPlease check the system for more details.`
+          });
+          toast.success('Employee notified');
+        } catch (err) {
+          console.error('Failed to send notification:', err);
+        }
       }
 
       onSave();
@@ -216,10 +236,11 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="scheduled">Scheduled</SelectItem>
+                  <SelectItem value="new">New</SelectItem>
+                  <SelectItem value="assigned">Assigned</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="on_hold">On Hold</SelectItem>
                 </SelectContent>
               </Select>
             </div>
