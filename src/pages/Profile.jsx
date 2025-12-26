@@ -75,14 +75,12 @@ export default function Profile() {
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             <Avatar className="h-24 w-24">
               <AvatarFallback className="bg-slate-800 text-white text-2xl font-medium">
-                {user?.firstname?.charAt(0)?.toUpperCase() || user?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0).toUpperCase()}
+                {user?.fullname?.charAt(0)?.toUpperCase() || user?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="text-center sm:text-left">
               <h2 className="text-2xl font-bold text-slate-900">
-                {user?.firstname && user?.lastname 
-                  ? `${user.firstname} ${user.lastname}` 
-                  : user?.full_name || 'User'}
+                {user?.fullname || user?.full_name || 'User'}
               </h2>
               <p className="text-slate-500 mt-1">{user?.email}</p>
               <div className="flex items-center gap-2 mt-3 justify-center sm:justify-start">
@@ -137,9 +135,7 @@ export default function Profile() {
                 </Label>
                 <Input
                   id="name"
-                  value={user?.firstname && user?.lastname 
-                    ? `${user.firstname} ${user.lastname}` 
-                    : user?.full_name || ''}
+                  value={user?.fullname || user?.full_name || ''}
                   disabled
                   className="mt-1.5 bg-slate-50"
                 />
