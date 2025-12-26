@@ -137,7 +137,40 @@ export function usePermissions() {
     }
   };
 
-  const permissions = userPermission || getDefaultPermissions();
+  // Get the user's role from permission record
+  const userRole = userPermission?.role || (isAdmin ? 'admin' : isManager ? 'manager' : 'employee');
+  
+  // Always use role templates as the source of truth for permissions
+  const getEffectivePermissions = () => {
+    if (isAdmin) {
+      return getDefaultPermissions();
+    }
+    
+    if (roleTemplates) {
+      const prefix = `${userRole}_`;
+      return {
+        can_view_customers: roleTemplates[`${prefix}can_view_customers`] === true,
+        can_manage_customers: roleTemplates[`${prefix}can_manage_customers`] === true,
+        can_delete_customers: roleTemplates[`${prefix}can_delete_customers`] === true,
+        can_view_schedule: roleTemplates[`${prefix}can_view_schedule`] === true,
+        can_manage_schedule: roleTemplates[`${prefix}can_manage_schedule`] === true,
+        can_delete_schedule: roleTemplates[`${prefix}can_delete_schedule`] === true,
+        can_view_service_logs: roleTemplates[`${prefix}can_view_service_logs`] === true,
+        can_manage_service_logs: roleTemplates[`${prefix}can_manage_service_logs`] === true,
+        can_delete_service_logs: roleTemplates[`${prefix}can_delete_service_logs`] === true,
+        can_view_inventory: roleTemplates[`${prefix}can_view_inventory`] === true,
+        can_manage_inventory: roleTemplates[`${prefix}can_manage_inventory`] === true,
+        can_delete_inventory: roleTemplates[`${prefix}can_delete_inventory`] === true,
+        can_view_reports: roleTemplates[`${prefix}can_view_reports`] === true,
+        can_export_data: roleTemplates[`${prefix}can_export_data`] === true,
+        can_manage_employees: roleTemplates[`${prefix}can_manage_employees`] === true,
+      };
+    }
+    
+    return getDefaultPermissions();
+  };
+
+  const permissions = getEffectivePermissions();
 
   return {
     user,
