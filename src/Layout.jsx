@@ -367,9 +367,9 @@ export default function Layout({ children, currentPageName }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
                   <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user?.full_name || 'User'}</p>
-                    <p className="text-xs text-slate-500">{user?.email}</p>
-                  </div>
+                                            <p className="text-sm font-medium">{[user?.firstname, user?.lastname].filter(Boolean).join(' ') || 'User'}</p>
+                                            <p className="text-xs text-slate-500">{user?.email}</p>
+                                          </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
                     <Link to={createPageUrl('Profile')}>
