@@ -26,6 +26,15 @@ export function usePermissions() {
     enabled: !!user?.email,
   });
 
+  const { data: roleTemplates } = useQuery({
+    queryKey: ['roleTemplates'],
+    queryFn: async () => {
+      const result = await base44.entities.Permission.filter({ user_email: 'role_templates' });
+      return result && result.length > 0 ? result[0] : null;
+    },
+    enabled: !!user?.email && !isAdmin && !userPermission,
+  });
+
   const isAdmin = user?.role === 'admin';
   const isManager = user?.role === 'manager';
 
@@ -50,6 +59,26 @@ export function usePermissions() {
         can_export_data: true,
       };
     } else if (isManager) {
+      // Check role templates for manager
+      if (roleTemplates) {
+        return {
+          can_manage_customers: roleTemplates.manager_can_manage_customers ?? true,
+          can_delete_customers: roleTemplates.manager_can_delete_customers ?? true,
+          can_view_customers: roleTemplates.manager_can_view_customers ?? true,
+          can_manage_schedule: roleTemplates.manager_can_manage_schedule ?? true,
+          can_delete_schedule: roleTemplates.manager_can_delete_schedule ?? true,
+          can_view_schedule: roleTemplates.manager_can_view_schedule ?? true,
+          can_manage_service_logs: roleTemplates.manager_can_manage_service_logs ?? true,
+          can_delete_service_logs: roleTemplates.manager_can_delete_service_logs ?? true,
+          can_view_service_logs: roleTemplates.manager_can_view_service_logs ?? true,
+          can_manage_inventory: roleTemplates.manager_can_manage_inventory ?? true,
+          can_delete_inventory: roleTemplates.manager_can_delete_inventory ?? true,
+          can_view_inventory: roleTemplates.manager_can_view_inventory ?? true,
+          can_manage_employees: roleTemplates.manager_can_manage_employees ?? false,
+          can_view_reports: roleTemplates.manager_can_view_reports ?? true,
+          can_export_data: roleTemplates.manager_can_export_data ?? true,
+        };
+      }
       return {
         can_manage_customers: true,
         can_delete_customers: true,
@@ -68,7 +97,26 @@ export function usePermissions() {
         can_export_data: true,
       };
     } else {
-      // Employee role - restrictive defaults
+      // Employee role - check templates first
+      if (roleTemplates) {
+        return {
+          can_manage_customers: roleTemplates.employee_can_manage_customers ?? true,
+          can_delete_customers: roleTemplates.employee_can_delete_customers ?? false,
+          can_view_customers: roleTemplates.employee_can_view_customers ?? true,
+          can_manage_schedule: roleTemplates.employee_can_manage_schedule ?? true,
+          can_delete_schedule: roleTemplates.employee_can_delete_schedule ?? false,
+          can_view_schedule: roleTemplates.employee_can_view_schedule ?? true,
+          can_manage_service_logs: roleTemplates.employee_can_manage_service_logs ?? true,
+          can_delete_service_logs: roleTemplates.employee_can_delete_service_logs ?? false,
+          can_view_service_logs: roleTemplates.employee_can_view_service_logs ?? true,
+          can_manage_inventory: roleTemplates.employee_can_manage_inventory ?? false,
+          can_delete_inventory: roleTemplates.employee_can_delete_inventory ?? false,
+          can_view_inventory: roleTemplates.employee_can_view_inventory ?? false,
+          can_manage_employees: roleTemplates.employee_can_manage_employees ?? false,
+          can_view_reports: roleTemplates.employee_can_view_reports ?? false,
+          can_export_data: roleTemplates.employee_can_export_data ?? false,
+        };
+      }
       return {
         can_manage_customers: true,
         can_delete_customers: false,
