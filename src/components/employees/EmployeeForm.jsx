@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function EmployeeForm({ open, onClose, employee, onSave }) {
   const [formData, setFormData] = useState({
@@ -28,11 +30,21 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
     title: '',
     hire_date: '',
     status: 'active',
+    role: 'employee',
   });
   const [saving, setSaving] = useState(false);
 
+  const { data: permission } = useQuery({
+    queryKey: ['permission', employee?.email],
+    queryFn: async () => {
+      const permissions = await base44.entities.Permission.filter({ user_email: employee.email });
+      return permissions?.[0] || null;
+    },
+    enabled: !!employee?.email,
+  });
+
   useEffect(() => {
-    if (employee) {
+    if (employee && open) {
       setFormData({
         firstname: employee.firstname || '',
         lastname: employee.lastname || '',
@@ -41,6 +53,7 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
         title: employee.title || '',
         hire_date: employee.hire_date || '',
         status: employee.status || 'active',
+        role: permission?.role || employee.role || 'employee',
       });
     } else {
       setFormData({
@@ -51,17 +64,87 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
         title: '',
         hire_date: '',
         status: 'active',
+        role: 'employee',
       });
     }
-  }, [employee, open]);
+  }, [employee, open, permission]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.User.update(employee.id, formData);
+      const { role, ...userData } = formData;
+      await base44.entities.User.update(employee.id, userData);
+      
+      // Update or create permission record with new role
+      if (permission) {
+        await base44.entities.Permission.update(permission.id, { role });
+      } else {
+        const permissionDefaults = {
+          employee: {
+            can_manage_customers: true,
+            can_delete_customers: true,
+            can_view_customers: true,
+            can_manage_schedule: true,
+            can_delete_schedule: true,
+            can_view_schedule: true,
+            can_manage_service_logs: true,
+            can_delete_service_logs: true,
+            can_view_service_logs: true,
+            can_manage_inventory: true,
+            can_delete_inventory: true,
+            can_view_inventory: true,
+            can_manage_employees: false,
+            can_view_reports: false,
+            can_export_data: false,
+          },
+          manager: {
+            can_manage_customers: true,
+            can_delete_customers: true,
+            can_view_customers: true,
+            can_manage_schedule: true,
+            can_delete_schedule: true,
+            can_view_schedule: true,
+            can_manage_service_logs: true,
+            can_delete_service_logs: true,
+            can_view_service_logs: true,
+            can_manage_inventory: true,
+            can_delete_inventory: true,
+            can_view_inventory: true,
+            can_manage_employees: false,
+            can_view_reports: true,
+            can_export_data: true,
+          },
+          admin: {
+            can_manage_customers: true,
+            can_delete_customers: true,
+            can_view_customers: true,
+            can_manage_schedule: true,
+            can_delete_schedule: true,
+            can_view_schedule: true,
+            can_manage_service_logs: true,
+            can_delete_service_logs: true,
+            can_view_service_logs: true,
+            can_manage_inventory: true,
+            can_delete_inventory: true,
+            can_view_inventory: true,
+            can_manage_employees: true,
+            can_view_reports: true,
+            can_export_data: true,
+          },
+        };
+        await base44.entities.Permission.create({
+          user_email: employee.email,
+          role,
+          ...permissionDefaults[role],
+        });
+      }
+      
+      toast.success('Employee details updated');
       onSave();
       onClose();
+    } catch (error) {
+      toast.error('Failed to update employee');
     } finally {
       setSaving(false);
     }
@@ -142,6 +225,23 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
               onChange={(e) => setFormData({ ...formData, hire_date: e.target.value })}
               className="mt-1.5"
             />
+          </div>
+
+          <div>
+            <Label>Role</Label>
+            <Select
+              value={formData.role}
+              onValueChange={(value) => setFormData({ ...formData, role: value })}
+            >
+              <SelectTrigger className="mt-1.5">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="employee">Employee</SelectItem>
+                <SelectItem value="manager">Manager</SelectItem>
+                <SelectItem value="admin">Administrator</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>

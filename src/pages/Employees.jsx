@@ -22,13 +22,11 @@ import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import EmployeeForm from '@/components/employees/EmployeeForm';
 import InviteEmployeeForm from '@/components/employees/InviteEmployeeForm';
-import PermissionForm from '@/components/employees/PermissionForm';
 
 export default function Employees() {
   const [user, setUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [showInviteForm, setShowInviteForm] = useState(false);
-  const [showPermissionForm, setShowPermissionForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
@@ -60,11 +58,6 @@ export default function Employees() {
   const handleEdit = (employee) => {
     setEditingEmployee(employee);
     setShowForm(true);
-  };
-
-  const handleEditPermissions = (employee) => {
-    setEditingEmployee(employee);
-    setShowPermissionForm(true);
   };
 
   if (!isAdmin) {
@@ -166,10 +159,6 @@ export default function Employees() {
                       <Pencil className="h-4 w-4 mr-2" />
                       Edit Details
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleEditPermissions(employee)} className="cursor-pointer rounded-lg">
-                      <Shield className="h-4 w-4 mr-2" />
-                      Manage Permissions
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -236,14 +225,6 @@ export default function Employees() {
         open={showInviteForm}
         onClose={() => setShowInviteForm(false)}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
-      />
-
-      {/* Permission Form */}
-      <PermissionForm
-        open={showPermissionForm}
-        onClose={() => { setShowPermissionForm(false); setEditingEmployee(null); }}
-        employee={editingEmployee}
-        onSave={() => queryClient.invalidateQueries({ queryKey: ['permissions'] })}
       />
     </div>
   );
