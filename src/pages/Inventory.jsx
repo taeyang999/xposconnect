@@ -71,21 +71,15 @@ export default function Inventory() {
   }, []);
 
   const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
+  const hasAccess = isAdmin || isManager;
 
   const { data: inventory = [], isLoading } = useQuery({
     queryKey: ['inventory'],
     queryFn: async () => {
-      if (isAdmin) {
-        return await base44.entities.InventoryItem.list('-created_date');
-      } else {
-        // Get inventory for customers assigned to this employee
-        const assignedCustomers = await base44.entities.Customer.filter({ assigned_employee: user?.email });
-        const customerIds = assignedCustomers.map(c => c.id);
-        const allInventory = await base44.entities.InventoryItem.list('-created_date');
-        return allInventory.filter(item => customerIds.includes(item.customer_id));
-      }
+      return await base44.entities.InventoryItem.list('-created_date');
     },
-    enabled: !!user && isAdmin !== undefined,
+    enabled: !!user && hasAccess,
   });
 
   const { data: customers = [] } = useQuery({
@@ -152,6 +146,28 @@ export default function Inventory() {
     retired: 'bg-red-100 text-red-700',
     pending: 'bg-purple-100 text-purple-700',
   };
+
+  if (user && !hasAccess) {
+    return (
+      <div>
+        <PageHeader
+          title="Inventory"
+          description="Manage equipment and items assigned to customers"
+        />
+        <Card className="p-12 text-center border-slate-200/80">
+          <div className="max-w-md mx-auto">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="h-8 w-8 text-red-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-slate-900 mb-2">Access Restricted</h3>
+            <p className="text-slate-600">
+              This page is only accessible to administrators and managers. Please contact your administrator if you need access.
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div>
