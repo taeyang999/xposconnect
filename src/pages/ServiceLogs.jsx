@@ -5,7 +5,7 @@ import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Plus, Search, Filter, Calendar, User, Building2,
-  MoreVertical, Pencil, Trash2, Eye, Download
+  MoreVertical, Pencil, Trash2, Eye, Download, SlidersHorizontal
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import ServiceLogForm from '@/components/servicelogs/ServiceLogForm';
+import AdvancedServiceLogFilters from '@/components/filters/AdvancedServiceLogFilters';
 
 export default function ServiceLogs() {
   const [user, setUser] = useState(null);
@@ -56,6 +57,13 @@ export default function ServiceLogs() {
   const [deleteLog, setDeleteLog] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    assignedEmployee: 'all',
+    customer: 'all',
+    dateFrom: '',
+    dateTo: '',
+  });
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -118,8 +126,17 @@ export default function ServiceLogs() {
       log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       getCustomerName(log.customer_id).toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || log.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesEmployee = advancedFilters.assignedEmployee === 'all' || log.assigned_employee === advancedFilters.assignedEmployee;
+    const matchesCustomer = advancedFilters.customer === 'all' || log.customer_id === advancedFilters.customer;
+    const matchesDateFrom = !advancedFilters.dateFrom || log.service_date >= advancedFilters.dateFrom;
+    const matchesDateTo = !advancedFilters.dateTo || log.service_date <= advancedFilters.dateTo;
+    return matchesSearch && matchesStatus && matchesEmployee && matchesCustomer && matchesDateFrom && matchesDateTo;
   });
+
+  const activeAdvancedFilterCount = Object.entries(advancedFilters).filter(([key, value]) => {
+    if (key === 'dateFrom' || key === 'dateTo') return value !== '';
+    return value !== 'all';
+  }).length;
 
   const handleDelete = async () => {
     if (deleteLog) {
@@ -198,6 +215,19 @@ export default function ServiceLogs() {
               <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAdvancedFilters(true)} 
+            className="rounded-xl relative"
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            Filters
+            {activeAdvancedFilterCount > 0 && (
+              <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-slate-900 text-white text-xs">
+                {activeAdvancedFilterCount}
+              </Badge>
+            )}
+          </Button>
           <Button variant="outline" onClick={exportLogs} className="rounded-xl">
             <Download className="h-4 w-4 mr-2" />
             Export
@@ -318,6 +348,14 @@ export default function ServiceLogs() {
         onClose={() => { setShowForm(false); setEditingLog(null); }}
         serviceLog={editingLog}
         onSave={() => queryClient.invalidateQueries({ queryKey: ['serviceLogs'] })}
+      />
+
+      {/* Advanced Filters */}
+      <AdvancedServiceLogFilters
+        open={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        filters={advancedFilters}
+        onFiltersChange={setAdvancedFilters}
       />
 
       {/* Delete Confirmation */}

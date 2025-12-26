@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Filter, Grid3X3, List, Download } from 'lucide-react';
+import { Plus, Search, Filter, Grid3X3, List, Download, SlidersHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -26,6 +27,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import CustomerCard from '@/components/customers/CustomerCard';
 import CustomerForm from '@/components/customers/CustomerForm';
+import AdvancedCustomerFilters from '@/components/filters/AdvancedCustomerFilters';
 
 export default function Customers() {
   const [user, setUser] = useState(null);
@@ -35,6 +37,13 @@ export default function Customers() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    businessType: 'all',
+    assignedEmployee: 'all',
+    hasHotspot: 'all',
+    isDisabled: 'all',
+  });
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -66,8 +75,14 @@ export default function Customers() {
       customer.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.phone?.includes(searchQuery);
     const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesBusinessType = advancedFilters.businessType === 'all' || customer.business_type === advancedFilters.businessType;
+    const matchesEmployee = advancedFilters.assignedEmployee === 'all' || customer.assigned_employee === advancedFilters.assignedEmployee;
+    const matchesHotspot = advancedFilters.hasHotspot === 'all' || String(customer.has_hotspot) === advancedFilters.hasHotspot;
+    const matchesDisabled = advancedFilters.isDisabled === 'all' || String(customer.is_disabled) === advancedFilters.isDisabled;
+    return matchesSearch && matchesStatus && matchesBusinessType && matchesEmployee && matchesHotspot && matchesDisabled;
   });
+
+  const activeAdvancedFilterCount = Object.values(advancedFilters).filter(v => v !== 'all').length;
 
   const handleEdit = (customer) => {
     setEditingCustomer(customer);
@@ -142,6 +157,19 @@ export default function Customers() {
               <SelectItem value="prospect">Prospect</SelectItem>
             </SelectContent>
           </Select>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAdvancedFilters(true)} 
+            className="rounded-xl relative"
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            Filters
+            {activeAdvancedFilterCount > 0 && (
+              <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full bg-slate-900 text-white text-xs">
+                {activeAdvancedFilterCount}
+              </Badge>
+            )}
+          </Button>
           <div className="flex rounded-xl border border-slate-200 overflow-hidden">
             <Button
               variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
@@ -225,6 +253,14 @@ export default function Customers() {
         onClose={handleFormClose}
         customer={editingCustomer}
         onSave={handleSave}
+      />
+
+      {/* Advanced Filters */}
+      <AdvancedCustomerFilters
+        open={showAdvancedFilters}
+        onClose={() => setShowAdvancedFilters(false)}
+        filters={advancedFilters}
+        onFiltersChange={setAdvancedFilters}
       />
 
       {/* Delete Confirmation */}
