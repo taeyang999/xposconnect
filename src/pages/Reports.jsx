@@ -4,9 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   Users, FileText, Package, Calendar, TrendingUp,
-  ArrowUp, ArrowDown, Download, Shield
+  ArrowUp, ArrowDown, Download, Shield, FileSpreadsheet
 } from 'lucide-react';
 import { format, parseISO, startOfMonth, endOfMonth, subMonths, isWithinInterval } from 'date-fns';
+import { toast } from 'sonner';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,10 +24,14 @@ import {
 } from 'recharts';
 import PageHeader from '@/components/ui/PageHeader';
 import StatCard from '@/components/ui/StatCard';
+import ReportGenerator from '@/components/reports/ReportGenerator';
+import { exportToPDF, exportToCSV, exportToJSON } from '@/components/reports/exportUtils';
 
 export default function Reports() {
   const { user, permissions, isAdmin } = usePermissions();
   const [dateRange, setDateRange] = useState('3months');
+  const [showReportGenerator, setShowReportGenerator] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const canViewReports = isAdmin || permissions?.can_view_reports;
 
@@ -154,27 +159,74 @@ export default function Reports() {
     { name: 'Pending', value: inventory.filter(i => i.status === 'pending').length, color: '#8b5cf6' },
   ].filter(d => d.value > 0);
 
-  const exportReport = () => {
-    const report = {
-      generated: new Date().toISOString(),
-      dateRange,
-      summary: {
-        totalCustomers: customers.length,
-        activeCustomers,
-        totalServices: filteredLogs.length,
-        completedServices,
-        pendingServices,
-        totalInventory: inventory.length,
-        activeInventory,
-      },
-    };
-    
-    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `report-${format(new Date(), 'yyyy-MM-dd')}.json`;
-    a.click();
+  const handleGenerateReport = async (config) => {
+    setIsGenerating(true);
+    try {
+      // Filter data by custom date range
+      const customFilteredLogs = serviceLogs.filter(log => {
+        if (!log.service_date) return false;
+        const date = parseISO(log.service_date);
+        return isWithinInterval(date, { start: config.dateRange.from, end: config.dateRange.to });
+      });
+
+      const customFilteredEvents = events.filter(event => {
+        if (!event.start_datetime) return false;
+        const date = parseISO(event.start_datetime);
+        return isWithinInterval(date, { start: config.dateRange.from, end: config.dateRange.to });
+      });
+
+      // Prepare report data with customer names
+      const reportData = {
+        summary: {
+          totalCustomers: customers.length,
+          activeCustomers: customers.filter(c => c.status === 'active').length,
+          totalServices: customFilteredLogs.length,
+          completedServices: customFilteredLogs.filter(l => l.status === 'completed').length,
+          pendingServices: customFilteredLogs.filter(l => ['scheduled', 'in_progress'].includes(l.status)).length,
+          totalInventory: inventory.length,
+          activeInventory: inventory.filter(i => i.status === 'active').length,
+          scheduledEvents: customFilteredEvents.filter(e => ['scheduled', 'confirmed'].includes(e.status)).length,
+        },
+        customers: config.metrics.customers ? customers : [],
+        serviceLogs: config.metrics.serviceLogs ? customFilteredLogs.map(log => ({
+          ...log,
+          customer_name: customers.find(c => c.id === log.customer_id)?.name || 'Unknown',
+        })) : [],
+        inventory: config.metrics.inventory ? inventory.map(item => ({
+          ...item,
+          customer_name: customers.find(c => c.id === item.customer_id)?.name || 'Unknown',
+        })) : [],
+        events: config.metrics.events ? customFilteredEvents.map(event => ({
+          ...event,
+          customer_name: event.customer_id ? customers.find(c => c.id === event.customer_id)?.name : '',
+        })) : [],
+      };
+
+      const exportData = {
+        dateRange: config.dateRange,
+        metrics: config.metrics,
+        reportData,
+      };
+
+      // Export based on format
+      if (config.format === 'pdf') {
+        await exportToPDF(exportData, config);
+        toast.success('PDF report generated successfully');
+      } else if (config.format === 'csv') {
+        exportToCSV(exportData, config);
+        toast.success('CSV report exported successfully');
+      } else if (config.format === 'json') {
+        exportToJSON(exportData, config);
+        toast.success('JSON report exported successfully');
+      }
+
+      setShowReportGenerator(false);
+    } catch (error) {
+      console.error('Report generation error:', error);
+      toast.error('Failed to generate report');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -195,9 +247,9 @@ export default function Reports() {
                 <SelectItem value="1year">Last Year</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={exportReport} variant="outline" className="rounded-xl">
-              <Download className="h-4 w-4 mr-2" />
-              Export
+            <Button onClick={() => setShowReportGenerator(true)} className="bg-slate-900 hover:bg-slate-800 rounded-xl">
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              Generate Report
             </Button>
           </div>
         }
@@ -386,6 +438,14 @@ export default function Reports() {
           </div>
         </>
       )}
+
+      {/* Report Generator Dialog */}
+      <ReportGenerator
+        open={showReportGenerator}
+        onClose={() => setShowReportGenerator(false)}
+        onGenerate={handleGenerateReport}
+        isGenerating={isGenerating}
+      />
     </div>
   );
 }
