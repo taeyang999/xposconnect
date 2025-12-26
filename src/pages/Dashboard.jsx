@@ -32,43 +32,30 @@ export default function Dashboard() {
   const { data: customers = [], isLoading: loadingCustomers } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => {
-      const result = isAdmin
-        ? await base44.entities.Customer.list('-created_date', 100)
-        : await base44.entities.Customer.filter({ assigned_employee: user?.email }, '-created_date', 100);
+      const result = await base44.entities.Customer.list('-created_date', 100);
       return result || [];
     },
-    enabled: !!user && isAdmin !== undefined,
+    enabled: !!user,
   });
 
   const { data: events = [], isLoading: loadingEvents } = useQuery({
     queryKey: ['events'],
-    queryFn: () => isAdmin
-      ? base44.entities.ScheduleEvent.list('-start_datetime', 50)
-      : base44.entities.ScheduleEvent.filter({ assigned_employee: user?.email }, '-start_datetime', 50),
+    queryFn: () => base44.entities.ScheduleEvent.list('-start_datetime', 50),
     enabled: !!user,
   });
 
   const { data: serviceLogs = [], isLoading: loadingLogs } = useQuery({
     queryKey: ['serviceLogs'],
-    queryFn: () => isAdmin
-      ? base44.entities.ServiceLog.list('-created_date', 50)
-      : base44.entities.ServiceLog.filter({ assigned_employee: user?.email }, '-created_date', 50),
+    queryFn: () => base44.entities.ServiceLog.list('-created_date', 50),
     enabled: !!user,
   });
 
   const { data: inventory = [], isLoading: loadingInventory } = useQuery({
     queryKey: ['inventory'],
     queryFn: async () => {
-      if (isAdmin) {
-        return await base44.entities.InventoryItem.list('-created_date', 100);
-      } else {
-        const assignedCustomers = await base44.entities.Customer.filter({ assigned_employee: user?.email });
-        const customerIds = assignedCustomers.map(c => c.id);
-        const allInventory = await base44.entities.InventoryItem.list('-created_date', 100);
-        return allInventory.filter(item => customerIds.includes(item.customer_id));
-      }
+      return await base44.entities.InventoryItem.list('-created_date', 100);
     },
-    enabled: !!user && isAdmin !== undefined,
+    enabled: !!user,
   });
 
   const upcomingEvents = events
