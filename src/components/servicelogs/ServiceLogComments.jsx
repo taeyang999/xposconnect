@@ -123,7 +123,7 @@ export default function ServiceLogComments({ serviceLogId }) {
       </div>
 
       {/* Comments List */}
-      <div className="space-y-4 max-h-96 overflow-y-auto">
+      <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
