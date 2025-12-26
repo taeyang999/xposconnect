@@ -144,7 +144,7 @@ export default function Inventory() {
     pending: 'bg-purple-100 text-purple-700',
   };
 
-  if (user && !canView) {
+  if (!canView) {
     return (
       <div>
         <PageHeader
