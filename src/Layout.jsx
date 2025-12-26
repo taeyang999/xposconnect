@@ -216,22 +216,7 @@ export default function Layout({ children, currentPageName }) {
             )}
           </nav>
 
-          {/* User section */}
-          {user && (
-            <div className="p-4 border-t border-slate-100">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-slate-200 text-slate-600 font-medium">
-                    {user.firstname?.charAt(0)?.toUpperCase() || ''}{user.lastname?.charAt(0)?.toUpperCase() || user.full_name?.charAt(0) || user.email?.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate">{user.full_name || 'User'}</p>
-                  <p className="text-xs text-slate-500 truncate">{user.role}</p>
-                </div>
-              </div>
-            </div>
-          )}
+
         </div>
       </aside>
 
@@ -337,8 +322,8 @@ export default function Layout({ children, currentPageName }) {
                   <Button variant="ghost" className="flex items-center gap-2 rounded-xl hover:bg-slate-100">
                     <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-slate-800 text-white text-sm">
-                          {user ? (user.firstname?.charAt(0)?.toUpperCase() || '') + (user.lastname?.charAt(0)?.toUpperCase() || '') || user.full_name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || 'U' : 'U'}
-                        </AvatarFallback>
+                              {user ? user.fullname?.charAt(0)?.toUpperCase() || user.full_name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || 'U' : 'U'}
+                            </AvatarFallback>
                       </Avatar>
                     <ChevronDown className="h-4 w-4 text-slate-400" />
                   </Button>
