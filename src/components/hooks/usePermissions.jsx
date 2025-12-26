@@ -17,6 +17,9 @@ export function usePermissions() {
     loadUser();
   }, []);
 
+  const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
+
   const { data: userPermission } = useQuery({
     queryKey: ['userPermission', user?.email],
     queryFn: async () => {
@@ -34,9 +37,6 @@ export function usePermissions() {
     },
     enabled: !!user?.email && !isAdmin && !userPermission,
   });
-
-  const isAdmin = user?.role === 'admin';
-  const isManager = user?.role === 'manager';
 
   // Default permissions based on role if no specific permission record exists
   const getDefaultPermissions = () => {
