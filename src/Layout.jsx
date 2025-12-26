@@ -293,7 +293,7 @@ export default function Layout({ children, currentPageName }) {
                   <Button variant="ghost" className="flex items-center gap-2 rounded-xl hover:bg-slate-100">
                     <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-slate-800 text-white text-sm">
-                          {user?.firstname?.charAt(0)?.toUpperCase() || ''}{user?.lastname?.charAt(0)?.toUpperCase() || user?.full_name?.charAt(0) || user?.email?.charAt(0).toUpperCase() || 'U'}
+                          {user ? (user.firstname?.charAt(0)?.toUpperCase() || '') + (user.lastname?.charAt(0)?.toUpperCase() || '') || user.full_name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || 'U' : 'U'}
                         </AvatarFallback>
                       </Avatar>
                     <ChevronDown className="h-4 w-4 text-slate-400" />

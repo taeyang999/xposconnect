@@ -64,10 +64,12 @@ export default function Customers() {
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => {
-      const result = await base44.entities.Customer.list('-created_date');
+      const result = isAdmin
+        ? await base44.entities.Customer.list('-created_date')
+        : await base44.entities.Customer.filter({ assigned_employee: user?.email }, '-created_date');
       return result || [];
     },
-    enabled: !!user,
+    enabled: !!user && isAdmin !== undefined,
   });
 
   const filteredCustomers = customers.filter(customer => {

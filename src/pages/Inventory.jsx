@@ -74,8 +74,18 @@ export default function Inventory() {
 
   const { data: inventory = [], isLoading } = useQuery({
     queryKey: ['inventory'],
-    queryFn: () => base44.entities.InventoryItem.list('-created_date'),
-    enabled: !!user,
+    queryFn: async () => {
+      if (isAdmin) {
+        return await base44.entities.InventoryItem.list('-created_date');
+      } else {
+        // Get inventory for customers assigned to this employee
+        const assignedCustomers = await base44.entities.Customer.filter({ assigned_employee: user?.email });
+        const customerIds = assignedCustomers.map(c => c.id);
+        const allInventory = await base44.entities.InventoryItem.list('-created_date');
+        return allInventory.filter(item => customerIds.includes(item.customer_id));
+      }
+    },
+    enabled: !!user && isAdmin !== undefined,
   });
 
   const { data: customers = [] } = useQuery({
@@ -105,7 +115,6 @@ export default function Inventory() {
   };
 
   const handleEdit = (item) => {
-    if (!isAdmin) return; // Only admins can edit inventory
     setEditingItem(item);
     setShowForm(true);
   };
@@ -150,12 +159,10 @@ export default function Inventory() {
         title="Inventory"
         description="Manage equipment and items assigned to customers"
         actions={
-          isAdmin && (
-            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
-            </Button>
-          )
+          <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </Button>
         }
       />
 
@@ -208,7 +215,7 @@ export default function Inventory() {
               : 'Add your first inventory item to get started'
             }
             action={
-              isAdmin && !searchQuery && statusFilter === 'all' && (
+              !searchQuery && statusFilter === 'all' && (
                 <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Item
@@ -227,7 +234,7 @@ export default function Inventory() {
                 <TableHead>Qty</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Warranty</TableHead>
-                {isAdmin && <TableHead className="w-12"></TableHead>}
+                <TableHead className="w-12"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -280,30 +287,28 @@ export default function Inventory() {
                       <span className="text-sm text-slate-400">-</span>
                     )}
                   </TableCell>
-                  {isAdmin && (
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                          <DropdownMenuItem onClick={() => handleEdit(item)} className="cursor-pointer rounded-lg">
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setDeleteItem(item)}
-                            className="cursor-pointer rounded-lg text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  )}
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                        <DropdownMenuItem onClick={() => handleEdit(item)} className="cursor-pointer rounded-lg">
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setDeleteItem(item)}
+                          className="cursor-pointer rounded-lg text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

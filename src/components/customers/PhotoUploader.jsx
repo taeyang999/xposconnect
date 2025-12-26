@@ -119,6 +119,18 @@ export default function PhotoUploader({ open, onClose, customerId, onSave }) {
           </div>
 
           <div>
+            <Label htmlFor="description">Description (optional)</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Add a description..."
+              rows={2}
+              className="mt-1.5"
+            />
+          </div>
+
+          <div>
             <Label>Category</Label>
             <Select value={category} onValueChange={setCategory}>
               <SelectTrigger className="mt-1.5">

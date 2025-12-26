@@ -140,7 +140,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl">
             {serviceLog ? 'Edit Service Log' : 'Add Service Log'}

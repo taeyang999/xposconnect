@@ -252,7 +252,7 @@ export default function ServiceLogs() {
               : 'Create your first service log to get started'
             }
             action={
-              !searchQuery && statusFilter === 'all' && (
+              !searchQuery && statusFilter === 'all' && !showAdvancedFilters && (
                 <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
                   <Plus className="h-4 w-4 mr-2" />
                   Add Service Log
