@@ -64,12 +64,10 @@ export default function Customers() {
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ['customers'],
     queryFn: async () => {
-      const result = isAdmin
-        ? await base44.entities.Customer.list('-created_date')
-        : await base44.entities.Customer.filter({ assigned_employee: user?.email }, '-created_date');
+      const result = await base44.entities.Customer.list('-created_date');
       return result || [];
     },
-    enabled: !!user && isAdmin !== undefined,
+    enabled: !!user,
   });
 
   const filteredCustomers = customers.filter(customer => {
@@ -126,7 +124,7 @@ export default function Customers() {
     <div>
       <PageHeader
         title="Customers"
-        description={`Manage your ${isAdmin ? '' : 'assigned '}customer relationships`}
+        description="Manage your customer relationships"
         actions={
           <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
             <Plus className="h-4 w-4 mr-2" />
