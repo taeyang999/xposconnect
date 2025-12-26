@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   Plus, Search, Mail, Phone, Shield, ShieldCheck,
   MoreVertical, Pencil, UserPlus, Calendar
@@ -24,27 +25,19 @@ import EmployeeForm from '@/components/employees/EmployeeForm';
 import InviteEmployeeForm from '@/components/employees/InviteEmployeeForm';
 
 export default function Employees() {
-  const [user, setUser] = useState(null);
+  const { user, permissions, isAdmin } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
-
-  const isAdmin = user?.role === 'admin';
+  const canManageEmployees = isAdmin || permissions?.can_manage_employees;
 
   const { data: employees = [], isLoading } = useQuery({
     queryKey: ['employees'],
     queryFn: () => base44.entities.User.list('-created_date'),
-    enabled: isAdmin,
+    enabled: !!user && canManageEmployees,
   });
 
   const filteredEmployees = employees.filter(emp => {
@@ -60,13 +53,13 @@ export default function Employees() {
     setShowForm(true);
   };
 
-  if (!isAdmin) {
+  if (!canManageEmployees) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Shield className="h-12 w-12 mx-auto text-slate-300 mb-4" />
           <h2 className="text-xl font-semibold text-slate-900 mb-2">Access Restricted</h2>
-          <p className="text-slate-500">Only administrators can access the employee management page.</p>
+          <p className="text-slate-500">You don't have permission to manage employees.</p>
         </div>
       </div>
     );

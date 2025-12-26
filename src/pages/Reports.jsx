@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   Users, FileText, Package, Calendar, TrendingUp,
   ArrowUp, ArrowDown, Download, Shield
@@ -24,52 +25,44 @@ import PageHeader from '@/components/ui/PageHeader';
 import StatCard from '@/components/ui/StatCard';
 
 export default function Reports() {
-  const [user, setUser] = useState(null);
+  const { user, permissions, isAdmin } = usePermissions();
   const [dateRange, setDateRange] = useState('3months');
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
-
-  const isAdmin = user?.role === 'admin';
+  const canViewReports = isAdmin || permissions?.can_view_reports;
 
   const { data: customers = [], isLoading: loadingCustomers } = useQuery({
     queryKey: ['customers'],
     queryFn: () => base44.entities.Customer.list(),
-    enabled: isAdmin,
+    enabled: !!user && canViewReports,
   });
 
   const { data: serviceLogs = [], isLoading: loadingLogs } = useQuery({
     queryKey: ['serviceLogs'],
     queryFn: () => base44.entities.ServiceLog.list(),
-    enabled: isAdmin,
+    enabled: !!user && canViewReports,
   });
 
   const { data: inventory = [], isLoading: loadingInventory } = useQuery({
     queryKey: ['inventory'],
     queryFn: () => base44.entities.InventoryItem.list(),
-    enabled: isAdmin,
+    enabled: !!user && canViewReports,
   });
 
   const { data: events = [], isLoading: loadingEvents } = useQuery({
     queryKey: ['events'],
     queryFn: () => base44.entities.ScheduleEvent.list(),
-    enabled: isAdmin,
+    enabled: !!user && canViewReports,
   });
 
   const isLoading = loadingCustomers || loadingLogs || loadingInventory || loadingEvents;
 
-  if (!isAdmin) {
+  if (!canViewReports) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Shield className="h-12 w-12 mx-auto text-slate-300 mb-4" />
           <h2 className="text-xl font-semibold text-slate-900 mb-2">Access Restricted</h2>
-          <p className="text-slate-500">Only administrators can access reports.</p>
+          <p className="text-slate-500">You don't have permission to access reports.</p>
         </div>
       </div>
     );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { Shield, Save, Info } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import { toast } from 'sonner';
 
 export default function EmployeePermissions() {
-  const [user, setUser] = useState(null);
+  const { user: currentUser, isAdmin } = usePermissions();
   const [saving, setSaving] = useState(false);
   const [activeRole, setActiveRole] = useState('employee');
 
@@ -70,10 +71,7 @@ export default function EmployeePermissions() {
   });
 
   useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      
+    const loadTemplates = async () => {
       // Load existing permission templates
       const templateRecord = await base44.entities.Permission.filter({ user_email: 'role_templates' });
       if (templateRecord && templateRecord.length > 0) {
@@ -134,10 +132,8 @@ export default function EmployeePermissions() {
         });
       }
     };
-    loadUser();
+    loadTemplates();
   }, []);
-
-  const isAdmin = user?.role === 'admin';
 
   const updatePermission = (role, key, value) => {
     setPermissions(prev => ({

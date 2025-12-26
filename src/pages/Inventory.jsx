@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logAudit } from '../components/audit/auditLogger';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   Plus, Search, Filter, Package, Building2,
   MoreVertical, Pencil, Trash2, Download, AlertTriangle
