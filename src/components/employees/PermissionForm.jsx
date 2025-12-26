@@ -25,12 +25,16 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
   const [formData, setFormData] = useState({
     role: 'employee',
     can_manage_customers: true,
+    can_delete_customers: true,
     can_view_customers: true,
     can_manage_schedule: true,
+    can_delete_schedule: true,
     can_view_schedule: true,
     can_manage_service_logs: true,
+    can_delete_service_logs: true,
     can_view_service_logs: true,
     can_manage_inventory: true,
+    can_delete_inventory: true,
     can_view_inventory: true,
     can_manage_employees: false,
     can_view_reports: false,
@@ -58,12 +62,16 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
       setFormData({
         role: perm.role || 'employee',
         can_manage_customers: perm.can_manage_customers ?? true,
+        can_delete_customers: perm.can_delete_customers ?? true,
         can_view_customers: perm.can_view_customers ?? true,
         can_manage_schedule: perm.can_manage_schedule ?? true,
+        can_delete_schedule: perm.can_delete_schedule ?? true,
         can_view_schedule: perm.can_view_schedule ?? true,
         can_manage_service_logs: perm.can_manage_service_logs ?? true,
+        can_delete_service_logs: perm.can_delete_service_logs ?? true,
         can_view_service_logs: perm.can_view_service_logs ?? true,
         can_manage_inventory: perm.can_manage_inventory ?? true,
+        can_delete_inventory: perm.can_delete_inventory ?? true,
         can_view_inventory: perm.can_view_inventory ?? true,
         can_manage_employees: perm.can_manage_employees ?? false,
         can_view_reports: perm.can_view_reports ?? false,
@@ -76,12 +84,16 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
       setFormData({
         role,
         can_manage_customers: true,
+        can_delete_customers: true,
         can_view_customers: true,
         can_manage_schedule: true,
+        can_delete_schedule: true,
         can_view_schedule: true,
         can_manage_service_logs: true,
+        can_delete_service_logs: true,
         can_view_service_logs: true,
         can_manage_inventory: true,
+        can_delete_inventory: true,
         can_view_inventory: true,
         can_manage_employees: false,
         can_view_reports: false,
@@ -95,12 +107,16 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
     const presets = {
       admin: {
         can_manage_customers: true,
+        can_delete_customers: true,
         can_view_customers: true,
         can_manage_schedule: true,
+        can_delete_schedule: true,
         can_view_schedule: true,
         can_manage_service_logs: true,
+        can_delete_service_logs: true,
         can_view_service_logs: true,
         can_manage_inventory: true,
+        can_delete_inventory: true,
         can_view_inventory: true,
         can_manage_employees: true,
         can_view_reports: true,
@@ -108,12 +124,16 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
       },
       manager: {
         can_manage_customers: true,
+        can_delete_customers: true,
         can_view_customers: true,
         can_manage_schedule: true,
+        can_delete_schedule: true,
         can_view_schedule: true,
         can_manage_service_logs: true,
+        can_delete_service_logs: true,
         can_view_service_logs: true,
         can_manage_inventory: true,
+        can_delete_inventory: true,
         can_view_inventory: true,
         can_manage_employees: false,
         can_view_reports: true,
@@ -121,12 +141,16 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
       },
       employee: {
         can_manage_customers: true,
+        can_delete_customers: true,
         can_view_customers: true,
         can_manage_schedule: true,
+        can_delete_schedule: true,
         can_view_schedule: true,
         can_manage_service_logs: true,
+        can_delete_service_logs: true,
         can_view_service_logs: true,
         can_manage_inventory: true,
+        can_delete_inventory: true,
         can_view_inventory: true,
         can_manage_employees: false,
         can_view_reports: false,
@@ -211,13 +235,24 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="can_manage_customers" className="font-normal cursor-pointer">
-                    Manage Customers
-                    <span className="block text-xs text-slate-500">Create, edit, and delete customers</span>
+                    Create & Edit Customers
+                    <span className="block text-xs text-slate-500">Create and edit customer records</span>
                   </Label>
                   <Switch
                     id="can_manage_customers"
                     checked={formData.can_manage_customers}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_customers: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="can_delete_customers" className="font-normal cursor-pointer">
+                    Delete Customers
+                    <span className="block text-xs text-slate-500">Delete customer records</span>
+                  </Label>
+                  <Switch
+                    id="can_delete_customers"
+                    checked={formData.can_delete_customers}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_delete_customers: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -240,13 +275,24 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="can_manage_schedule" className="font-normal cursor-pointer">
-                    Manage Schedule
-                    <span className="block text-xs text-slate-500">Create, edit, and delete events</span>
+                    Create & Edit Events
+                    <span className="block text-xs text-slate-500">Create and edit schedule events</span>
                   </Label>
                   <Switch
                     id="can_manage_schedule"
                     checked={formData.can_manage_schedule}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_schedule: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="can_delete_schedule" className="font-normal cursor-pointer">
+                    Delete Events
+                    <span className="block text-xs text-slate-500">Delete schedule events</span>
+                  </Label>
+                  <Switch
+                    id="can_delete_schedule"
+                    checked={formData.can_delete_schedule}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_delete_schedule: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -269,13 +315,24 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="can_manage_service_logs" className="font-normal cursor-pointer">
-                    Manage Service Logs
-                    <span className="block text-xs text-slate-500">Create, edit, and delete logs</span>
+                    Create & Edit Logs
+                    <span className="block text-xs text-slate-500">Create and edit service logs</span>
                   </Label>
                   <Switch
                     id="can_manage_service_logs"
                     checked={formData.can_manage_service_logs}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_service_logs: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="can_delete_service_logs" className="font-normal cursor-pointer">
+                    Delete Logs
+                    <span className="block text-xs text-slate-500">Delete service logs</span>
+                  </Label>
+                  <Switch
+                    id="can_delete_service_logs"
+                    checked={formData.can_delete_service_logs}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_delete_service_logs: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between">
@@ -298,13 +355,24 @@ export default function PermissionForm({ open, onClose, employee, onSave }) {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="can_manage_inventory" className="font-normal cursor-pointer">
-                    Manage Inventory
-                    <span className="block text-xs text-slate-500">Create, edit, and delete items</span>
+                    Create & Edit Items
+                    <span className="block text-xs text-slate-500">Create and edit inventory items</span>
                   </Label>
                   <Switch
                     id="can_manage_inventory"
                     checked={formData.can_manage_inventory}
                     onCheckedChange={(checked) => setFormData({ ...formData, can_manage_inventory: checked })}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="can_delete_inventory" className="font-normal cursor-pointer">
+                    Delete Items
+                    <span className="block text-xs text-slate-500">Delete inventory items</span>
+                  </Label>
+                  <Switch
+                    id="can_delete_inventory"
+                    checked={formData.can_delete_inventory}
+                    onCheckedChange={(checked) => setFormData({ ...formData, can_delete_inventory: checked })}
                   />
                 </div>
                 <div className="flex items-center justify-between">
