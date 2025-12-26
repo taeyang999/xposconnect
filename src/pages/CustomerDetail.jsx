@@ -7,7 +7,7 @@ import {
   ArrowLeft, Mail, Phone, MapPin, User, Calendar,
   FileText, Package, Image, Pencil, Plus, Trash2, 
   MoreVertical, Upload, X, Eye, Download, Building2,
-  CreditCard, Wifi, ShieldAlert, Ban
+  CreditCard, Wifi, ShieldAlert, Ban, Paperclip
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -445,20 +445,26 @@ export default function CustomerDetail() {
                           <p className="text-sm text-slate-600 mb-2">{log.description}</p>
                         )}
                         <div className="flex items-center gap-4 text-xs text-slate-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {log.service_date && format(parseISO(log.service_date), 'MMM d, yyyy')}
-                          </span>
-                          {log.assigned_employee && (
-                            <span className="flex items-center gap-1">
-                              <Avatar className="h-4 w-4">
-                                <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
-                                  {getEmployeeInitials(log.assigned_employee)}
-                                </AvatarFallback>
-                              </Avatar>
-                              {log.assigned_employee}
-                            </span>
-                          )}
+                         <span className="flex items-center gap-1">
+                           <Calendar className="h-3 w-3" />
+                           {log.service_date && format(parseISO(log.service_date), 'MMM d, yyyy')}
+                         </span>
+                         {log.assigned_employee && (
+                           <span className="flex items-center gap-1">
+                             <Avatar className="h-4 w-4">
+                               <AvatarFallback className="bg-slate-800 text-white text-[8px] font-medium">
+                                 {getEmployeeInitials(log.assigned_employee)}
+                               </AvatarFallback>
+                             </Avatar>
+                             {log.assigned_employee}
+                           </span>
+                         )}
+                         {photos.filter(p => p.service_log_id === log.id).length > 0 && (
+                           <span className="flex items-center gap-1">
+                             <Paperclip className="h-3 w-3" />
+                             {photos.filter(p => p.service_log_id === log.id).length} attachment(s)
+                           </span>
+                         )}
                         </div>
                       </div>
                       <DropdownMenu>
@@ -601,36 +607,42 @@ export default function CustomerDetail() {
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {photos.filter(p => photoCategoryFilter === 'all' || p.category === photoCategoryFilter).map((photo) => (
-                    <div key={photo.id} className="group relative aspect-square rounded-xl overflow-hidden bg-slate-100">
-                      <img 
-                        src={photo.file_url} 
-                        alt={photo.title || 'Photo'} 
-                        className="w-full h-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <Button 
-                          size="icon" 
-                          variant="secondary" 
-                          className="h-8 w-8"
-                          onClick={() => setViewPhoto(photo)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="icon" 
-                          variant="secondary" 
-                          className="h-8 w-8"
-                          onClick={() => { setDeleteItem(photo); setDeleteType('photo'); }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      {photo.title && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                          <p className="text-white text-xs font-medium truncate">{photo.title}</p>
-                        </div>
-                      )}
-                    </div>
+                   <div key={photo.id} className="group relative aspect-square rounded-xl overflow-hidden bg-slate-100">
+                     <img 
+                       src={photo.file_url} 
+                       alt={photo.title || 'Photo'} 
+                       className="w-full h-full object-cover"
+                     />
+                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                       <Button 
+                         size="icon" 
+                         variant="secondary" 
+                         className="h-8 w-8"
+                         onClick={() => setViewPhoto(photo)}
+                       >
+                         <Eye className="h-4 w-4" />
+                       </Button>
+                       <Button 
+                         size="icon" 
+                         variant="secondary" 
+                         className="h-8 w-8"
+                         onClick={() => { setDeleteItem(photo); setDeleteType('photo'); }}
+                       >
+                         <Trash2 className="h-4 w-4" />
+                       </Button>
+                     </div>
+                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                       {photo.title && (
+                         <p className="text-white text-xs font-medium truncate">{photo.title}</p>
+                       )}
+                       {photo.service_log_id && (
+                         <p className="text-white/80 text-[10px] truncate flex items-center gap-1">
+                           <FileText className="h-2 w-2" />
+                           Linked to service log
+                         </p>
+                       )}
+                     </div>
+                   </div>
                   ))}
                 </div>
               )}
@@ -652,7 +664,10 @@ export default function CustomerDetail() {
         onClose={() => { setShowServiceLogForm(false); setEditingServiceLog(null); }}
         serviceLog={editingServiceLog}
         customerId={customerId}
-        onSave={() => queryClient.invalidateQueries({ queryKey: ['serviceLogs', customerId] })}
+        onSave={() => {
+          queryClient.invalidateQueries({ queryKey: ['serviceLogs', customerId] });
+          queryClient.invalidateQueries({ queryKey: ['photos', customerId] });
+        }}
       />
 
       <InventoryForm
