@@ -73,6 +73,66 @@ export default function EmployeePermissions() {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
+      
+      // Load existing permission templates
+      const templateRecord = await base44.entities.Permission.filter({ user_email: 'role_templates' });
+      if (templateRecord && templateRecord.length > 0) {
+        const savedTemplates = templateRecord[0];
+        // Parse saved permissions into role structure
+        setPermissions({
+          admin: {
+            can_manage_customers: savedTemplates.admin_can_manage_customers ?? true,
+            can_delete_customers: savedTemplates.admin_can_delete_customers ?? true,
+            can_view_customers: savedTemplates.admin_can_view_customers ?? true,
+            can_manage_schedule: savedTemplates.admin_can_manage_schedule ?? true,
+            can_delete_schedule: savedTemplates.admin_can_delete_schedule ?? true,
+            can_view_schedule: savedTemplates.admin_can_view_schedule ?? true,
+            can_manage_service_logs: savedTemplates.admin_can_manage_service_logs ?? true,
+            can_delete_service_logs: savedTemplates.admin_can_delete_service_logs ?? true,
+            can_view_service_logs: savedTemplates.admin_can_view_service_logs ?? true,
+            can_manage_inventory: savedTemplates.admin_can_manage_inventory ?? true,
+            can_delete_inventory: savedTemplates.admin_can_delete_inventory ?? true,
+            can_view_inventory: savedTemplates.admin_can_view_inventory ?? true,
+            can_manage_employees: savedTemplates.admin_can_manage_employees ?? true,
+            can_view_reports: savedTemplates.admin_can_view_reports ?? true,
+            can_export_data: savedTemplates.admin_can_export_data ?? true,
+          },
+          manager: {
+            can_manage_customers: savedTemplates.manager_can_manage_customers ?? true,
+            can_delete_customers: savedTemplates.manager_can_delete_customers ?? true,
+            can_view_customers: savedTemplates.manager_can_view_customers ?? true,
+            can_manage_schedule: savedTemplates.manager_can_manage_schedule ?? true,
+            can_delete_schedule: savedTemplates.manager_can_delete_schedule ?? true,
+            can_view_schedule: savedTemplates.manager_can_view_schedule ?? true,
+            can_manage_service_logs: savedTemplates.manager_can_manage_service_logs ?? true,
+            can_delete_service_logs: savedTemplates.manager_can_delete_service_logs ?? true,
+            can_view_service_logs: savedTemplates.manager_can_view_service_logs ?? true,
+            can_manage_inventory: savedTemplates.manager_can_manage_inventory ?? true,
+            can_delete_inventory: savedTemplates.manager_can_delete_inventory ?? true,
+            can_view_inventory: savedTemplates.manager_can_view_inventory ?? true,
+            can_manage_employees: savedTemplates.manager_can_manage_employees ?? false,
+            can_view_reports: savedTemplates.manager_can_view_reports ?? true,
+            can_export_data: savedTemplates.manager_can_export_data ?? true,
+          },
+          employee: {
+            can_manage_customers: savedTemplates.employee_can_manage_customers ?? true,
+            can_delete_customers: savedTemplates.employee_can_delete_customers ?? true,
+            can_view_customers: savedTemplates.employee_can_view_customers ?? true,
+            can_manage_schedule: savedTemplates.employee_can_manage_schedule ?? true,
+            can_delete_schedule: savedTemplates.employee_can_delete_schedule ?? true,
+            can_view_schedule: savedTemplates.employee_can_view_schedule ?? true,
+            can_manage_service_logs: savedTemplates.employee_can_manage_service_logs ?? true,
+            can_delete_service_logs: savedTemplates.employee_can_delete_service_logs ?? true,
+            can_view_service_logs: savedTemplates.employee_can_view_service_logs ?? true,
+            can_manage_inventory: savedTemplates.employee_can_manage_inventory ?? false,
+            can_delete_inventory: savedTemplates.employee_can_delete_inventory ?? false,
+            can_view_inventory: savedTemplates.employee_can_view_inventory ?? false,
+            can_manage_employees: savedTemplates.employee_can_manage_employees ?? false,
+            can_view_reports: savedTemplates.employee_can_view_reports ?? false,
+            can_export_data: savedTemplates.employee_can_export_data ?? false,
+          },
+        });
+      }
     };
     loadUser();
   }, []);
@@ -92,11 +152,67 @@ export default function EmployeePermissions() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // This is a template configuration that can be referenced
-      // In a real implementation, you might store this in a settings entity
-      // or use it as defaults when creating new Permission records
-      toast.success('Permission templates updated successfully');
+      // Save permission templates
+      const templateData = {
+        user_email: 'role_templates',
+        role: 'admin',
+        admin_can_manage_customers: permissions.admin.can_manage_customers,
+        admin_can_delete_customers: permissions.admin.can_delete_customers,
+        admin_can_view_customers: permissions.admin.can_view_customers,
+        admin_can_manage_schedule: permissions.admin.can_manage_schedule,
+        admin_can_delete_schedule: permissions.admin.can_delete_schedule,
+        admin_can_view_schedule: permissions.admin.can_view_schedule,
+        admin_can_manage_service_logs: permissions.admin.can_manage_service_logs,
+        admin_can_delete_service_logs: permissions.admin.can_delete_service_logs,
+        admin_can_view_service_logs: permissions.admin.can_view_service_logs,
+        admin_can_manage_inventory: permissions.admin.can_manage_inventory,
+        admin_can_delete_inventory: permissions.admin.can_delete_inventory,
+        admin_can_view_inventory: permissions.admin.can_view_inventory,
+        admin_can_manage_employees: permissions.admin.can_manage_employees,
+        admin_can_view_reports: permissions.admin.can_view_reports,
+        admin_can_export_data: permissions.admin.can_export_data,
+        manager_can_manage_customers: permissions.manager.can_manage_customers,
+        manager_can_delete_customers: permissions.manager.can_delete_customers,
+        manager_can_view_customers: permissions.manager.can_view_customers,
+        manager_can_manage_schedule: permissions.manager.can_manage_schedule,
+        manager_can_delete_schedule: permissions.manager.can_delete_schedule,
+        manager_can_view_schedule: permissions.manager.can_view_schedule,
+        manager_can_manage_service_logs: permissions.manager.can_manage_service_logs,
+        manager_can_delete_service_logs: permissions.manager.can_delete_service_logs,
+        manager_can_view_service_logs: permissions.manager.can_view_service_logs,
+        manager_can_manage_inventory: permissions.manager.can_manage_inventory,
+        manager_can_delete_inventory: permissions.manager.can_delete_inventory,
+        manager_can_view_inventory: permissions.manager.can_view_inventory,
+        manager_can_manage_employees: permissions.manager.can_manage_employees,
+        manager_can_view_reports: permissions.manager.can_view_reports,
+        manager_can_export_data: permissions.manager.can_export_data,
+        employee_can_manage_customers: permissions.employee.can_manage_customers,
+        employee_can_delete_customers: permissions.employee.can_delete_customers,
+        employee_can_view_customers: permissions.employee.can_view_customers,
+        employee_can_manage_schedule: permissions.employee.can_manage_schedule,
+        employee_can_delete_schedule: permissions.employee.can_delete_schedule,
+        employee_can_view_schedule: permissions.employee.can_view_schedule,
+        employee_can_manage_service_logs: permissions.employee.can_manage_service_logs,
+        employee_can_delete_service_logs: permissions.employee.can_delete_service_logs,
+        employee_can_view_service_logs: permissions.employee.can_view_service_logs,
+        employee_can_manage_inventory: permissions.employee.can_manage_inventory,
+        employee_can_delete_inventory: permissions.employee.can_delete_inventory,
+        employee_can_view_inventory: permissions.employee.can_view_inventory,
+        employee_can_manage_employees: permissions.employee.can_manage_employees,
+        employee_can_view_reports: permissions.employee.can_view_reports,
+        employee_can_export_data: permissions.employee.can_export_data,
+      };
+
+      const existing = await base44.entities.Permission.filter({ user_email: 'role_templates' });
+      if (existing && existing.length > 0) {
+        await base44.entities.Permission.update(existing[0].id, templateData);
+      } else {
+        await base44.entities.Permission.create(templateData);
+      }
+
+      toast.success('Permission templates saved successfully');
     } catch (error) {
+      console.error('Save error:', error);
       toast.error('Failed to save permissions');
     } finally {
       setSaving(false);
