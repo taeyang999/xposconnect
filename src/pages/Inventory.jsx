@@ -70,9 +70,30 @@ export default function Inventory() {
     }
   }, []);
 
-  const isAdmin = user?.role === 'admin';
-  const isManager = user?.role === 'manager';
-  const hasAccess = isAdmin || isManager;
+  const [hasAccess, setHasAccess] = useState(false);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      if (!user) return;
+      
+      if (user.role === 'admin') {
+        setHasAccess(true);
+        return;
+      }
+
+      try {
+        const permissions = await base44.entities.Permission.filter({ user_email: user.email });
+        if (permissions && permissions.length > 0) {
+          setHasAccess(permissions[0].can_view_inventory === true);
+        } else {
+          setHasAccess(false);
+        }
+      } catch (error) {
+        setHasAccess(false);
+      }
+    };
+    checkPermissions();
+  }, [user]);
 
   const { data: inventory = [], isLoading } = useQuery({
     queryKey: ['inventory'],
