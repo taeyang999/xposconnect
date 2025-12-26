@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logAudit } from '../components/audit/auditLogger';
@@ -53,6 +53,7 @@ import ServiceLogForm from '@/components/servicelogs/ServiceLogForm';
 import AdvancedServiceLogFilters from '@/components/filters/AdvancedServiceLogFilters';
 
 export default function ServiceLogs() {
+  const navigate = useNavigate();
   const { user, permissions, isAdmin } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [editingLog, setEditingLog] = useState(null);
@@ -286,7 +287,7 @@ export default function ServiceLogs() {
                     if (e.target.closest('[data-radix-popper-content-wrapper]') || e.target.closest('button') || e.target.closest('a')) {
                       return;
                     }
-                    window.location.href = createPageUrl('CustomerDetail') + `?id=${log.customer_id}`;
+                    navigate(createPageUrl('CustomerDetail') + `?id=${log.customer_id}`);
                   }}
                 >
                   <TableCell>

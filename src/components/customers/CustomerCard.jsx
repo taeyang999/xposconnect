@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { 
   Mail, Phone, MapPin, MoreVertical, 
@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function CustomerCard({ customer, onEdit, onDelete }) {
+  const navigate = useNavigate();
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => base44.entities.User.list(),
@@ -44,7 +45,7 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
     if (e.target.closest('[data-radix-popper-content-wrapper]') || e.target.closest('button')) {
       return;
     }
-    window.location.href = createPageUrl('CustomerDetail') + `?id=${customer.id}`;
+    navigate(createPageUrl('CustomerDetail') + `?id=${customer.id}`);
   };
 
   return (
