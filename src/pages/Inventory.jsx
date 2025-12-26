@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { logAudit } from '../components/audit/auditLogger';
 import { 
   Plus, Search, Filter, Package, Building2,
   MoreVertical, Pencil, Trash2, Download, AlertTriangle
@@ -124,6 +125,7 @@ export default function Inventory() {
   const handleDelete = async () => {
     if (deleteItem) {
       await base44.entities.InventoryItem.delete(deleteItem.id);
+      await logAudit('InventoryItem', deleteItem.id, deleteItem.name, 'delete', {}, 'Inventory item deleted');
       queryClient.invalidateQueries({ queryKey: ['inventory'] });
       setDeleteItem(null);
     }

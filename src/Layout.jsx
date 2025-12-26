@@ -100,6 +100,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Employees', href: 'Employees', icon: UserCircle },
     { name: 'Permissions', href: 'EmployeePermissions', icon: Shield },
     { name: 'Reports', href: 'Reports', icon: Building2 },
+    { name: 'Audit Logs', href: 'AuditLogs', icon: FileText },
   ];
 
   const isAdmin = user?.role === 'admin';
