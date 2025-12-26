@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from 'sonner';
 import {
   Select,
   SelectContent,
@@ -18,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Paperclip, X, Image as ImageIcon, FileText } from 'lucide-react';
 
 export default function ServiceLogForm({ open, onClose, serviceLog, customerId, onSave }) {
   const [formData, setFormData] = useState({
@@ -31,6 +32,8 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
     notes: '',
   });
   const [saving, setSaving] = useState(false);
+  const [attachments, setAttachments] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
@@ -70,17 +73,65 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
     }
   }, [serviceLog, customerId, open]);
 
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const uploadPromises = files.map(async (file) => {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        return {
+          file_url,
+          name: file.name,
+          type: file.type,
+        };
+      });
+      const uploaded = await Promise.all(uploadPromises);
+      setAttachments([...attachments, ...uploaded]);
+      toast.success(`${files.length} file(s) uploaded`);
+    } catch (error) {
+      toast.error('Failed to upload files');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
+      let logId;
       if (serviceLog) {
         await base44.entities.ServiceLog.update(serviceLog.id, formData);
+        logId = serviceLog.id;
       } else {
-        await base44.entities.ServiceLog.create(formData);
+        const newLog = await base44.entities.ServiceLog.create(formData);
+        logId = newLog.id;
       }
+
+      // Create photo records for attachments
+      if (attachments.length > 0) {
+        await Promise.all(
+          attachments.map(att =>
+            base44.entities.CustomerPhoto.create({
+              customer_id: formData.customer_id,
+              service_log_id: logId,
+              file_url: att.file_url,
+              title: att.name,
+              category: 'service',
+            })
+          )
+        );
+      }
+
       onSave();
       onClose();
+      setAttachments([]);
     } finally {
       setSaving(false);
     }
@@ -203,6 +254,68 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
               rows={2}
               className="mt-1.5"
             />
+          </div>
+
+          <div>
+            <Label>Attachments</Label>
+            <div className="mt-1.5 space-y-3">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  multiple
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="file-upload"
+                  accept="image/*,.pdf,.doc,.docx"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => document.getElementById('file-upload').click()}
+                  disabled={uploading}
+                  className="w-full"
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Paperclip className="h-4 w-4 mr-2" />
+                      Add Photos/Documents
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {attachments.length > 0 && (
+                <div className="space-y-2">
+                  {attachments.map((att, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200"
+                    >
+                      {att.type?.startsWith('image/') ? (
+                        <ImageIcon className="h-4 w-4 text-slate-600 flex-shrink-0" />
+                      ) : (
+                        <FileText className="h-4 w-4 text-slate-600 flex-shrink-0" />
+                      )}
+                      <span className="text-sm text-slate-700 truncate flex-1">{att.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeAttachment(index)}
+                        className="h-6 w-6 flex-shrink-0"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
