@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logAudit } from '../components/audit/auditLogger';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   Plus, Search, Filter, Calendar, User, Building2,
   MoreVertical, Pencil, Trash2, Eye, Download, SlidersHorizontal
@@ -52,7 +53,7 @@ import ServiceLogForm from '@/components/servicelogs/ServiceLogForm';
 import AdvancedServiceLogFilters from '@/components/filters/AdvancedServiceLogFilters';
 
 export default function ServiceLogs() {
-  const [user, setUser] = useState(null);
+  const { user, permissions, isAdmin } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [editingLog, setEditingLog] = useState(null);
   const [deleteLog, setDeleteLog] = useState(null);
@@ -68,20 +69,17 @@ export default function ServiceLogs() {
   });
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
+  const canView = permissions?.can_view_service_logs !== false;
+  const canManage = isAdmin || permissions?.can_manage_service_logs;
+  const canDelete = isAdmin || permissions?.can_delete_service_logs;
+  const canExport = isAdmin || permissions?.can_export_data;
 
+  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('action') === 'new') {
       setShowForm(true);
     }
   }, []);
-
-  const isAdmin = user?.role === 'admin';
 
   const { data: serviceLogs = [], isLoading } = useQuery({
     queryKey: ['serviceLogs'],

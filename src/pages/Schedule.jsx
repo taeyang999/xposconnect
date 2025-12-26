@@ -41,7 +41,7 @@ const localizer = dateFnsLocalizer({
 const DnDCalendar = withDragAndDrop(Calendar);
 
 export default function Schedule() {
-  const [user, setUser] = useState(null);
+  const { user, permissions, isAdmin } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);

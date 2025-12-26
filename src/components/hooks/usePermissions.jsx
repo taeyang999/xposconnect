@@ -68,6 +68,7 @@ export function usePermissions() {
         can_export_data: true,
       };
     } else {
+      // Employee role - restrictive defaults
       return {
         can_manage_customers: true,
         can_delete_customers: false,

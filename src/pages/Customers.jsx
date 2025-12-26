@@ -31,7 +31,7 @@ import CustomerForm from '@/components/customers/CustomerForm';
 import AdvancedCustomerFilters from '@/components/filters/AdvancedCustomerFilters';
 
 export default function Customers() {
-  const [user, setUser] = useState(null);
+  const { user, permissions, isAdmin } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
   const [deleteCustomer, setDeleteCustomer] = useState(null);

@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [permissions, setPermissions] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
@@ -32,6 +33,14 @@ export default function Layout({ children, currentPageName }) {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Load permissions
+        if (currentUser && currentUser.role !== 'admin') {
+          const perms = await base44.entities.Permission.filter({ user_email: currentUser.email });
+          if (perms && perms.length > 0) {
+            setPermissions(perms[0]);
+          }
+        }
       } catch (e) {
         console.log('User not logged in');
       }
@@ -88,22 +97,49 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.logout();
   };
 
-  const navigation = [
-    { name: 'Dashboard', href: 'Dashboard', icon: LayoutDashboard },
-    { name: 'Customers', href: 'Customers', icon: Users },
-    { name: 'Schedule', href: 'Schedule', icon: Calendar },
-    { name: 'Inventory', href: 'Inventory', icon: Package },
-    { name: 'Service Logs', href: 'ServiceLogs', icon: FileText },
-  ];
-
-  const adminNavigation = [
-    { name: 'Employees', href: 'Employees', icon: UserCircle },
-    { name: 'Permissions', href: 'EmployeePermissions', icon: Shield },
-    { name: 'Reports', href: 'Reports', icon: Building2 },
-    { name: 'Audit Logs', href: 'AuditLogs', icon: FileText },
-  ];
-
   const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
+
+  // Filter navigation based on permissions
+  const getFilteredNavigation = () => {
+    const baseNav = [
+      { name: 'Dashboard', href: 'Dashboard', icon: LayoutDashboard, requiresPermission: null },
+      { name: 'Customers', href: 'Customers', icon: Users, requiresPermission: 'can_view_customers' },
+      { name: 'Schedule', href: 'Schedule', icon: Calendar, requiresPermission: 'can_view_schedule' },
+      { name: 'Service Logs', href: 'ServiceLogs', icon: FileText, requiresPermission: 'can_view_service_logs' },
+      { name: 'Inventory', href: 'Inventory', icon: Package, requiresPermission: 'can_view_inventory' },
+    ];
+
+    if (isAdmin || isManager) {
+      return baseNav; // Show all navigation items
+    }
+
+    // Filter based on permissions for regular employees
+    return baseNav.filter(item => {
+      if (!item.requiresPermission) return true;
+      return permissions?.[item.requiresPermission] === true;
+    });
+  };
+
+  const getFilteredAdminNavigation = () => {
+    const adminNav = [
+      { name: 'Reports', href: 'Reports', icon: Building2, requiresPermission: 'can_view_reports' },
+      { name: 'Employees', href: 'Employees', icon: UserCircle, requiresPermission: 'can_manage_employees' },
+      { name: 'Permissions', href: 'EmployeePermissions', icon: Shield, requiresAdmin: true },
+      { name: 'Audit Logs', href: 'AuditLogs', icon: FileText, requiresAdmin: true },
+    ];
+
+    return adminNav.filter(item => {
+      if (item.requiresAdmin) return isAdmin;
+      if (item.requiresPermission) {
+        return isAdmin || isManager || permissions?.[item.requiresPermission] === true;
+      }
+      return false;
+    });
+  };
+
+  const navigation = getFilteredNavigation();
+  const adminNavigation = getFilteredAdminNavigation();
 
   const NavLink = ({ item }) => (
     <Link
@@ -162,10 +198,12 @@ export default function Layout({ children, currentPageName }) {
             {navigation.map((item) => (
               <NavLink key={item.name} item={item} />
             ))}
-            
-            {isAdmin && (
+
+            {adminNavigation.length > 0 && (
               <>
-                <p className="px-4 mt-8 mb-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Admin</p>
+                <p className="px-4 mt-8 mb-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  {isAdmin ? 'Admin' : 'Management'}
+                </p>
                 {adminNavigation.map((item) => (
                   <NavLink key={item.name} item={item} />
                 ))}
