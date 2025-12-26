@@ -35,7 +35,7 @@ export function usePermissions() {
       const result = await base44.entities.Permission.filter({ user_email: 'role_templates' });
       return result && result.length > 0 ? result[0] : null;
     },
-    enabled: !!user?.email && !isAdmin && !userPermission,
+    enabled: !!user?.email,
   });
 
   // Default permissions based on role if no specific permission record exists
@@ -62,21 +62,21 @@ export function usePermissions() {
       // Check role templates for manager
       if (roleTemplates) {
         return {
-          can_manage_customers: roleTemplates.manager_can_manage_customers ?? true,
-          can_delete_customers: roleTemplates.manager_can_delete_customers ?? true,
-          can_view_customers: roleTemplates.manager_can_view_customers ?? true,
-          can_manage_schedule: roleTemplates.manager_can_manage_schedule ?? true,
-          can_delete_schedule: roleTemplates.manager_can_delete_schedule ?? true,
-          can_view_schedule: roleTemplates.manager_can_view_schedule ?? true,
-          can_manage_service_logs: roleTemplates.manager_can_manage_service_logs ?? true,
-          can_delete_service_logs: roleTemplates.manager_can_delete_service_logs ?? true,
-          can_view_service_logs: roleTemplates.manager_can_view_service_logs ?? true,
-          can_manage_inventory: roleTemplates.manager_can_manage_inventory ?? true,
-          can_delete_inventory: roleTemplates.manager_can_delete_inventory ?? true,
-          can_view_inventory: roleTemplates.manager_can_view_inventory ?? true,
-          can_manage_employees: roleTemplates.manager_can_manage_employees ?? false,
-          can_view_reports: roleTemplates.manager_can_view_reports ?? true,
-          can_export_data: roleTemplates.manager_can_export_data ?? true,
+          can_manage_customers: roleTemplates.manager_can_manage_customers !== undefined ? roleTemplates.manager_can_manage_customers : true,
+          can_delete_customers: roleTemplates.manager_can_delete_customers !== undefined ? roleTemplates.manager_can_delete_customers : true,
+          can_view_customers: roleTemplates.manager_can_view_customers !== undefined ? roleTemplates.manager_can_view_customers : true,
+          can_manage_schedule: roleTemplates.manager_can_manage_schedule !== undefined ? roleTemplates.manager_can_manage_schedule : true,
+          can_delete_schedule: roleTemplates.manager_can_delete_schedule !== undefined ? roleTemplates.manager_can_delete_schedule : true,
+          can_view_schedule: roleTemplates.manager_can_view_schedule !== undefined ? roleTemplates.manager_can_view_schedule : true,
+          can_manage_service_logs: roleTemplates.manager_can_manage_service_logs !== undefined ? roleTemplates.manager_can_manage_service_logs : true,
+          can_delete_service_logs: roleTemplates.manager_can_delete_service_logs !== undefined ? roleTemplates.manager_can_delete_service_logs : true,
+          can_view_service_logs: roleTemplates.manager_can_view_service_logs !== undefined ? roleTemplates.manager_can_view_service_logs : true,
+          can_manage_inventory: roleTemplates.manager_can_manage_inventory !== undefined ? roleTemplates.manager_can_manage_inventory : true,
+          can_delete_inventory: roleTemplates.manager_can_delete_inventory !== undefined ? roleTemplates.manager_can_delete_inventory : true,
+          can_view_inventory: roleTemplates.manager_can_view_inventory !== undefined ? roleTemplates.manager_can_view_inventory : true,
+          can_manage_employees: roleTemplates.manager_can_manage_employees !== undefined ? roleTemplates.manager_can_manage_employees : false,
+          can_view_reports: roleTemplates.manager_can_view_reports !== undefined ? roleTemplates.manager_can_view_reports : true,
+          can_export_data: roleTemplates.manager_can_export_data !== undefined ? roleTemplates.manager_can_export_data : true,
         };
       }
       return {
@@ -100,21 +100,21 @@ export function usePermissions() {
       // Employee role - check templates first
       if (roleTemplates) {
         return {
-          can_manage_customers: roleTemplates.employee_can_manage_customers ?? true,
-          can_delete_customers: roleTemplates.employee_can_delete_customers ?? false,
-          can_view_customers: roleTemplates.employee_can_view_customers ?? true,
-          can_manage_schedule: roleTemplates.employee_can_manage_schedule ?? true,
-          can_delete_schedule: roleTemplates.employee_can_delete_schedule ?? false,
-          can_view_schedule: roleTemplates.employee_can_view_schedule ?? true,
-          can_manage_service_logs: roleTemplates.employee_can_manage_service_logs ?? true,
-          can_delete_service_logs: roleTemplates.employee_can_delete_service_logs ?? false,
-          can_view_service_logs: roleTemplates.employee_can_view_service_logs ?? true,
-          can_manage_inventory: roleTemplates.employee_can_manage_inventory ?? false,
-          can_delete_inventory: roleTemplates.employee_can_delete_inventory ?? false,
-          can_view_inventory: roleTemplates.employee_can_view_inventory ?? false,
-          can_manage_employees: roleTemplates.employee_can_manage_employees ?? false,
-          can_view_reports: roleTemplates.employee_can_view_reports ?? false,
-          can_export_data: roleTemplates.employee_can_export_data ?? false,
+          can_manage_customers: roleTemplates.employee_can_manage_customers !== undefined ? roleTemplates.employee_can_manage_customers : true,
+          can_delete_customers: roleTemplates.employee_can_delete_customers !== undefined ? roleTemplates.employee_can_delete_customers : false,
+          can_view_customers: roleTemplates.employee_can_view_customers !== undefined ? roleTemplates.employee_can_view_customers : true,
+          can_manage_schedule: roleTemplates.employee_can_manage_schedule !== undefined ? roleTemplates.employee_can_manage_schedule : true,
+          can_delete_schedule: roleTemplates.employee_can_delete_schedule !== undefined ? roleTemplates.employee_can_delete_schedule : false,
+          can_view_schedule: roleTemplates.employee_can_view_schedule !== undefined ? roleTemplates.employee_can_view_schedule : true,
+          can_manage_service_logs: roleTemplates.employee_can_manage_service_logs !== undefined ? roleTemplates.employee_can_manage_service_logs : true,
+          can_delete_service_logs: roleTemplates.employee_can_delete_service_logs !== undefined ? roleTemplates.employee_can_delete_service_logs : false,
+          can_view_service_logs: roleTemplates.employee_can_view_service_logs !== undefined ? roleTemplates.employee_can_view_service_logs : true,
+          can_manage_inventory: roleTemplates.employee_can_manage_inventory !== undefined ? roleTemplates.employee_can_manage_inventory : false,
+          can_delete_inventory: roleTemplates.employee_can_delete_inventory !== undefined ? roleTemplates.employee_can_delete_inventory : false,
+          can_view_inventory: roleTemplates.employee_can_view_inventory !== undefined ? roleTemplates.employee_can_view_inventory : false,
+          can_manage_employees: roleTemplates.employee_can_manage_employees !== undefined ? roleTemplates.employee_can_manage_employees : false,
+          can_view_reports: roleTemplates.employee_can_view_reports !== undefined ? roleTemplates.employee_can_view_reports : false,
+          can_export_data: roleTemplates.employee_can_export_data !== undefined ? roleTemplates.employee_can_export_data : false,
         };
       }
       return {
