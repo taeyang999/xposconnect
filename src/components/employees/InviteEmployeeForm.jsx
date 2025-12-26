@@ -18,10 +18,12 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, Mail, CheckCircle2 } from 'lucide-react';
+import { Loader2, Mail, CheckCircle2, User } from 'lucide-react';
 import { toast } from "sonner";
 
 export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
+  const [firstname, setFirstname] = useState('');
+  const [lastname, setLastname] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('employee');
   const [sending, setSending] = useState(false);
@@ -44,6 +46,17 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
       // Determine the user role for invitation (admin or user)
       const inviteRole = role === 'admin' ? 'admin' : 'user';
       await base44.users.inviteUser(email, inviteRole);
+      
+      // Update the user with firstname, lastname, and fullname
+      const users = await base44.entities.User.filter({ email: email });
+      if (users && users.length > 0) {
+        const fullname = `${firstname} ${lastname}`.trim();
+        await base44.entities.User.update(users[0].id, {
+          firstname,
+          lastname,
+          fullname
+        });
+      }
       
       // Get permissions from role templates or use defaults
       const getPermissionsForRole = (roleName) => {
@@ -146,6 +159,8 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
   };
 
   const handleClose = () => {
+    setFirstname('');
+    setLastname('');
     setEmail('');
     setRole('employee');
     setSent(false);
@@ -174,6 +189,39 @@ export default function InviteEmployeeForm({ open, onClose, onSuccess }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstname">First Name *</Label>
+                <div className="relative mt-1.5">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="firstname"
+                    type="text"
+                    value={firstname}
+                    onChange={(e) => setFirstname(e.target.value)}
+                    placeholder="John"
+                    required
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="lastname">Last Name *</Label>
+                <div className="relative mt-1.5">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Input
+                    id="lastname"
+                    type="text"
+                    value={lastname}
+                    onChange={(e) => setLastname(e.target.value)}
+                    placeholder="Doe"
+                    required
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="email">Email Address *</Label>
               <div className="relative mt-1.5">
