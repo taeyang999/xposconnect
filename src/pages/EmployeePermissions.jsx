@@ -10,8 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import PageHeader from '@/components/ui/PageHeader';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function EmployeePermissions() {
+  const queryClient = useQueryClient();
   const { user: currentUser, isAdmin } = usePermissions();
   const [saving, setSaving] = useState(false);
   const [activeRole, setActiveRole] = useState('employee');
@@ -206,6 +208,7 @@ export default function EmployeePermissions() {
         await base44.entities.Permission.create(templateData);
       }
 
+      queryClient.invalidateQueries({ queryKey: ['roleTemplates'] });
       toast.success('Permission templates saved successfully');
     } catch (error) {
       console.error('Save error:', error);
