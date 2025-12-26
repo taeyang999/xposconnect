@@ -352,7 +352,14 @@ export default function Layout({ children, currentPageName }) {
                   <Button variant="ghost" className="flex items-center gap-2 rounded-xl hover:bg-slate-100">
                     <Avatar className="h-8 w-8">
                         <AvatarFallback className="bg-slate-800 text-white text-sm">
-                              {user ? user.fullname?.charAt(0)?.toUpperCase() || user.full_name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || 'U' : 'U'}
+                              {user ? (() => {
+                                const name = user.fullname || user.full_name || '';
+                                const parts = name.trim().split(' ').filter(Boolean);
+                                if (parts.length >= 2) {
+                                  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+                                }
+                                return name.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase() || 'U';
+                              })() : 'U'}
                             </AvatarFallback>
                       </Avatar>
                     <ChevronDown className="h-4 w-4 text-slate-400" />

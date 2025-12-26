@@ -108,7 +108,7 @@ export default function Dashboard() {
     <div className="space-y-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">
-          Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+          Welcome back{user?.fullname ? `, ${user.fullname}` : user?.full_name ? `, ${user.full_name}` : ''}
         </h1>
         <p className="text-slate-500 mt-1">
           {format(new Date(), 'EEEE, MMMM d, yyyy')}
