@@ -7,8 +7,11 @@ import {
   ArrowLeft, Mail, Phone, MapPin, User, Calendar,
   FileText, Package, Image, Pencil, Plus, Trash2, 
   MoreVertical, Upload, X, Eye, Download, Building2,
-  CreditCard, Wifi, ShieldAlert, Ban, Paperclip
+  CreditCard, Wifi, ShieldAlert, Ban, Paperclip, Clock, ChevronDown
 } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { getAuditLogs } from '../components/audit/auditLogger';
+import AuditLogViewer from '../components/audit/AuditLogViewer';
 import { format, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +67,17 @@ export default function CustomerDetail() {
   const [viewPhoto, setViewPhoto] = useState(null);
   const [photoCategoryFilter, setPhotoCategoryFilter] = useState('all');
   const [viewServiceLogFromPhoto, setViewServiceLogFromPhoto] = useState(null);
+  const [openSections, setOpenSections] = useState({
+    service: true,
+    inventory: false,
+    photos: false,
+    audit: false,
+  });
   const queryClient = useQueryClient();
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -99,6 +112,12 @@ export default function CustomerDetail() {
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: auditLogs = [] } = useQuery({
+    queryKey: ['auditLogs', 'Customer', customerId],
+    queryFn: () => getAuditLogs('Customer', customerId),
+    enabled: !!customerId,
   });
 
   const getEmployeeInitials = (email) => {
@@ -652,6 +671,29 @@ export default function CustomerDetail() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Activity History Section */}
+      <div className="mt-6">
+        <Collapsible open={openSections.audit} onOpenChange={() => toggleSection('audit')}>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" className="w-full justify-between p-4 h-auto hover:bg-slate-50 rounded-xl border border-slate-200/80 bg-white">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-slate-100">
+                  <Clock className="h-5 w-5 text-slate-600" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-slate-900">Activity History</h3>
+                  <p className="text-sm text-slate-500">{auditLogs.length} activities recorded</p>
+                </div>
+              </div>
+              <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform ${openSections.audit ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <AuditLogViewer logs={auditLogs} />
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
 
       {/* Forms and Dialogs */}
       <CustomerForm
