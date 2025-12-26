@@ -37,8 +37,9 @@ export default function AdvancedServiceLogFilters({ open, onClose, filters, onFi
 
   const clearFilters = () => {
     onFiltersChange({
-      assignedEmployee: 'all',
-      customer: 'all',
+      assigned_employee: 'all',
+      customer_id: 'all',
+      status: 'all',
       dateFrom: '',
       dateTo: '',
     });
@@ -62,7 +63,7 @@ export default function AdvancedServiceLogFilters({ open, onClose, filters, onFi
         <div className="mt-6 space-y-5">
           <div>
             <Label>Customer</Label>
-            <Select value={filters.customer} onValueChange={(value) => updateFilter('customer', value)}>
+            <Select value={filters.customer_id || 'all'} onValueChange={(value) => updateFilter('customer_id', value)}>
               <SelectTrigger className="mt-1.5">
                 <SelectValue />
               </SelectTrigger>
@@ -79,7 +80,7 @@ export default function AdvancedServiceLogFilters({ open, onClose, filters, onFi
 
           <div>
             <Label>Assigned Employee</Label>
-            <Select value={filters.assignedEmployee} onValueChange={(value) => updateFilter('assignedEmployee', value)}>
+            <Select value={filters.assigned_employee || 'all'} onValueChange={(value) => updateFilter('assigned_employee', value)}>
               <SelectTrigger className="mt-1.5">
                 <SelectValue />
               </SelectTrigger>
@@ -98,7 +99,7 @@ export default function AdvancedServiceLogFilters({ open, onClose, filters, onFi
 
           <div>
             <Label>Status</Label>
-            <Select value={localFilters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
+            <Select value={filters.status || 'all'} onValueChange={(value) => updateFilter('status', value)}>
               <SelectTrigger className="mt-1.5">
                 <SelectValue placeholder="All Statuses" />
               </SelectTrigger>
