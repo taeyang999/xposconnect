@@ -29,7 +29,8 @@ export default function NotificationDropdown({ userEmail }) {
     queryKey: ['notifications', userEmail],
     queryFn: () => base44.entities.Notification.filter({ recipient_email: userEmail }, '-created_date', 20),
     enabled: !!userEmail,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds
+    staleTime: 2000,
   });
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
