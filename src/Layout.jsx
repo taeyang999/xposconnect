@@ -10,12 +10,13 @@ import {
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+        DropdownMenu,
+        DropdownMenuContent,
+        DropdownMenuItem,
+        DropdownMenuSeparator,
+        DropdownMenuTrigger,
+      } from "@/components/ui/dropdown-menu";
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
@@ -344,9 +345,7 @@ export default function Layout({ children, currentPageName }) {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="rounded-xl hover:bg-slate-100">
-                <Bell className="h-5 w-5 text-slate-500" />
-              </Button>
+                                <NotificationDropdown userEmail={user?.email} />
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
