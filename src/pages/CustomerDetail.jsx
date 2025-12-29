@@ -454,7 +454,11 @@ export default function CustomerDetail() {
               ) : (
                 <div className="space-y-4">
                   {serviceLogs.map((log) => (
-                    <div key={log.id} className="flex items-start justify-between p-4 rounded-xl bg-slate-50/50 hover:bg-slate-100/80 transition-colors">
+                    <div 
+                      key={log.id} 
+                      className="flex items-start justify-between p-4 rounded-xl bg-slate-50/50 hover:bg-slate-100/80 transition-colors cursor-pointer"
+                      onClick={() => { setEditingServiceLog(log); setShowServiceLogForm(true); }}
+                    >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h4 className="font-medium text-slate-900">{log.title}</h4>
@@ -490,17 +494,18 @@ export default function CustomerDetail() {
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setEditingServiceLog(log); setShowServiceLogForm(true); }}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => { setDeleteItem(log); setDeleteType('serviceLog'); }}
+                            onClick={(e) => { e.stopPropagation(); setDeleteItem(log); setDeleteType('serviceLog'); }}
                             className="text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
