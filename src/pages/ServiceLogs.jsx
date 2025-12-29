@@ -271,6 +271,7 @@ export default function ServiceLogs() {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50/80">
+                <TableHead>Ticket ID</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Customer</TableHead>
                 <TableHead>Date</TableHead>
@@ -291,6 +292,11 @@ export default function ServiceLogs() {
                     navigate(createPageUrl('CustomerDetail') + `?id=${log.customer_id}`);
                   }}
                 >
+                  <TableCell>
+                    <span className="font-mono text-sm text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                      {log.ticket_id || '-'}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <div>
                       <p className="font-medium text-slate-900">{log.title}</p>

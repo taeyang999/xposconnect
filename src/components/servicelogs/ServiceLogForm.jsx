@@ -53,6 +53,22 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
     enabled: !customerId,
   });
 
+  const { data: allServiceLogs = [] } = useQuery({
+    queryKey: ['allServiceLogs'],
+    queryFn: () => base44.entities.ServiceLog.list('-created_date'),
+  });
+
+  const generateTicketId = () => {
+    const existingTickets = allServiceLogs
+      .map(log => log.ticket_id)
+      .filter(id => id && id.startsWith('TKT-'))
+      .map(id => parseInt(id.replace('TKT-', ''), 10))
+      .filter(num => !isNaN(num));
+    
+    const maxNumber = existingTickets.length > 0 ? Math.max(...existingTickets) : 0;
+    return `TKT-${String(maxNumber + 1).padStart(5, '0')}`;
+  };
+
   useEffect(() => {
     if (serviceLog) {
       setFormData({
@@ -68,7 +84,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
       setPreviousEmployee(serviceLog.assigned_employee || '');
     } else {
       setFormData({
-        ticket_id: '',
+        ticket_id: generateTicketId(),
         customer_id: customerId || '',
         title: '',
         description: '',
@@ -79,7 +95,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
       });
       setPreviousEmployee('');
     }
-  }, [serviceLog, customerId, open]);
+  }, [serviceLog, customerId, open, allServiceLogs]);
 
   const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files);
@@ -178,9 +194,8 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
             <Input
               id="ticket_id"
               value={formData.ticket_id}
-              onChange={(e) => setFormData({ ...formData, ticket_id: e.target.value })}
-              placeholder="e.g., TKT-001"
-              className="mt-1.5"
+              readOnly
+              className="mt-1.5 bg-slate-50"
             />
           </div>
 
