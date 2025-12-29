@@ -61,12 +61,12 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const generateTicketId = () => {
     const existingTickets = allServiceLogs
       .map(log => log.ticket_id)
-      .filter(id => id && id.startsWith('TKT-'))
-      .map(id => parseInt(id.replace('TKT-', ''), 10))
+      .filter(id => id)
+      .map(id => parseInt(id, 10))
       .filter(num => !isNaN(num));
     
     const maxNumber = existingTickets.length > 0 ? Math.max(...existingTickets) : 0;
-    return `TKT-${String(maxNumber + 1).padStart(5, '0')}`;
+    return String(maxNumber + 1);
   };
 
   useEffect(() => {
