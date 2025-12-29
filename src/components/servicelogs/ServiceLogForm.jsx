@@ -25,6 +25,7 @@ import ServiceLogComments from './ServiceLogComments';
 
 export default function ServiceLogForm({ open, onClose, serviceLog, customerId, onSave }) {
   const [formData, setFormData] = useState({
+    ticket_id: '',
     customer_id: customerId || '',
     title: '',
     description: '',
@@ -55,6 +56,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   useEffect(() => {
     if (serviceLog) {
       setFormData({
+        ticket_id: serviceLog.ticket_id || '',
         customer_id: serviceLog.customer_id || customerId || '',
         title: serviceLog.title || '',
         description: serviceLog.description || '',
@@ -66,6 +68,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
       setPreviousEmployee(serviceLog.assigned_employee || '');
     } else {
       setFormData({
+        ticket_id: '',
         customer_id: customerId || '',
         title: '',
         description: '',
@@ -170,6 +173,17 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+          <div>
+            <Label htmlFor="ticket_id">Ticket ID</Label>
+            <Input
+              id="ticket_id"
+              value={formData.ticket_id}
+              onChange={(e) => setFormData({ ...formData, ticket_id: e.target.value })}
+              placeholder="e.g., TKT-001"
+              className="mt-1.5"
+            />
+          </div>
+
           {!customerId && (
             <div>
               <Label>Customer *</Label>

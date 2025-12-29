@@ -125,6 +125,7 @@ export default function ServiceLogs() {
     const matchesSearch = 
       log.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       log.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      log.ticket_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       getCustomerName(log.customer_id).toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || log.status === statusFilter;
     const matchesAdvancedStatus = advancedFilters.status === 'all' || log.status === advancedFilters.status;

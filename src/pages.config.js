@@ -1,3 +1,4 @@
+import AuditLogs from './pages/AuditLogs';
 import CustomerDetail from './pages/CustomerDetail';
 import Customers from './pages/Customers';
 import Dashboard from './pages/Dashboard';
@@ -8,11 +9,11 @@ import Profile from './pages/Profile';
 import Reports from './pages/Reports';
 import Schedule from './pages/Schedule';
 import ServiceLogs from './pages/ServiceLogs';
-import AuditLogs from './pages/AuditLogs';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AuditLogs": AuditLogs,
     "CustomerDetail": CustomerDetail,
     "Customers": Customers,
     "Dashboard": Dashboard,
@@ -23,7 +24,6 @@ export const PAGES = {
     "Reports": Reports,
     "Schedule": Schedule,
     "ServiceLogs": ServiceLogs,
-    "AuditLogs": AuditLogs,
 }
 
 export const pagesConfig = {

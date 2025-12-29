@@ -117,6 +117,7 @@ export default function Layout({ children, currentPageName }) {
     serviceLogs: serviceLogs.filter(s => 
       s.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.ticket_id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       getCustomerName(s.customer_id)?.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 5)
   } : { customers: [], serviceLogs: [] };
