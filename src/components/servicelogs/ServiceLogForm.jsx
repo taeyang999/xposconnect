@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Paperclip, X, Image as ImageIcon, FileText } from 'lucide-react';
 import ServiceLogComments from './ServiceLogComments';
+import { createNotification } from '../notifications/notificationService';
 
 export default function ServiceLogForm({ open, onClose, serviceLog, customerId, onSave }) {
   const [formData, setFormData] = useState({
@@ -161,11 +162,23 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
       if (isNewAssignment) {
         try {
           const customerName = customers.find(c => c.id === formData.customer_id)?.name || 'a customer';
+          
+          // Send email notification
           await base44.integrations.Core.SendEmail({
             to: formData.assigned_employee,
             subject: `New Service Log Assigned: ${formData.title}`,
             body: `You have been assigned a new service log.\n\nTitle: ${formData.title}\nCustomer: ${customerName}\nService Date: ${formData.service_date}\nStatus: ${formData.status}\n\nPlease check the system for more details.`
           });
+          
+          // Create in-app notification
+          await createNotification({
+            recipientEmail: formData.assigned_employee,
+            title: `New Service Log: ${formData.title}`,
+            message: `You have been assigned a service log for ${customerName}. Service date: ${formData.service_date}.`,
+            type: 'service_log',
+            link: `/CustomerDetail?id=${formData.customer_id}`,
+          });
+          
           toast.success('Employee notified');
         } catch (err) {
           console.error('Failed to send notification:', err);
