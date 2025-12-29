@@ -41,6 +41,13 @@ const localizer = dateFnsLocalizer({
 
 const DnDCalendar = withDragAndDrop(Calendar);
 
+// Custom compact event component for month view
+const MonthEventComponent = ({ event }) => (
+  <div className="truncate text-xs leading-tight py-0.5">
+    {event.title}
+  </div>
+);
+
 export default function Schedule() {
   const { user, permissions, isAdmin } = usePermissions();
   const [showForm, setShowForm] = useState(false);
@@ -212,6 +219,16 @@ export default function Schedule() {
             views={['month', 'week', 'day', 'agenda']}
             defaultView="month"
             popup
+            components={{
+              month: {
+                event: MonthEventComponent,
+              },
+            }}
+            messages={{
+              showMore: (total) => `+${total} more`,
+            }}
+            max={new Date(2099, 12, 31)}
+            showAllEvents
           />
         </div>
       </Card>
