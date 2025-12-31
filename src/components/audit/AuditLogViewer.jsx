@@ -32,13 +32,44 @@ export default function AuditLogViewer({ logs }) {
     }
   };
 
-  const formatChanges = (changesStr) => {
+  const formatFieldName = (key) => {
+    return key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  };
+
+  const formatValue = (val) => {
+    if (val === null || val === undefined || val === '') return '(empty)';
+    if (typeof val === 'boolean') return val ? 'Yes' : 'No';
+    return String(val);
+  };
+
+  const formatChanges = (changesStr, action) => {
     try {
       const changes = JSON.parse(changesStr);
-      return Object.entries(changes).map(([key, value]) => (
+      const entries = Object.entries(changes);
+      if (entries.length === 0) return null;
+
+      // For updates with from/to structure
+      if (action === 'update' && entries.some(([, v]) => v && typeof v === 'object' && 'from' in v)) {
+        return entries.map(([key, value]) => (
+          <div key={key} className="text-xs flex items-center gap-1">
+            <span className="font-medium text-slate-700">{formatFieldName(key)}:</span>
+            <span className="text-slate-500">{formatValue(value.from)}</span>
+            <span className="text-slate-400">→</span>
+            <span className="text-slate-900">{formatValue(value.to)}</span>
+          </div>
+        ));
+      }
+
+      // For create actions, just show field count
+      if (action === 'create') {
+        return <div className="text-xs text-slate-600">New record created</div>;
+      }
+
+      // Fallback for other formats
+      return entries.slice(0, 5).map(([key, value]) => (
         <div key={key} className="text-xs">
-          <span className="font-medium text-slate-700">{key}:</span>{' '}
-          <span className="text-slate-600">{typeof value === 'object' ? JSON.stringify(value) : String(value)}</span>
+          <span className="font-medium text-slate-700">{formatFieldName(key)}:</span>{' '}
+          <span className="text-slate-600">{formatValue(value)}</span>
         </div>
       ));
     } catch {
@@ -92,7 +123,7 @@ export default function AuditLogViewer({ logs }) {
                   </div>
                   {log.changes && (
                     <div className="mt-2 p-2 bg-slate-50 rounded-md space-y-1">
-                      {formatChanges(log.changes)}
+                      {formatChanges(log.changes, log.action)}
                     </div>
                   )}
                   {log.metadata && (

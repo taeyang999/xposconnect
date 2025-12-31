@@ -119,8 +119,16 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
     setSaving(true);
     try {
       if (customer) {
+        const changes = {};
+        for (const key in formData) {
+          if (JSON.stringify(customer[key]) !== JSON.stringify(formData[key])) {
+            changes[key] = { from: customer[key], to: formData[key] };
+          }
+        }
         await base44.entities.Customer.update(customer.id, formData);
-        await logAudit('Customer', customer.id, formData.name, 'update', formData);
+        if (Object.keys(changes).length > 0) {
+          await logAudit('Customer', customer.id, formData.name, 'update', changes);
+        }
       } else {
         const newCustomer = await base44.entities.Customer.create(formData);
         await logAudit('Customer', newCustomer.id, formData.name, 'create', formData);
