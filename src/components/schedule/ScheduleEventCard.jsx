@@ -1,6 +1,6 @@
 import React from 'react';
 import { format, parseISO } from 'date-fns';
-import { Calendar, User, Building2, MoreVertical, Pencil, Trash2, MapPin } from 'lucide-react';
+import { Calendar, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -73,46 +73,17 @@ export default function ScheduleEventCard({
         </Badge>
       </div>
 
-      {event.description && (
-        <p className="text-sm text-slate-600 line-clamp-2 mb-3">{event.description}</p>
-      )}
-
-      <div className="space-y-2 text-sm text-slate-700">
-        {event.customer_id && (
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-slate-500" />
-            <span className="truncate">{getCustomerName(event.customer_id)}</span>
-          </div>
-        )}
-        
+      <div className="flex items-center justify-between text-sm text-slate-600">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-slate-500" />
-          <span className="truncate">
-            {event.start_datetime ? format(parseISO(event.start_datetime), 'MMM d, yyyy h:mm a') : '-'}
-          </span>
+          <span>{event.start_datetime ? format(parseISO(event.start_datetime), 'MMM d, h:mm a') : '-'}</span>
         </div>
-
-        {event.location && (
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-slate-500" />
-            <span className="truncate">{event.location}</span>
-          </div>
-        )}
-
-        {event.assigned_employee ? (
-          <div className="flex items-center gap-2">
-            <Avatar className="h-5 w-5">
-              <AvatarFallback className="bg-slate-800 text-white text-[9px] font-medium">
-                {getEmployeeInitials(event.assigned_employee)}
-              </AvatarFallback>
-            </Avatar>
-            <span className="truncate">{getEmployeeName(event.assigned_employee)}</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 text-slate-500">
-            <User className="h-4 w-4" />
-            <span>Unassigned</span>
-          </div>
+        {event.assigned_employee && (
+          <Avatar className="h-5 w-5">
+            <AvatarFallback className="bg-slate-800 text-white text-[9px] font-medium">
+              {getEmployeeInitials(event.assigned_employee)}
+            </AvatarFallback>
+          </Avatar>
         )}
       </div>
     </div>
