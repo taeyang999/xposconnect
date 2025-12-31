@@ -152,8 +152,21 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
       };
 
       if (serviceLog) {
+        // Calculate only changed fields
+        const changes = {};
+        for (const key in dataToSave) {
+          const oldVal = serviceLog[key] ?? '';
+          const newVal = dataToSave[key] ?? '';
+          const oldNormalized = typeof oldVal === 'boolean' ? oldVal : String(oldVal);
+          const newNormalized = typeof newVal === 'boolean' ? newVal : String(newVal);
+          if (oldNormalized !== newNormalized) {
+            changes[key] = { from: serviceLog[key], to: dataToSave[key] };
+          }
+        }
         await base44.entities.ServiceLog.update(serviceLog.id, dataToSave);
-        await logAudit('ServiceLog', serviceLog.id, formData.title, 'update', dataToSave);
+        if (Object.keys(changes).length > 0) {
+          await logAudit('ServiceLog', serviceLog.id, formData.title, 'update', changes);
+        }
         logId = serviceLog.id;
       } else {
         const newLog = await base44.entities.ServiceLog.create(dataToSave);

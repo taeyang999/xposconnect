@@ -110,7 +110,21 @@ export default function EventForm({ open, onClose, event, onSave }) {
       };
       
       if (event) {
+        // Calculate only changed fields
+        const changes = {};
+        for (const key in data) {
+          const oldVal = event[key] ?? '';
+          const newVal = data[key] ?? '';
+          const oldNormalized = typeof oldVal === 'boolean' ? oldVal : String(oldVal);
+          const newNormalized = typeof newVal === 'boolean' ? newVal : String(newVal);
+          if (oldNormalized !== newNormalized) {
+            changes[key] = { from: event[key], to: data[key] };
+          }
+        }
         await base44.entities.ScheduleEvent.update(event.id, data);
+        if (Object.keys(changes).length > 0) {
+          await logAudit('ScheduleEvent', event.id, data.title, 'update', changes);
+        }
       } else {
         await base44.entities.ScheduleEvent.create(data);
       }

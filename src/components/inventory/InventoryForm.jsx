@@ -74,8 +74,21 @@ export default function InventoryForm({ open, onClose, inventoryItem, customerId
     setSaving(true);
     try {
       if (inventoryItem) {
+        // Calculate only changed fields
+        const changes = {};
+        for (const key in formData) {
+          const oldVal = inventoryItem[key] ?? '';
+          const newVal = formData[key] ?? '';
+          const oldNormalized = typeof oldVal === 'boolean' ? oldVal : String(oldVal);
+          const newNormalized = typeof newVal === 'boolean' ? newVal : String(newVal);
+          if (oldNormalized !== newNormalized) {
+            changes[key] = { from: inventoryItem[key], to: formData[key] };
+          }
+        }
         await base44.entities.InventoryItem.update(inventoryItem.id, formData);
-        await logAudit('InventoryItem', inventoryItem.id, formData.name, 'update', formData);
+        if (Object.keys(changes).length > 0) {
+          await logAudit('InventoryItem', inventoryItem.id, formData.name, 'update', changes);
+        }
       } else {
         const newItem = await base44.entities.InventoryItem.create(formData);
         await logAudit('InventoryItem', newItem.id, formData.name, 'create', formData);
