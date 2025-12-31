@@ -710,7 +710,10 @@ export default function CustomerDetail() {
         open={showEditForm}
         onClose={() => setShowEditForm(false)}
         customer={customer}
-        onSave={() => queryClient.invalidateQueries({ queryKey: ['customer', customerId] })}
+        onSave={() => {
+          queryClient.invalidateQueries({ queryKey: ['customer', customerId] });
+          queryClient.invalidateQueries({ queryKey: ['auditLogs', 'Customer', customerId] });
+        }}
       />
 
       <ServiceLogForm
