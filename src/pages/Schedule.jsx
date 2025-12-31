@@ -27,6 +27,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import EventForm from '@/components/schedule/EventForm';
 import EventDetail from '@/components/schedule/EventDetail';
 import ScheduleEventCard from '@/components/schedule/ScheduleEventCard';
+import ScheduleEventCardDesktop from '@/components/schedule/ScheduleEventCardDesktop';
 
 const locales = {
   'en-US': enUS,
@@ -288,13 +289,13 @@ export default function Schedule() {
         <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {isLoading ? (
             Array(6).fill(0).map((_, i) => (
-              <div key={i} className="h-40 w-full bg-slate-100 rounded-xl animate-pulse"></div>
+              <div key={i} className="h-48 w-full bg-slate-100 rounded-xl animate-pulse"></div>
             ))
           ) : calendarEvents.length > 0 ? (
             calendarEvents
               .sort((a, b) => a.start.getTime() - b.start.getTime())
               .map((event) => (
-                <ScheduleEventCard
+                <ScheduleEventCardDesktop
                   key={event.id}
                   event={event}
                   getCustomerName={getCustomerName}
