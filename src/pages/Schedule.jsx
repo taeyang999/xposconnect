@@ -252,8 +252,8 @@ export default function Schedule() {
 
       {/* Desktop: Calendar View */}
       {desktopView === 'calendar' && (
-        <Card className="hidden lg:block overflow-hidden border-slate-200/80 p-6">
-          <div style={{ height: '700px' }}>
+        <Card className="hidden lg:block overflow-hidden border-slate-200/80 p-2">
+          <div style={{ height: 'calc(100vh - 180px)', minHeight: '600px' }}>
             <DnDCalendar
               localizer={localizer}
               events={calendarEvents}

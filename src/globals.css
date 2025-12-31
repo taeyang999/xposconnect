@@ -100,7 +100,20 @@
 }
 
 .rbc-month-row {
-  min-height: 100px;
+  min-height: 120px;
+}
+
+.rbc-month-view .rbc-month-row {
+  overflow: visible;
+}
+
+.rbc-row-content {
+  z-index: 1;
+}
+
+.rbc-toolbar {
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
 .rbc-show-more {
@@ -135,8 +148,8 @@
 }
 
 .rbc-toolbar {
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
   background-color: #f8fafc;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
