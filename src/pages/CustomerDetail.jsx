@@ -131,6 +131,11 @@ export default function CustomerDetail() {
   const handleDelete = async () => {
     if (deleteItem && deleteType) {
       if (deleteType === 'serviceLog') {
+        // Delete associated schedule event if exists
+        if (deleteItem.schedule_event_id) {
+          await base44.entities.ScheduleEvent.delete(deleteItem.schedule_event_id);
+          queryClient.invalidateQueries({ queryKey: ['events'] });
+        }
         await base44.entities.ServiceLog.delete(deleteItem.id);
         queryClient.invalidateQueries({ queryKey: ['serviceLogs', customerId] });
       } else if (deleteType === 'inventory') {
