@@ -26,6 +26,7 @@ import {
 import PageHeader from '@/components/ui/PageHeader';
 import EventForm from '@/components/schedule/EventForm';
 import EventDetail from '@/components/schedule/EventDetail';
+import ScheduleEventCard from '@/components/schedule/ScheduleEventCard';
 
 const locales = {
   'en-US': enUS,
@@ -201,8 +202,34 @@ export default function Schedule() {
         }
       />
 
-      {/* Calendar */}
-      <Card className="overflow-hidden border-slate-200/80 p-6">
+      {/* Mobile: Event Cards */}
+      <div className="lg:hidden space-y-3">
+        {isLoading ? (
+          Array(3).fill(0).map((_, i) => (
+            <div key={i} className="h-40 w-full bg-slate-100 rounded-xl animate-pulse"></div>
+          ))
+        ) : calendarEvents.length > 0 ? (
+          calendarEvents
+            .sort((a, b) => a.start.getTime() - b.start.getTime())
+            .map((event) => (
+              <ScheduleEventCard
+                key={event.id}
+                event={event}
+                getCustomerName={getCustomerName}
+                getEmployeeInitials={getEmployeeInitials}
+                getEmployeeName={getEmployeeName}
+                onEdit={handleEdit}
+                onDelete={setDeleteEvent}
+                onSelect={handleSelectEvent}
+              />
+            ))
+        ) : (
+          <Card className="p-8 text-center text-slate-500">No events scheduled.</Card>
+        )}
+      </div>
+
+      {/* Desktop: Calendar View */}
+      <Card className="hidden lg:block overflow-hidden border-slate-200/80 p-6">
         <div style={{ height: '700px' }}>
           <DnDCalendar
             localizer={localizer}
