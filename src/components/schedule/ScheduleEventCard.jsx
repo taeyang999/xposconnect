@@ -79,11 +79,14 @@ export default function ScheduleEventCard({
           <span>{event.start_datetime ? format(parseISO(event.start_datetime), 'MMM d, h:mm a') : '-'}</span>
         </div>
         {event.assigned_employee && (
-          <Avatar className="h-5 w-5">
-            <AvatarFallback className="bg-slate-800 text-white text-[9px] font-medium">
-              {getEmployeeInitials(event.assigned_employee)}
-            </AvatarFallback>
-          </Avatar>
+          <div className="flex items-center gap-1.5">
+            <Avatar className="h-5 w-5">
+              <AvatarFallback className="bg-slate-800 text-white text-[9px] font-medium">
+                {getEmployeeInitials(event.assigned_employee)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-slate-500 truncate max-w-[100px]">{getEmployeeName(event.assigned_employee)}</span>
+          </div>
         )}
       </div>
     </div>
