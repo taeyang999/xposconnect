@@ -60,9 +60,9 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
           </div>
           <div>
             <h3 className="font-semibold text-slate-900">{customer.name}</h3>
-            <Badge className={cn("mt-1", statusColors[customer.status] || statusColors.active)}>
-              {customer.status || 'active'}
-            </Badge>
+            {customer.merchant_id && (
+              <p className="text-sm font-bold text-slate-700 mt-1">{customer.merchant_id}</p>
+            )}
           </div>
         </div>
         <DropdownMenu>
