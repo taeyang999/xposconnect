@@ -121,7 +121,11 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
       if (customer) {
         const changes = {};
         for (const key in formData) {
-          if (JSON.stringify(customer[key]) !== JSON.stringify(formData[key])) {
+          const oldVal = customer[key] ?? '';
+          const newVal = formData[key] ?? '';
+          const oldNormalized = typeof oldVal === 'boolean' ? oldVal : String(oldVal);
+          const newNormalized = typeof newVal === 'boolean' ? newVal : String(newVal);
+          if (oldNormalized !== newNormalized) {
             changes[key] = { from: customer[key], to: formData[key] };
           }
         }
