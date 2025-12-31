@@ -101,20 +101,17 @@
 }
 
 .rbc-month-row {
-  min-height: 90px;
+  min-height: 100px;
 }
 
 .rbc-month-view .rbc-month-row {
-  overflow: visible;
+  overflow: hidden;
 }
 
 .rbc-row-content {
   z-index: 1;
-}
-
-.rbc-toolbar {
-  padding: 8px;
-  margin-bottom: 8px;
+  max-height: 95px;
+  overflow: hidden;
 }
 
 .rbc-show-more {
