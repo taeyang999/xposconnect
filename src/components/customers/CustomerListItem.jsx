@@ -35,9 +35,9 @@ export default function CustomerListItem({ customer, onEdit, onDelete }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <h3 className="font-semibold text-slate-900 truncate">{customer.name}</h3>
-            <Badge className={statusColors[customer.status] || statusColors.active}>
-              {customer.status}
-            </Badge>
+            {customer.merchant_id && (
+              <span className="font-bold text-blue-600 text-sm">{customer.merchant_id}</span>
+            )}
             {customer.has_hotspot && (
               <Wifi className="h-4 w-4 text-blue-500" />
             )}
