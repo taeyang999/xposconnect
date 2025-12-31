@@ -7,7 +7,8 @@ import { logAudit } from '../components/audit/auditLogger';
 import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   Plus, Search, Filter, Calendar, User, Building2,
-  MoreVertical, Pencil, Trash2, Eye, Download, SlidersHorizontal
+  MoreVertical, Pencil, Trash2, Eye, Download, SlidersHorizontal,
+  LayoutGrid, List
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,7 @@ import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import ServiceLogForm from '@/components/servicelogs/ServiceLogForm';
 import ServiceLogCard from '@/components/servicelogs/ServiceLogCard';
+import ServiceLogCardDesktop from '@/components/servicelogs/ServiceLogCardDesktop';
 import AdvancedServiceLogFilters from '@/components/filters/AdvancedServiceLogFilters';
 
 export default function ServiceLogs() {
@@ -69,6 +71,7 @@ export default function ServiceLogs() {
     dateFrom: '',
     dateTo: '',
   });
+  const [desktopView, setDesktopView] = useState('table'); // 'table' or 'cards'
   const queryClient = useQueryClient();
 
   const canView = permissions?.can_view_service_logs !== false;
@@ -189,10 +192,30 @@ export default function ServiceLogs() {
         title="Service Logs"
         description="Track and manage all service activities"
         actions={
-          <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Service Log
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="hidden lg:flex items-center border border-slate-200 rounded-lg p-1">
+              <Button
+                variant={desktopView === 'table' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setDesktopView('table')}
+                className={desktopView === 'table' ? 'bg-slate-900 hover:bg-slate-800' : ''}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={desktopView === 'cards' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setDesktopView('cards')}
+                className={desktopView === 'cards' ? 'bg-slate-900 hover:bg-slate-800' : ''}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Service Log
+            </Button>
+          </div>
         }
       />
 
@@ -286,108 +309,128 @@ export default function ServiceLogs() {
             </div>
 
             {/* Desktop Table View */}
-            <div className="hidden lg:block">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50/80">
-                    <TableHead>Ticket ID</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Assigned To</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredLogs.map((log) => (
-                    <TableRow 
-                      key={log.id} 
-                      className="hover:bg-slate-50/50 cursor-pointer"
-                      onClick={(e) => {
-                        if (e.target.closest('[data-radix-popper-content-wrapper]') || e.target.closest('button') || e.target.closest('a')) {
-                          return;
-                        }
-                        navigate(createPageUrl('CustomerDetail') + `?id=${log.customer_id}`);
-                      }}
-                    >
-                      <TableCell>
-                        <span className="font-mono text-sm text-slate-600 bg-slate-100 px-2 py-1 rounded">
-                          {log.ticket_id || '-'}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium text-slate-900">{log.title}</p>
-                          {log.description && (
-                            <p className="text-sm text-slate-500 truncate max-w-xs">{log.description}</p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Link 
-                          to={createPageUrl('CustomerDetail') + `?id=${log.customer_id}`}
-                          className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Building2 className="h-4 w-4" />
-                          {getCustomerName(log.customer_id)}
-                        </Link>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2 text-sm text-slate-600">
-                          <Calendar className="h-4 w-4 text-slate-400" />
-                          {log.service_date && format(parseISO(log.service_date), 'MMM d, yyyy')}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={statusColors[log.status] || statusColors.scheduled}>
-                          {log.status?.replace('_', ' ')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {log.assigned_employee ? (
-                          <div className="flex items-center gap-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
-                                {getEmployeeInitials(log.assigned_employee)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-slate-600 hidden md:inline">
-                              {getEmployeeName(log.assigned_employee)}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-slate-400">Unassigned</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                            <DropdownMenuItem onClick={() => handleEdit(log)} className="cursor-pointer rounded-lg">
-                              <Pencil className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={() => setDeleteLog(log)}
-                              className="cursor-pointer rounded-lg text-red-600"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
+            {desktopView === 'table' && (
+              <div className="hidden lg:block">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50/80">
+                      <TableHead>Ticket ID</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Assigned To</TableHead>
+                      <TableHead className="w-12"></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLogs.map((log) => (
+                      <TableRow 
+                        key={log.id} 
+                        className="hover:bg-slate-50/50 cursor-pointer"
+                        onClick={(e) => {
+                          if (e.target.closest('[data-radix-popper-content-wrapper]') || e.target.closest('button') || e.target.closest('a')) {
+                            return;
+                          }
+                          navigate(createPageUrl('CustomerDetail') + `?id=${log.customer_id}`);
+                        }}
+                      >
+                        <TableCell>
+                          <span className="font-mono text-sm text-slate-600 bg-slate-100 px-2 py-1 rounded">
+                            {log.ticket_id || '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-slate-900">{log.title}</p>
+                            {log.description && (
+                              <p className="text-sm text-slate-500 truncate max-w-xs">{log.description}</p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Link 
+                            to={createPageUrl('CustomerDetail') + `?id=${log.customer_id}`}
+                            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Building2 className="h-4 w-4" />
+                            {getCustomerName(log.customer_id)}
+                          </Link>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Calendar className="h-4 w-4 text-slate-400" />
+                            {log.service_date && format(parseISO(log.service_date), 'MMM d, yyyy')}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={statusColors[log.status] || statusColors.scheduled}>
+                            {log.status?.replace('_', ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {log.assigned_employee ? (
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-6 w-6">
+                                <AvatarFallback className="bg-slate-800 text-white text-[10px] font-medium">
+                                  {getEmployeeInitials(log.assigned_employee)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-sm text-slate-600 hidden md:inline">
+                                {getEmployeeName(log.assigned_employee)}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-slate-400">Unassigned</span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                              <DropdownMenuItem onClick={() => handleEdit(log)} className="cursor-pointer rounded-lg">
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => setDeleteLog(log)}
+                                className="cursor-pointer rounded-lg text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+
+            {/* Desktop Card View */}
+            {desktopView === 'cards' && (
+              <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4">
+                {filteredLogs.map((log) => (
+                  <ServiceLogCardDesktop
+                    key={log.id}
+                    log={log}
+                    getCustomerName={getCustomerName}
+                    getEmployeeInitials={getEmployeeInitials}
+                    getEmployeeName={getEmployeeName}
+                    statusColors={statusColors}
+                    onEdit={handleEdit}
+                    onDelete={setDeleteLog}
+                  />
+                ))}
+              </div>
+            )}
           </>
         )}
       </Card>

@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from '@/components/ui/PageHeader';
 import EmptyState from '@/components/ui/EmptyState';
 import CustomerCard from '@/components/customers/CustomerCard';
+import CustomerListItem from '@/components/customers/CustomerListItem';
 import CustomerForm from '@/components/customers/CustomerForm';
 import AdvancedCustomerFilters from '@/components/filters/AdvancedCustomerFilters';
 
@@ -234,15 +235,24 @@ export default function Customers() {
       ) : (
         <div className={viewMode === 'grid' 
           ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          : "space-y-4"
+          : "space-y-3"
         }>
           {filteredCustomers.map((customer) => (
-            <CustomerCard
-              key={customer.id}
-              customer={customer}
-              onEdit={handleEdit}
-              onDelete={setDeleteCustomer}
-            />
+            viewMode === 'grid' ? (
+              <CustomerCard
+                key={customer.id}
+                customer={customer}
+                onEdit={handleEdit}
+                onDelete={setDeleteCustomer}
+              />
+            ) : (
+              <CustomerListItem
+                key={customer.id}
+                customer={customer}
+                onEdit={handleEdit}
+                onDelete={setDeleteCustomer}
+              />
+            )
           ))}
         </div>
       )}
