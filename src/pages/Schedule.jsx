@@ -202,8 +202,8 @@ export default function Schedule() {
         }
       />
 
-      {/* Event Cards View */}
-      <div className="space-y-3">
+      {/* Mobile: Event Cards */}
+      <div className="lg:hidden space-y-3">
         {isLoading ? (
           Array(3).fill(0).map((_, i) => (
             <div key={i} className="h-40 w-full bg-slate-100 rounded-xl animate-pulse"></div>
@@ -228,8 +228,8 @@ export default function Schedule() {
         )}
       </div>
 
-      {/* Calendar View */}
-      <Card className="overflow-hidden border-slate-200/80 p-6">
+      {/* Desktop: Calendar View */}
+      <Card className="hidden lg:block overflow-hidden border-slate-200/80 p-6">
         <div style={{ height: '700px' }}>
           <DnDCalendar
             localizer={localizer}
