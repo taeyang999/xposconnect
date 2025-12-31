@@ -203,8 +203,8 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
         }
       }
 
-      // Handle schedule event creation/update when status is assigned
-      if (formData.status === 'assigned' && formData.assigned_employee && formData.service_date) {
+      // Handle schedule event creation/update when status is scheduled
+      if (formData.status === 'scheduled' && formData.assigned_employee && formData.service_date) {
         const startDateTime = new Date(formData.service_date);
         startDateTime.setHours(9, 0, 0, 0);
         const endDateTime = new Date(formData.service_date);
@@ -352,6 +352,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="new">New</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
                   <SelectItem value="assigned">Assigned</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
