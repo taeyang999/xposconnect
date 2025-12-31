@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { logAudit } from '../components/audit/auditLogger';
 import { usePermissions } from '@/components/hooks/usePermissions';
-import { Plus } from 'lucide-react';
+import { Plus, CalendarDays, LayoutGrid } from 'lucide-react';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import enUS from 'date-fns/locale/en-US';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -55,6 +55,7 @@ export default function Schedule() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
   const [deleteEvent, setDeleteEvent] = useState(null);
+  const [desktopView, setDesktopView] = useState('calendar'); // 'calendar' or 'cards'
   const queryClient = useQueryClient();
 
   const canView = permissions?.can_view_schedule !== false;
@@ -195,10 +196,30 @@ export default function Schedule() {
         title="Schedule"
         description="Manage appointments, tasks, and services"
         actions={
-          <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Event
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="hidden lg:flex items-center border border-slate-200 rounded-lg p-1">
+              <Button
+                variant={desktopView === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setDesktopView('calendar')}
+                className={desktopView === 'calendar' ? 'bg-slate-900 hover:bg-slate-800' : ''}
+              >
+                <CalendarDays className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={desktopView === 'cards' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setDesktopView('cards')}
+                className={desktopView === 'cards' ? 'bg-slate-900 hover:bg-slate-800' : ''}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Event
+            </Button>
+          </div>
         }
       />
 
@@ -229,36 +250,66 @@ export default function Schedule() {
       </div>
 
       {/* Desktop: Calendar View */}
-      <Card className="hidden lg:block overflow-hidden border-slate-200/80 p-6">
-        <div style={{ height: '700px' }}>
-          <DnDCalendar
-            localizer={localizer}
-            events={calendarEvents}
-            startAccessor="start"
-            endAccessor="end"
-            onSelectEvent={handleSelectEvent}
-            onSelectSlot={handleSelectSlot}
-            onEventDrop={handleEventDrop}
-            onEventResize={handleEventResize}
-            selectable
-            resizable
-            eventPropGetter={eventStyleGetter}
-            views={['month', 'week', 'day', 'agenda']}
-            defaultView="month"
-            popup
-            components={{
-              month: {
-                event: MonthEventComponent,
-              },
-            }}
-            messages={{
-              showMore: (total) => `+${total} more`,
-            }}
-            max={new Date(2099, 12, 31)}
-            showAllEvents
-          />
+      {desktopView === 'calendar' && (
+        <Card className="hidden lg:block overflow-hidden border-slate-200/80 p-6">
+          <div style={{ height: '700px' }}>
+            <DnDCalendar
+              localizer={localizer}
+              events={calendarEvents}
+              startAccessor="start"
+              endAccessor="end"
+              onSelectEvent={handleSelectEvent}
+              onSelectSlot={handleSelectSlot}
+              onEventDrop={handleEventDrop}
+              onEventResize={handleEventResize}
+              selectable
+              resizable
+              eventPropGetter={eventStyleGetter}
+              views={['month', 'week', 'day', 'agenda']}
+              defaultView="month"
+              popup
+              components={{
+                month: {
+                  event: MonthEventComponent,
+                },
+              }}
+              messages={{
+                showMore: (total) => `+${total} more`,
+              }}
+              max={new Date(2099, 12, 31)}
+              showAllEvents
+            />
+          </div>
+        </Card>
+      )}
+
+      {/* Desktop: Card View */}
+      {desktopView === 'cards' && (
+        <div className="hidden lg:grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {isLoading ? (
+            Array(6).fill(0).map((_, i) => (
+              <div key={i} className="h-40 w-full bg-slate-100 rounded-xl animate-pulse"></div>
+            ))
+          ) : calendarEvents.length > 0 ? (
+            calendarEvents
+              .sort((a, b) => a.start.getTime() - b.start.getTime())
+              .map((event) => (
+                <ScheduleEventCard
+                  key={event.id}
+                  event={event}
+                  getCustomerName={getCustomerName}
+                  getEmployeeInitials={getEmployeeInitials}
+                  getEmployeeName={getEmployeeName}
+                  onEdit={handleEdit}
+                  onDelete={setDeleteEvent}
+                  onSelect={handleSelectEvent}
+                />
+              ))
+          ) : (
+            <Card className="col-span-full p-8 text-center text-slate-500">No events scheduled.</Card>
+          )}
         </div>
-      </Card>
+      )}
 
       {/* Event Form */}
       <EventForm
