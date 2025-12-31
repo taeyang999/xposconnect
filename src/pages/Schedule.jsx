@@ -278,7 +278,7 @@ export default function Schedule() {
                 showMore: (total) => `+${total} more`,
               }}
               max={new Date(2099, 12, 31)}
-              showAllEvents
+              dayLayoutAlgorithm="no-overlap"
             />
           </div>
         </Card>
