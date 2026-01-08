@@ -50,33 +50,11 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: employees = [], isLoading: loadingEmployees } = useQuery({
-    queryKey: ['employeesForAssignment'],
+  const { data: employees = [] } = useQuery({
+    queryKey: ['employees'],
     queryFn: async () => {
-      // Get permissions to extract employee emails since User list may be restricted
-      const permissions = await base44.entities.Permission.list();
-      const employeeEmails = permissions
-        .filter(p => p.user_email && p.user_email !== 'role_templates')
-        .map(p => ({
-          id: p.id,
-          email: p.user_email,
-          firstname: '',
-          lastname: '',
-          full_name: p.user_email,
-          status: 'active',
-        }));
-      
-      // Try to get full user data if possible
-      try {
-        const users = await base44.entities.User.list();
-        if (users && users.length > 0) {
-          return users.filter(u => u.status !== 'inactive');
-        }
-      } catch (err) {
-        console.log('Using permissions for employee list');
-      }
-      
-      return employeeEmails;
+      const users = await base44.entities.User.list();
+      return users.filter(u => u.status !== 'inactive');
     },
   });
 
@@ -398,7 +376,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
           </div>
 
           <div>
-            <Label>Assigned Employee {loadingEmployees && '(Loading...)'}</Label>
+            <Label>Assigned Employee</Label>
             <Select
               value={formData.assigned_employee || 'unassigned'}
               onValueChange={(value) => setFormData({ ...formData, assigned_employee: value === 'unassigned' ? '' : value })}
@@ -408,15 +386,11 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
-                {employees && employees.length > 0 ? (
-                  employees.map((emp) => (
-                    <SelectItem key={emp.id} value={emp.email}>
-                      {emp.firstname && emp.lastname ? `${emp.firstname} ${emp.lastname}` : emp.full_name || emp.email}
-                    </SelectItem>
-                  ))
-                ) : (
-                  !loadingEmployees && <div className="px-2 py-1.5 text-sm text-slate-500">No employees found</div>
-                )}
+                {employees.map((emp) => (
+                  <SelectItem key={emp.id} value={emp.email}>
+                    {emp.firstname && emp.lastname ? `${emp.firstname} ${emp.lastname}` : emp.full_name || emp.email}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
