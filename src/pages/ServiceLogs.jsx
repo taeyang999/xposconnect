@@ -159,6 +159,14 @@ export default function ServiceLogs() {
     setShowForm(true);
   };
 
+  const escapeCSV = (value) => {
+    const str = String(value || '');
+    if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return `"${str}"`;
+  };
+
   const exportLogs = () => {
     const headers = ['Title', 'Customer', 'Date', 'Status', 'Assigned To', 'Description'];
     const rows = filteredLogs.map(l => [
@@ -169,7 +177,7 @@ export default function ServiceLogs() {
       l.assigned_employee,
       l.description
     ]);
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map(row => row.map(escapeCSV).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -307,8 +315,8 @@ export default function ServiceLogs() {
                   getEmployeeInitials={getEmployeeInitials}
                   getEmployeeName={getEmployeeName}
                   statusColors={statusColors}
-                  onEdit={handleEdit}
-                  onDelete={setDeleteLog}
+                  onEdit={canManage ? handleEdit : null}
+                  onDelete={canDelete ? setDeleteLog : null}
                 />
               ))}
             </div>
@@ -434,8 +442,8 @@ export default function ServiceLogs() {
                     getEmployeeInitials={getEmployeeInitials}
                     getEmployeeName={getEmployeeName}
                     statusColors={statusColors}
-                    onEdit={handleEdit}
-                    onDelete={setDeleteLog}
+                    onEdit={canManage ? handleEdit : null}
+                    onDelete={canDelete ? setDeleteLog : null}
                   />
                 ))}
               </div>

@@ -110,6 +110,14 @@ export default function Inventory() {
     setShowForm(true);
   };
 
+  const escapeCSV = (value) => {
+    const str = String(value || '');
+    if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return `"${str}"`;
+  };
+
   const exportInventory = () => {
     const headers = ['Name', 'Customer', 'Serial Number', 'Quantity', 'Status', 'Purchase Date', 'Warranty Expiry'];
     const rows = filteredItems.map(i => [
@@ -121,7 +129,7 @@ export default function Inventory() {
       i.purchase_date,
       i.warranty_expiry
     ]);
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map(row => row.map(escapeCSV).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

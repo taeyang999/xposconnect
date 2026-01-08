@@ -107,12 +107,20 @@ export default function Customers() {
     queryClient.invalidateQueries({ queryKey: ['customers'] });
   };
 
+  const escapeCSV = (value) => {
+    const str = String(value || '');
+    if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+      return `"${str.replace(/"/g, '""')}"`;
+    }
+    return `"${str}"`;
+  };
+
   const exportCustomers = () => {
     const headers = ['Name', 'Email', 'Phone', 'Address', 'City', 'State', 'ZIP', 'Status', 'Assigned To'];
     const rows = filteredCustomers.map(c => [
       c.name, c.email, c.phone, c.address, c.city, c.state, c.zip_code, c.status, c.assigned_employee
     ]);
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell || ''}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map(row => row.map(escapeCSV).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -127,10 +135,12 @@ export default function Customers() {
         title="Customers"
         description="Manage your customer relationships"
         actions={
-          <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Customer
-          </Button>
+          canManage && (
+            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Customer
+            </Button>
+          )
         }
       />
 
@@ -189,10 +199,12 @@ export default function Customers() {
               <List className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="outline" onClick={exportCustomers} className="rounded-xl">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          {canExport && (
+            <Button variant="outline" onClick={exportCustomers} className="rounded-xl">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          )}
         </div>
       </div>
 
@@ -242,15 +254,15 @@ export default function Customers() {
               <CustomerCard
                 key={customer.id}
                 customer={customer}
-                onEdit={handleEdit}
-                onDelete={setDeleteCustomer}
+                onEdit={canManage ? handleEdit : null}
+                onDelete={canDelete ? setDeleteCustomer : null}
               />
             ) : (
               <CustomerListItem
                 key={customer.id}
                 customer={customer}
-                onEdit={handleEdit}
-                onDelete={setDeleteCustomer}
+                onEdit={canManage ? handleEdit : null}
+                onDelete={canDelete ? setDeleteCustomer : null}
               />
             )
           ))}
