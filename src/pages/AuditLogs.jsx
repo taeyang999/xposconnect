@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { getAllAuditLogs } from '../components/audit/auditLogger';
 import { base44 } from '@/api/base44Client';
 import { format, parseISO } from 'date-fns';
-import { Search, Filter, Clock, Shield, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Filter, Clock, Shield } from 'lucide-react';
 import { Input } from "@/components/ui/input";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   Select,
   SelectContent,
@@ -58,35 +57,10 @@ export default function AuditLogs() {
     return matchesSearch && matchesEntity && matchesAction;
   });
 
-  const [expandedLogId, setExpandedLogId] = useState(null);
-
   const actionColors = {
     create: 'bg-green-100 text-green-700',
     update: 'bg-blue-100 text-blue-700',
     delete: 'bg-red-100 text-red-700',
-  };
-
-  const formatFieldName = (field) => {
-    return field
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
-      .replace(/^./, str => str.toUpperCase())
-      .trim();
-  };
-
-  const formatValue = (value) => {
-    if (value === null || value === undefined) return '-';
-    if (value === '') return '(empty)';
-    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-    return String(value);
-  };
-
-  const parseChanges = (changesStr) => {
-    try {
-      return JSON.parse(changesStr);
-    } catch {
-      return null;
-    }
   };
 
   if (!isAdmin) {
@@ -178,66 +152,30 @@ export default function AuditLogs() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLogs.map((log) => {
-                const changes = parseChanges(log.changes);
-                const isExpanded = expandedLogId === log.id;
-                
-                return (
-                  <React.Fragment key={log.id}>
-                    <TableRow 
-                      className="hover:bg-slate-50/50 cursor-pointer"
-                      onClick={() => setExpandedLogId(isExpanded ? null : log.id)}
-                    >
-                      <TableCell className="text-sm text-slate-600">
-                        {format(parseISO(log.created_date), 'MMM d, yyyy h:mm a')}
-                      </TableCell>
-                      <TableCell className="font-medium text-slate-900">
-                        {log.user_name}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={actionColors[log.action]}>
-                          {log.action}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-600">
-                        {log.entity_type}
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-900">
-                        {log.entity_name || '-'}
-                      </TableCell>
-                      <TableCell className="text-xs text-slate-500">
-                        <div className="flex items-center gap-2">
-                          <span className="truncate max-w-[150px]">{log.metadata || (changes ? `${Object.keys(changes).length} field(s)` : '-')}</span>
-                          {changes && (
-                            isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                    {isExpanded && changes && (
-                      <TableRow>
-                        <TableCell colSpan={6} className="bg-slate-50/80 p-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                            {Object.entries(changes).map(([field, value]) => (
-                              <div key={field} className="bg-white rounded-lg p-3 border border-slate-200">
-                                <p className="text-xs font-medium text-slate-500 mb-1">{formatFieldName(field)}</p>
-                                {log.action === 'update' && value?.from !== undefined ? (
-                                  <div className="space-y-1">
-                                    <p className="text-sm text-red-600 line-through">{formatValue(value.from)}</p>
-                                    <p className="text-sm text-green-600">{formatValue(value.to)}</p>
-                                  </div>
-                                ) : (
-                                  <p className="text-sm text-slate-900">{formatValue(value)}</p>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })}
+              {filteredLogs.map((log) => (
+                <TableRow key={log.id} className="hover:bg-slate-50/50">
+                  <TableCell className="text-sm text-slate-600">
+                    {format(parseISO(log.created_date), 'MMM d, yyyy h:mm a')}
+                  </TableCell>
+                  <TableCell className="font-medium text-slate-900">
+                    {log.user_name}
+                  </TableCell>
+                  <TableCell>
+                    <Badge className={actionColors[log.action]}>
+                      {log.action}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-slate-600">
+                    {log.entity_type}
+                  </TableCell>
+                  <TableCell className="text-sm text-slate-900">
+                    {log.entity_name || '-'}
+                  </TableCell>
+                  <TableCell className="text-xs text-slate-500 max-w-xs truncate">
+                    {log.metadata || '-'}
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}
