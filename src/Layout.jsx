@@ -4,10 +4,10 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from './utils';
 import { useQuery } from '@tanstack/react-query';
 import { 
-  LayoutDashboard, Users, Calendar, Package, FileText, 
-  Settings, Menu, X, LogOut, ChevronDown, Bell, Search,
-  Building2, UserCircle, Shield
-} from 'lucide-react';
+        LayoutDashboard, Users, Calendar, Package, FileText, 
+        Settings, Menu, X, LogOut, ChevronDown, Bell, Search,
+        Building2, UserCircle, Shield, LayoutGrid
+      } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import {
         DropdownMenu,
@@ -159,7 +159,7 @@ export default function Layout({ children, currentPageName }) {
       { name: 'Employees', href: 'Employees', icon: UserCircle, requiresPermission: 'can_manage_employees' },
       { name: 'Permissions', href: 'EmployeePermissions', icon: Shield, requiresAdmin: true },
       { name: 'Audit Logs', href: 'AuditLogs', icon: FileText, requiresAdmin: true },
-      { name: 'Customer Layout', href: 'CustomerLayoutSettings', icon: Settings, requiresAdmin: true },
+      { name: 'Customer Layout', href: 'CustomerLayoutSettings', icon: LayoutGrid, requiresAdmin: true },
     ];
 
     return adminNav.filter(item => {
