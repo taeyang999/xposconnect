@@ -25,7 +25,7 @@ import EmployeeForm from '@/components/employees/EmployeeForm';
 import InviteEmployeeForm from '@/components/employees/InviteEmployeeForm';
 
 export default function Employees() {
-  const { user, permissions, isAdmin } = usePermissions();
+  const { user, permissions, isAdmin, loading: permissionsLoading } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -53,6 +53,26 @@ export default function Employees() {
     setEditingEmployee(employee);
     setShowForm(true);
   };
+
+  if (permissionsLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array(6).fill(0).map((_, i) => (
+          <Card key={i} className="p-6">
+            <div className="flex items-center gap-4 mb-4">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div>
+                <Skeleton className="h-4 w-32 mb-2" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-4 w-3/4" />
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   if (!canManageEmployees) {
     return (
