@@ -381,7 +381,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
           </div>
 
           <div>
-            <Label>Assigned Employee</Label>
+            <Label>Assigned Employee {loadingEmployees && '(Loading...)'}</Label>
             <Select
               value={formData.assigned_employee || 'unassigned'}
               onValueChange={(value) => setFormData({ ...formData, assigned_employee: value === 'unassigned' ? '' : value })}
@@ -391,11 +391,15 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
-                {employees.map((emp) => (
-                  <SelectItem key={emp.id} value={emp.email}>
-                    {emp.firstname && emp.lastname ? `${emp.firstname} ${emp.lastname}` : emp.full_name || emp.email}
-                  </SelectItem>
-                ))}
+                {employees && employees.length > 0 ? (
+                  employees.map((emp) => (
+                    <SelectItem key={emp.id} value={emp.email}>
+                      {emp.firstname && emp.lastname ? `${emp.firstname} ${emp.lastname}` : emp.full_name || emp.email}
+                    </SelectItem>
+                  ))
+                ) : (
+                  !loadingEmployees && <div className="px-2 py-1.5 text-sm text-slate-500">No employees found</div>
+                )}
               </SelectContent>
             </Select>
           </div>
