@@ -17,10 +17,7 @@ export function usePermissions() {
     loadUser();
   }, []);
 
-  const isAdmin = user?.role === 'admin';
-  const isManager = user?.role === 'manager';
-
-  const { data: userPermission } = useQuery({
+  const { data: userPermission, isLoading: permissionLoading } = useQuery({
     queryKey: ['userPermission', user?.email],
     queryFn: async () => {
       const result = await base44.entities.Permission.filter({ user_email: user.email });
@@ -37,6 +34,14 @@ export function usePermissions() {
     },
     enabled: !!user?.email,
   });
+
+  // Application administrator: built-in admin OR Permission.role === 'admin'
+  const isSystemAdmin = user?.role === 'admin';
+  const isAppAdmin = userPermission?.role === 'admin';
+  const isAdmin = isSystemAdmin || isAppAdmin;
+  
+  // Manager check: Permission.role === 'manager'
+  const isManager = userPermission?.role === 'manager';
 
   // Default permissions based on role if no specific permission record exists
   const getDefaultPermissions = () => {
@@ -173,13 +178,16 @@ export function usePermissions() {
   const permissions = getEffectivePermissions();
 
   // Loading is true until user is loaded AND permission queries have resolved
-  const isLoading = !user || (!!user?.email && userPermission === undefined);
+  const isLoading = !user || (!!user?.email && permissionLoading);
 
   return {
     user,
-    isAdmin,
+    isAdmin,        // True if system admin OR Permission.role === 'admin'
+    isSystemAdmin,  // True only if built-in Base44 role is 'admin'
+    isAppAdmin,     // True only if Permission.role === 'admin'
     isManager,
     permissions,
+    userRole: userPermission?.role || (isSystemAdmin ? 'admin' : 'employee'),
     loading: isLoading,
   };
 }

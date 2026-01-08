@@ -35,43 +35,44 @@ export default function Layout({ children, currentPageName }) {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        // Load permissions and role templates
-        if (currentUser && currentUser.role !== 'admin') {
-          const [perms, templates] = await Promise.all([
-            base44.entities.Permission.filter({ user_email: currentUser.email }),
-            base44.entities.Permission.filter({ user_email: 'role_templates' })
-          ]);
-          
-          const userPerm = perms && perms.length > 0 ? perms[0] : null;
-          const roleTemplate = templates && templates.length > 0 ? templates[0] : null;
-          
-          // Get the user's role from permission record
-          const userRole = userPerm?.role || 'employee';
-          const prefix = `${userRole}_`;
-          
-          // ALWAYS use role template as the source of truth for permissions
-          // This ensures when role changes, permissions update immediately
-          const effectivePermissions = {
-            role: userRole,
-            can_view_customers: roleTemplate?.[`${prefix}can_view_customers`] === true,
-            can_manage_customers: roleTemplate?.[`${prefix}can_manage_customers`] === true,
-            can_delete_customers: roleTemplate?.[`${prefix}can_delete_customers`] === true,
-            can_view_schedule: roleTemplate?.[`${prefix}can_view_schedule`] === true,
-            can_manage_schedule: roleTemplate?.[`${prefix}can_manage_schedule`] === true,
-            can_delete_schedule: roleTemplate?.[`${prefix}can_delete_schedule`] === true,
-            can_view_service_logs: roleTemplate?.[`${prefix}can_view_service_logs`] === true,
-            can_manage_service_logs: roleTemplate?.[`${prefix}can_manage_service_logs`] === true,
-            can_delete_service_logs: roleTemplate?.[`${prefix}can_delete_service_logs`] === true,
-            can_view_inventory: roleTemplate?.[`${prefix}can_view_inventory`] === true,
-            can_manage_inventory: roleTemplate?.[`${prefix}can_manage_inventory`] === true,
-            can_delete_inventory: roleTemplate?.[`${prefix}can_delete_inventory`] === true,
-            can_view_reports: roleTemplate?.[`${prefix}can_view_reports`] === true,
-            can_export_data: roleTemplate?.[`${prefix}can_export_data`] === true,
-            can_manage_employees: roleTemplate?.[`${prefix}can_manage_employees`] === true,
-          };
-          
-          setPermissions(effectivePermissions);
-        }
+        // Load permissions and role templates for all users
+        const [perms, templates] = await Promise.all([
+          base44.entities.Permission.filter({ user_email: currentUser.email }),
+          base44.entities.Permission.filter({ user_email: 'role_templates' })
+        ]);
+        
+        const userPerm = perms && perms.length > 0 ? perms[0] : null;
+        const roleTemplate = templates && templates.length > 0 ? templates[0] : null;
+        
+        // Get the user's role from permission record, fallback to system role
+        const userRole = userPerm?.role || (currentUser.role === 'admin' ? 'admin' : 'employee');
+        const prefix = `${userRole}_`;
+        
+        // Check if user is an application admin (system admin OR Permission.role === 'admin')
+        const isAppAdmin = currentUser.role === 'admin' || userPerm?.role === 'admin';
+        
+        // If app admin, grant all permissions; otherwise use role template
+        const effectivePermissions = {
+          role: userRole,
+          isAppAdmin: isAppAdmin,
+          can_view_customers: isAppAdmin || roleTemplate?.[`${prefix}can_view_customers`] === true,
+          can_manage_customers: isAppAdmin || roleTemplate?.[`${prefix}can_manage_customers`] === true,
+          can_delete_customers: isAppAdmin || roleTemplate?.[`${prefix}can_delete_customers`] === true,
+          can_view_schedule: isAppAdmin || roleTemplate?.[`${prefix}can_view_schedule`] === true,
+          can_manage_schedule: isAppAdmin || roleTemplate?.[`${prefix}can_manage_schedule`] === true,
+          can_delete_schedule: isAppAdmin || roleTemplate?.[`${prefix}can_delete_schedule`] === true,
+          can_view_service_logs: isAppAdmin || roleTemplate?.[`${prefix}can_view_service_logs`] === true,
+          can_manage_service_logs: isAppAdmin || roleTemplate?.[`${prefix}can_manage_service_logs`] === true,
+          can_delete_service_logs: isAppAdmin || roleTemplate?.[`${prefix}can_delete_service_logs`] === true,
+          can_view_inventory: isAppAdmin || roleTemplate?.[`${prefix}can_view_inventory`] === true,
+          can_manage_inventory: isAppAdmin || roleTemplate?.[`${prefix}can_manage_inventory`] === true,
+          can_delete_inventory: isAppAdmin || roleTemplate?.[`${prefix}can_delete_inventory`] === true,
+          can_view_reports: isAppAdmin || roleTemplate?.[`${prefix}can_view_reports`] === true,
+          can_export_data: isAppAdmin || roleTemplate?.[`${prefix}can_export_data`] === true,
+          can_manage_employees: isAppAdmin || roleTemplate?.[`${prefix}can_manage_employees`] === true,
+        };
+        
+        setPermissions(effectivePermissions);
       } catch (e) {
         console.log('User not logged in');
       }
@@ -129,8 +130,9 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.logout();
   };
 
-  const isAdmin = user?.role === 'admin';
-  const isManager = user?.role === 'manager';
+  // Application admin: system admin OR Permission.role === 'admin'
+  const isAdmin = user?.role === 'admin' || permissions?.isAppAdmin;
+  const isManager = permissions?.role === 'manager';
 
   // Filter navigation based on permissions
   const getFilteredNavigation = () => {
@@ -157,15 +159,16 @@ export default function Layout({ children, currentPageName }) {
       { name: 'Inventory', href: 'Inventory', icon: Package, requiresPermission: 'can_view_inventory' },
       { name: 'Reports', href: 'Reports', icon: Building2, requiresPermission: 'can_view_reports' },
       { name: 'Employees', href: 'Employees', icon: UserCircle, requiresPermission: 'can_manage_employees' },
-      { name: 'Permissions', href: 'EmployeePermissions', icon: Shield, requiresAdmin: true },
-      { name: 'Audit Logs', href: 'AuditLogs', icon: FileText, requiresAdmin: true },
-      { name: 'Customer Layout', href: 'CustomerLayoutSettings', icon: LayoutGrid, requiresAdmin: true },
+      { name: 'Permissions', href: 'EmployeePermissions', icon: Shield, requiresAppAdmin: true },
+      { name: 'Audit Logs', href: 'AuditLogs', icon: FileText, requiresAppAdmin: true },
+      { name: 'Customer Layout', href: 'CustomerLayoutSettings', icon: LayoutGrid, requiresAppAdmin: true },
     ];
 
     return adminNav.filter(item => {
-      if (item.requiresAdmin) return isAdmin;
+      // For pages requiring app admin (system admin OR Permission.role === 'admin')
+      if (item.requiresAppAdmin) return isAdmin;
       if (item.requiresPermission) {
-        // For admins, always show
+        // For admins (system or app), always show
         if (isAdmin) return true;
         // For managers, check permission explicitly
         if (isManager) return permissions?.[item.requiresPermission] !== false;
