@@ -50,11 +50,16 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: employees = [] } = useQuery({
+  const { data: employees = [], isLoading: loadingEmployees, error: employeesError } = useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
-      const users = await base44.entities.User.list();
-      return users.filter(u => u.status !== 'inactive');
+      try {
+        const users = await base44.entities.User.list();
+        return users.filter(u => u.status !== 'inactive');
+      } catch (err) {
+        console.error('Failed to load employees:', err);
+        return [];
+      }
     },
   });
 
