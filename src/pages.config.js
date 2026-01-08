@@ -1,4 +1,6 @@
+import AuditLogs from './pages/AuditLogs';
 import CustomerDetail from './pages/CustomerDetail';
+import CustomerLayoutSettings from './pages/CustomerLayoutSettings';
 import Customers from './pages/Customers';
 import Dashboard from './pages/Dashboard';
 import EmployeePermissions from './pages/EmployeePermissions';
@@ -8,13 +10,13 @@ import Profile from './pages/Profile';
 import Reports from './pages/Reports';
 import Schedule from './pages/Schedule';
 import ServiceLogs from './pages/ServiceLogs';
-import AuditLogs from './pages/AuditLogs';
-import CustomerLayoutSettings from './pages/CustomerLayoutSettings';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AuditLogs": AuditLogs,
     "CustomerDetail": CustomerDetail,
+    "CustomerLayoutSettings": CustomerLayoutSettings,
     "Customers": Customers,
     "Dashboard": Dashboard,
     "EmployeePermissions": EmployeePermissions,
@@ -24,8 +26,6 @@ export const PAGES = {
     "Reports": Reports,
     "Schedule": Schedule,
     "ServiceLogs": ServiceLogs,
-    "AuditLogs": AuditLogs,
-    "CustomerLayoutSettings": CustomerLayoutSettings,
 }
 
 export const pagesConfig = {

@@ -273,182 +273,191 @@ export default function CustomerDetail() {
         {/* Dynamic Sections based on layout config */}
         {getSectionOrder().map((sectionId) => {
           if (sectionId === 'owner_business' && isSectionVisible('owner_business')) {
-            const visibleFields = getFieldsForSection('owner_business') || ['owner', 'corporation', 'business_type', 'merchant_id'];
+            const orderedFields = getFieldsForSection('owner_business') || ['owner', 'corporation', 'business_type', 'merchant_id'];
+            const fieldComponents = {
+              owner: (
+                <div key="owner" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <User className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Owner</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">
+                      {[customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')}
+                    </p>
+                  </div>
+                </div>
+              ),
+              corporation: (
+                <div key="corporation" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Building2 className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Corporation</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.corporation || ''}</p>
+                  </div>
+                </div>
+              ),
+              business_type: (
+                <div key="business_type" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Building2 className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Business Type</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.business_type || ''}</p>
+                  </div>
+                </div>
+              ),
+              merchant_id: (
+                <div key="merchant_id" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <CreditCard className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Merchant ID</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.merchant_id || ''}</p>
+                  </div>
+                </div>
+              ),
+            };
             return (
               <div key="owner_business" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
-                {visibleFields.includes('owner') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <User className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Owner</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">
-                        {[customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('corporation') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Building2 className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Corporation</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.corporation || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('business_type') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Building2 className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Business Type</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.business_type || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('merchant_id') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <CreditCard className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Merchant ID</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.merchant_id || ''}</p>
-                    </div>
-                  </div>
-                )}
+                {orderedFields.map(fieldId => fieldComponents[fieldId])}
               </div>
             );
           }
 
           if (sectionId === 'contact' && isSectionVisible('contact')) {
-            const visibleFields = getFieldsForSection('contact') || ['email', 'secondary_email', 'store_phone', 'owner_phone_1', 'owner_phone_2', 'location', 'platform'];
+            const orderedFields = getFieldsForSection('contact') || ['email', 'secondary_email', 'store_phone', 'owner_phone_1', 'owner_phone_2', 'location', 'platform'];
+            const fieldComponents = {
+              email: (
+                <div key="email" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Mail className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Primary Email</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.email || ''}</p>
+                  </div>
+                </div>
+              ),
+              secondary_email: (
+                <div key="secondary_email" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Mail className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Secondary Email</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.secondary_email || ''}</p>
+                  </div>
+                </div>
+              ),
+              store_phone: (
+                <div key="store_phone" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Phone className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Store Phone</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.store_phone || ''}</p>
+                  </div>
+                </div>
+              ),
+              owner_phone_1: (
+                <div key="owner_phone_1" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Phone className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Owner's Phone #1</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.owner_phone_1 || ''}</p>
+                  </div>
+                </div>
+              ),
+              owner_phone_2: (
+                <div key="owner_phone_2" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Phone className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Owner's Phone #2</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.owner_phone_2 || ''}</p>
+                  </div>
+                </div>
+              ),
+              location: (
+                <div key="location" className="flex items-start gap-3 min-w-0 lg:col-span-2">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <MapPin className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Location</p>
+                    <p className="text-sm font-medium text-slate-900">
+                      {[customer.address, customer.city, customer.state, customer.zip_code].filter(Boolean).join(', ')}
+                    </p>
+                  </div>
+                </div>
+              ),
+              platform: (
+                <div key="platform" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <Building2 className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Platform</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.platform || ''}</p>
+                  </div>
+                </div>
+              ),
+            };
             return (
               <div key="contact" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
-                {visibleFields.includes('email') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Mail className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Primary Email</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.email || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('secondary_email') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Mail className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Secondary Email</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.secondary_email || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('store_phone') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Phone className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Store Phone</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.store_phone || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('owner_phone_1') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Phone className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Owner's Phone #1</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.owner_phone_1 || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('owner_phone_2') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Phone className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Owner's Phone #2</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.owner_phone_2 || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('location') && (
-                  <div className="flex items-start gap-3 min-w-0 lg:col-span-2">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <MapPin className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Location</p>
-                      <p className="text-sm font-medium text-slate-900">
-                        {[customer.address, customer.city, customer.state, customer.zip_code].filter(Boolean).join(', ')}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('platform') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <Building2 className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Platform</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.platform || ''}</p>
-                    </div>
-                  </div>
-                )}
+                {orderedFields.map(fieldId => fieldComponents[fieldId])}
               </div>
             );
           }
 
           if (sectionId === 'additional' && isSectionVisible('additional')) {
-            const visibleFields = getFieldsForSection('additional') || ['assigned_employee', 'pci_expire_date'];
+            const orderedFields = getFieldsForSection('additional') || ['assigned_employee', 'pci_expire_date'];
+            const fieldComponents = {
+              assigned_employee: (
+                <div key="assigned_employee" className="flex items-start gap-3 min-w-0">
+                  {customer.assigned_employee ? (
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className="bg-slate-800 text-white text-xs font-medium">
+                        {getEmployeeInitials(customer.assigned_employee)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ) : (
+                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                      <User className="h-4 w-4 text-slate-600" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">Assigned To</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">{customer.assigned_employee || ''}</p>
+                  </div>
+                </div>
+              ),
+              pci_expire_date: (
+                <div key="pci_expire_date" className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
+                    <ShieldAlert className="h-4 w-4 text-slate-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-slate-500">PCI Expire Date</p>
+                    <p className="text-sm font-medium text-slate-900 truncate">
+                      {customer.pci_expire_date ? format(parseISO(customer.pci_expire_date), 'MMM d, yyyy') : ''}
+                    </p>
+                  </div>
+                </div>
+              ),
+            };
             return (
               <div key="additional" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
-                {visibleFields.includes('assigned_employee') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    {customer.assigned_employee ? (
-                      <Avatar className="h-8 w-8 flex-shrink-0">
-                        <AvatarFallback className="bg-slate-800 text-white text-xs font-medium">
-                          {getEmployeeInitials(customer.assigned_employee)}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                        <User className="h-4 w-4 text-slate-600" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">Assigned To</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">{customer.assigned_employee || ''}</p>
-                    </div>
-                  </div>
-                )}
-                {visibleFields.includes('pci_expire_date') && (
-                  <div className="flex items-start gap-3 min-w-0">
-                    <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-                      <ShieldAlert className="h-4 w-4 text-slate-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-500">PCI Expire Date</p>
-                      <p className="text-sm font-medium text-slate-900 truncate">
-                        {customer.pci_expire_date ? format(parseISO(customer.pci_expire_date), 'MMM d, yyyy') : ''}
-                      </p>
-                    </div>
-                  </div>
-                )}
+                {orderedFields.map(fieldId => fieldComponents[fieldId])}
               </div>
             );
           }
