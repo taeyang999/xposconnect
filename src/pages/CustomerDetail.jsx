@@ -242,9 +242,7 @@ export default function CustomerDetail() {
             <div>
               <p className="text-xs text-slate-500">Owner</p>
               <p className="text-sm font-medium text-slate-900">
-                {(customer.owner_firstname || customer.owner_lastname) 
-                  ? [customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')
-                  : <span className="text-slate-400 italic">Not provided</span>}
+                {[customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')}
               </p>
             </div>
           </div>
@@ -254,7 +252,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Corporation</p>
-              <p className="text-sm font-medium text-slate-900">{customer.corporation || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.corporation || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -263,7 +261,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Business Type</p>
-              <p className="text-sm font-medium text-slate-900">{customer.business_type || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.business_type || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -272,7 +270,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Merchant ID</p>
-              <p className="text-sm font-medium text-slate-900">{customer.merchant_id || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.merchant_id || ''}</p>
             </div>
           </div>
         </div>
@@ -285,7 +283,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Primary Email</p>
-              <p className="text-sm font-medium text-slate-900">{customer.email || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.email || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -294,7 +292,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Secondary Email</p>
-              <p className="text-sm font-medium text-slate-900">{customer.secondary_email || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.secondary_email || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -303,7 +301,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Store Phone</p>
-              <p className="text-sm font-medium text-slate-900">{customer.store_phone || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.store_phone || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -312,7 +310,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Owner's Phone #1</p>
-              <p className="text-sm font-medium text-slate-900">{customer.owner_phone_1 || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.owner_phone_1 || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -321,7 +319,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Owner's Phone #2</p>
-              <p className="text-sm font-medium text-slate-900">{customer.owner_phone_2 || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.owner_phone_2 || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -331,7 +329,7 @@ export default function CustomerDetail() {
             <div>
               <p className="text-xs text-slate-500">Location</p>
               <p className="text-sm font-medium text-slate-900">
-                {(customer.city || customer.state) ? [customer.city, customer.state].filter(Boolean).join(', ') : <span className="text-slate-400 italic">Not provided</span>}
+                {[customer.city, customer.state].filter(Boolean).join(', ')}
               </p>
             </div>
           </div>
@@ -341,7 +339,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Platform</p>
-              <p className="text-sm font-medium text-slate-900">{customer.platform || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.platform || ''}</p>
             </div>
           </div>
         </div>
@@ -362,7 +360,7 @@ export default function CustomerDetail() {
             )}
             <div>
               <p className="text-xs text-slate-500">Assigned To</p>
-              <p className="text-sm font-medium text-slate-900">{customer.assigned_employee || <span className="text-slate-400 italic">Not assigned</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.assigned_employee || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -372,7 +370,7 @@ export default function CustomerDetail() {
             <div>
               <p className="text-xs text-slate-500">PCI Expire Date</p>
               <p className="text-sm font-medium text-slate-900">
-                {customer.pci_expire_date ? format(parseISO(customer.pci_expire_date), 'MMM d, yyyy') : <span className="text-slate-400 italic">Not provided</span>}
+                {customer.pci_expire_date ? format(parseISO(customer.pci_expire_date), 'MMM d, yyyy') : ''}
               </p>
             </div>
           </div>
@@ -382,7 +380,7 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">Address</p>
-              <p className="text-sm font-medium text-slate-900">{customer.address || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.address || ''}</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -391,14 +389,14 @@ export default function CustomerDetail() {
             </div>
             <div>
               <p className="text-xs text-slate-500">ZIP Code</p>
-              <p className="text-sm font-medium text-slate-900">{customer.zip_code || <span className="text-slate-400 italic">Not provided</span>}</p>
+              <p className="text-sm font-medium text-slate-900">{customer.zip_code || ''}</p>
             </div>
           </div>
         </div>
 
         <div className="mt-6 pt-6 border-t border-slate-100">
           <p className="text-xs text-slate-500 mb-1">Notes</p>
-          <p className="text-sm text-slate-700">{customer.notes || <span className="text-slate-400 italic">No notes</span>}</p>
+          <p className="text-sm text-slate-700">{customer.notes || ''}</p>
         </div>
       </div>
 
