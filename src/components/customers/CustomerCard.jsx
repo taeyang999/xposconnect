@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../../utils';
 import { 
   Mail, Phone, MapPin, MoreVertical, 
-  Pencil, Trash2, Eye, User
+  Pencil, Trash2, Eye, User, Wifi
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -125,6 +125,14 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
         )}
       </div>
 
+      {customer.has_hotspot && (
+        <div className="mt-4 pt-4 border-t border-slate-100">
+          <Badge className="bg-green-100 text-green-700">
+            <Wifi className="h-3 w-3 mr-1" />
+            Hotspot
+          </Badge>
+        </div>
+      )}
     </div>
   );
 }
