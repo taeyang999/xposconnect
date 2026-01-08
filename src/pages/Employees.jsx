@@ -170,7 +170,7 @@ export default function Employees() {
                   </Avatar>
                   <div>
                     <h3 className="font-semibold text-slate-900">{[employee.firstname, employee.lastname].filter(Boolean).join(' ') || 'Unnamed'}</h3>
-                    <p className="text-sm text-slate-500">{employee.title || 'Employee'}</p>
+                    <p className="text-sm text-slate-500 capitalize">{getEmployeeRole(employee.email)}</p>
                   </div>
                 </div>
                 <DropdownMenu>
