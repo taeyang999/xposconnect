@@ -32,11 +32,10 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
     platform: '',
     merchant_id: '',
     email: '',
-    email_1: '',
-    email_2: '',
-    phone: '',
-    cell_phone_1: '',
-    cell_phone_2: '',
+    secondary_email: '',
+    store_phone: '',
+    owner_phone_1: '',
+    owner_phone_2: '',
     address: '',
     city: '',
     state: '',
@@ -69,11 +68,10 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
         platform: customer.platform || '',
         merchant_id: customer.merchant_id || '',
         email: customer.email || '',
-        email_1: customer.email_1 || '',
-        email_2: customer.email_2 || '',
-        phone: customer.phone || '',
-        cell_phone_1: customer.cell_phone_1 || '',
-        cell_phone_2: customer.cell_phone_2 || '',
+        secondary_email: customer.secondary_email || '',
+        store_phone: customer.store_phone || '',
+        owner_phone_1: customer.owner_phone_1 || '',
+        owner_phone_2: customer.owner_phone_2 || '',
         address: customer.address || '',
         city: customer.city || '',
         state: customer.state || '',
@@ -95,11 +93,10 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
         platform: '',
         merchant_id: '',
         email: '',
-        email_1: '',
-        email_2: '',
-        phone: '',
-        cell_phone_1: '',
-        cell_phone_2: '',
+        secondary_email: '',
+        store_phone: '',
+        owner_phone_1: '',
+        owner_phone_2: '',
         address: '',
         city: '',
         state: '',
@@ -247,54 +244,43 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
             </div>
 
             <div>
-              <Label htmlFor="email_1">Email #1</Label>
+              <Label htmlFor="secondary_email">Secondary Email</Label>
               <Input
-                id="email_1"
+                id="secondary_email"
                 type="email"
-                value={formData.email_1}
-                onChange={(e) => setFormData({ ...formData, email_1: e.target.value })}
-                className="mt-1.5"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="email_2">Email #2</Label>
-              <Input
-                id="email_2"
-                type="email"
-                value={formData.email_2}
-                onChange={(e) => setFormData({ ...formData, email_2: e.target.value })}
+                value={formData.secondary_email}
+                onChange={(e) => setFormData({ ...formData, secondary_email: e.target.value })}
                 className="mt-1.5"
               />
             </div>
             
             <div>
-              <Label htmlFor="phone">Primary Phone</Label>
+              <Label htmlFor="store_phone">Store Phone</Label>
               <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                id="store_phone"
+                value={formData.store_phone}
+                onChange={(e) => setFormData({ ...formData, store_phone: e.target.value })}
                 placeholder="(555) 123-4567"
                 className="mt-1.5"
               />
             </div>
 
             <div>
-              <Label htmlFor="cell_phone_1">Cell #1</Label>
+              <Label htmlFor="owner_phone_1">Owner's Phone #1</Label>
               <Input
-                id="cell_phone_1"
-                value={formData.cell_phone_1}
-                onChange={(e) => setFormData({ ...formData, cell_phone_1: e.target.value })}
+                id="owner_phone_1"
+                value={formData.owner_phone_1}
+                onChange={(e) => setFormData({ ...formData, owner_phone_1: e.target.value })}
                 className="mt-1.5"
               />
             </div>
 
             <div>
-              <Label htmlFor="cell_phone_2">Cell #2</Label>
+              <Label htmlFor="owner_phone_2">Owner's Phone #2</Label>
               <Input
-                id="cell_phone_2"
-                value={formData.cell_phone_2}
-                onChange={(e) => setFormData({ ...formData, cell_phone_2: e.target.value })}
+                id="owner_phone_2"
+                value={formData.owner_phone_2}
+                onChange={(e) => setFormData({ ...formData, owner_phone_2: e.target.value })}
                 className="mt-1.5"
               />
             </div>
@@ -323,12 +309,23 @@ export default function CustomerForm({ open, onClose, customer, onSave }) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="state">State</Label>
-                <Input
-                  id="state"
+                <Select
                   value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  className="mt-1.5"
-                />
+                  onValueChange={(value) => setFormData({ ...formData, state: value })}
+                >
+                  <SelectTrigger className="mt-1.5">
+                    <SelectValue placeholder="Select state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+                      "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+                      "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+                      "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+                      "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC"].map((state) => (
+                      <SelectItem key={state} value={state}>{state}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="zip_code">ZIP Code</Label>

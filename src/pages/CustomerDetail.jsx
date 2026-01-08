@@ -298,58 +298,47 @@ export default function CustomerDetail() {
               </div>
             </div>
           )}
-          {customer.email_1 && (
+          {customer.secondary_email && (
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-100">
                 <Mail className="h-4 w-4 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Email #1</p>
-                <p className="text-sm font-medium text-slate-900">{customer.email_1}</p>
+                <p className="text-xs text-slate-500">Secondary Email</p>
+                <p className="text-sm font-medium text-slate-900">{customer.secondary_email}</p>
               </div>
             </div>
           )}
-          {customer.email_2 && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Mail className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Email #2</p>
-                <p className="text-sm font-medium text-slate-900">{customer.email_2}</p>
-              </div>
-            </div>
-          )}
-          {customer.phone && (
+          {customer.store_phone && (
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-100">
                 <Phone className="h-4 w-4 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Primary Phone</p>
-                <p className="text-sm font-medium text-slate-900">{customer.phone}</p>
+                <p className="text-xs text-slate-500">Store Phone</p>
+                <p className="text-sm font-medium text-slate-900">{customer.store_phone}</p>
               </div>
             </div>
           )}
-          {customer.cell_phone_1 && (
+          {customer.owner_phone_1 && (
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-100">
                 <Phone className="h-4 w-4 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Cell #1</p>
-                <p className="text-sm font-medium text-slate-900">{customer.cell_phone_1}</p>
+                <p className="text-xs text-slate-500">Owner's Phone #1</p>
+                <p className="text-sm font-medium text-slate-900">{customer.owner_phone_1}</p>
               </div>
             </div>
           )}
-          {customer.cell_phone_2 && (
+          {customer.owner_phone_2 && (
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-slate-100">
                 <Phone className="h-4 w-4 text-slate-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500">Cell #2</p>
-                <p className="text-sm font-medium text-slate-900">{customer.cell_phone_2}</p>
+                <p className="text-xs text-slate-500">Owner's Phone #2</p>
+                <p className="text-sm font-medium text-slate-900">{customer.owner_phone_2}</p>
               </div>
             </div>
           )}

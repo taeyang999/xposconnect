@@ -101,10 +101,10 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
             <span className="truncate">{customer.email}</span>
           </div>
         )}
-        {customer.phone && (
+        {customer.store_phone && (
           <div className="flex items-center gap-2 text-slate-600">
             <Phone className="h-4 w-4 text-slate-400" />
-            <span>{customer.phone}</span>
+            <span>{customer.store_phone}</span>
           </div>
         )}
         {(customer.city || customer.state) && (

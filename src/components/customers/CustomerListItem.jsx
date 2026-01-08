@@ -52,10 +52,10 @@ export default function CustomerListItem({ customer, onEdit, onDelete }) {
                 {customer.email}
               </span>
             )}
-            {customer.phone && (
+            {customer.store_phone && (
               <span className="flex items-center gap-1">
                 <Phone className="h-3.5 w-3.5" />
-                {customer.phone}
+                {customer.store_phone}
               </span>
             )}
             {(customer.city || customer.state) && (
