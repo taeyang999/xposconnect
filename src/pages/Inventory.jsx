@@ -172,10 +172,12 @@ export default function Inventory() {
         title="Inventory"
         description="Manage equipment and items assigned to customers"
         actions={
-          <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Item
-          </Button>
+          canManage && (
+            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Item
+            </Button>
+          )
         }
       />
 
@@ -308,17 +310,21 @@ export default function Inventory() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                        <DropdownMenuItem onClick={() => handleEdit(item)} className="cursor-pointer rounded-lg">
-                          <Pencil className="h-4 w-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => setDeleteItem(item)}
-                          className="cursor-pointer rounded-lg text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
+                        {canManage && (
+                          <DropdownMenuItem onClick={() => handleEdit(item)} className="cursor-pointer rounded-lg">
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                        )}
+                        {canDelete && (
+                          <DropdownMenuItem 
+                            onClick={() => setDeleteItem(item)}
+                            className="cursor-pointer rounded-lg text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

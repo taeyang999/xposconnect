@@ -212,10 +212,12 @@ export default function ServiceLogs() {
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
-            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Service Log
-            </Button>
+            {canManage && (
+              <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Service Log
+              </Button>
+            )}
           </div>
         }
       />
@@ -396,17 +398,21 @@ export default function ServiceLogs() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                              <DropdownMenuItem onClick={() => handleEdit(log)} className="cursor-pointer rounded-lg">
-                                <Pencil className="h-4 w-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => setDeleteLog(log)}
-                                className="cursor-pointer rounded-lg text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
+                              {canManage && (
+                                <DropdownMenuItem onClick={() => handleEdit(log)} className="cursor-pointer rounded-lg">
+                                  <Pencil className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                              )}
+                              {canDelete && (
+                                <DropdownMenuItem 
+                                  onClick={() => setDeleteLog(log)}
+                                  className="cursor-pointer rounded-lg text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
