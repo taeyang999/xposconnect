@@ -47,7 +47,7 @@ export default function Employees() {
   });
 
   const getEmployeeRole = (email) => {
-    const perm = permissionRecords.find(p => p.user_email === email);
+    const perm = permissionRecords.find(p => p.user_email?.toLowerCase() === email?.toLowerCase());
     return perm?.role || 'employee';
   };
 
