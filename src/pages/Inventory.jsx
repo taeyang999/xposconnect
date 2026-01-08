@@ -214,10 +214,12 @@ export default function Inventory() {
               <SelectItem value="pending">Pending</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" onClick={exportInventory} className="rounded-xl">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
+          {(isAdmin || permissions?.can_export_data) && (
+            <Button variant="outline" onClick={exportInventory} className="rounded-xl">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          )}
         </div>
       </div>
 

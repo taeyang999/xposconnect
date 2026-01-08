@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
   ArrowLeft, Mail, Phone, MapPin, User, Calendar,
   FileText, Package, Image, Pencil, Plus, Trash2, 
@@ -55,6 +56,14 @@ import PhotoUploader from '@/components/customers/PhotoUploader.jsx';
 import ServiceLogComments from '@/components/servicelogs/ServiceLogComments.jsx';
 
 export default function CustomerDetail() {
+  const { user, permissions, isAdmin } = usePermissions();
+  const canManageCustomers = isAdmin || permissions?.can_manage_customers;
+  const canDeleteCustomers = isAdmin || permissions?.can_delete_customers;
+  const canManageServiceLogs = isAdmin || permissions?.can_manage_service_logs;
+  const canDeleteServiceLogs = isAdmin || permissions?.can_delete_service_logs;
+  const canManageInventory = isAdmin || permissions?.can_manage_inventory;
+  const canDeleteInventory = isAdmin || permissions?.can_delete_inventory;
+
   const [customerId, setCustomerId] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showServiceLogForm, setShowServiceLogForm] = useState(false);
@@ -191,14 +200,23 @@ export default function CustomerDetail() {
     active: 'bg-emerald-100 text-emerald-700',
     inactive: 'bg-slate-100 text-slate-600',
     prospect: 'bg-blue-100 text-blue-700',
+    new: 'bg-purple-100 text-purple-700',
     scheduled: 'bg-blue-100 text-blue-700',
+    assigned: 'bg-indigo-100 text-indigo-700',
     in_progress: 'bg-amber-100 text-amber-700',
     completed: 'bg-emerald-100 text-emerald-700',
+    on_hold: 'bg-slate-100 text-slate-600',
     cancelled: 'bg-slate-100 text-slate-600',
     maintenance: 'bg-amber-100 text-amber-700',
     retired: 'bg-red-100 text-red-700',
     pending: 'bg-purple-100 text-purple-700',
   };
+
+  // Memoize filtered photos to avoid recalculating on each render
+  const filteredPhotos = useMemo(() => 
+    photos.filter(p => photoCategoryFilter === 'all' || p.category === photoCategoryFilter),
+    [photos, photoCategoryFilter]
+  );
 
   if (loadingCustomer) {
     return (
@@ -264,10 +282,12 @@ export default function CustomerDetail() {
               </div>
             </div>
           </div>
-          <Button onClick={() => setShowEditForm(true)} variant="outline" className="rounded-xl">
-            <Pencil className="h-4 w-4 mr-2" />
-            Edit Customer
-          </Button>
+          {canManageCustomers && (
+            <Button onClick={() => setShowEditForm(true)} variant="outline" className="rounded-xl">
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Customer
+            </Button>
+          )}
         </div>
 
         {/* Dynamic Sections based on layout config */}
@@ -497,10 +517,12 @@ export default function CustomerDetail() {
           <Card className="border-slate-200/80">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Service History</CardTitle>
-              <Button onClick={() => setShowServiceLogForm(true)} className="bg-slate-900 hover:bg-slate-800">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Service Log
-              </Button>
+              {canManageServiceLogs && (
+                <Button onClick={() => setShowServiceLogForm(true)} className="bg-slate-900 hover:bg-slate-800">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Service Log
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               {loadingLogs ? (
@@ -555,27 +577,29 @@ export default function CustomerDetail() {
                          )}
                         </div>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            className="h-8 w-8"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem 
-                            onClick={(e) => { e.stopPropagation(); setDeleteItem(log); setDeleteType('serviceLog'); }}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {canDeleteServiceLogs && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem 
+                              onClick={(e) => { e.stopPropagation(); setDeleteItem(log); setDeleteType('serviceLog'); }}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -589,10 +613,12 @@ export default function CustomerDetail() {
           <Card className="border-slate-200/80">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Assigned Inventory</CardTitle>
-              <Button onClick={() => setShowInventoryForm(true)} className="bg-slate-900 hover:bg-slate-800">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Item
-              </Button>
+              {canManageInventory && (
+                <Button onClick={() => setShowInventoryForm(true)} className="bg-slate-900 hover:bg-slate-800">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Item
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               {loadingInventory ? (
@@ -628,26 +654,32 @@ export default function CustomerDetail() {
                           )}
                         </div>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => { setEditingInventory(item); setShowInventoryForm(true); }}>
-                            <Pencil className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => { setDeleteItem(item); setDeleteType('inventory'); }}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {(canManageInventory || canDeleteInventory) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {canManageInventory && (
+                              <DropdownMenuItem onClick={() => { setEditingInventory(item); setShowInventoryForm(true); }}>
+                                <Pencil className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                            )}
+                            {canDeleteInventory && (
+                              <DropdownMenuItem 
+                                onClick={() => { setDeleteItem(item); setDeleteType('inventory'); }}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            )}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -688,14 +720,14 @@ export default function CustomerDetail() {
                     <Skeleton key={i} className="aspect-square rounded-xl" />
                   ))}
                 </div>
-              ) : photos.filter(p => photoCategoryFilter === 'all' || p.category === photoCategoryFilter).length === 0 ? (
+              ) : filteredPhotos.length === 0 ? (
                 <div className="text-center py-12 text-slate-500">
                   <Image className="h-8 w-8 mx-auto mb-2 text-slate-300" />
                   <p>No photos uploaded</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {photos.filter(p => photoCategoryFilter === 'all' || p.category === photoCategoryFilter).map((photo) => (
+                  {filteredPhotos.map((photo) => (
                    <div key={photo.id} className="group relative aspect-square rounded-xl overflow-hidden bg-slate-100">
                      <img 
                        src={photo.file_url} 
