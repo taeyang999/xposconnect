@@ -56,6 +56,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
       const users = await base44.entities.User.list();
       return users.filter(u => u.status !== 'inactive');
     },
+    staleTime: 1000 * 60 * 5,
   });
 
   const { data: customers = [] } = useQuery({
