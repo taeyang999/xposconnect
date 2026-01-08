@@ -378,14 +378,14 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
           <div>
             <Label>Assigned Employee</Label>
             <Select
-              value={formData.assigned_employee || 'unassigned'}
-              onValueChange={(value) => setFormData({ ...formData, assigned_employee: value === 'unassigned' ? '' : value })}
+              value={formData.assigned_employee}
+              onValueChange={(value) => setFormData({ ...formData, assigned_employee: value })}
             >
               <SelectTrigger className="mt-1.5">
                 <SelectValue placeholder="Select employee" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
+                <SelectItem value={null}>Unassigned</SelectItem>
                 {employees.map((emp) => (
                   <SelectItem key={emp.id} value={emp.email}>
                     {emp.firstname && emp.lastname ? `${emp.firstname} ${emp.lastname}` : emp.full_name || emp.email}
