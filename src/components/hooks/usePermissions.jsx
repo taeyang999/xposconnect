@@ -172,11 +172,14 @@ export function usePermissions() {
 
   const permissions = getEffectivePermissions();
 
+  // Loading is true until user is loaded AND permission queries have resolved
+  const isLoading = !user || (!!user?.email && userPermission === undefined);
+
   return {
     user,
     isAdmin,
     isManager,
     permissions,
-    loading: !user,
+    loading: isLoading,
   };
 }

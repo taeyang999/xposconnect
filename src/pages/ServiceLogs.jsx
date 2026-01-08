@@ -180,6 +180,7 @@ export default function ServiceLogs() {
 
   const statusColors = {
     new: 'bg-purple-100 text-purple-700',
+    scheduled: 'bg-indigo-100 text-indigo-700',
     assigned: 'bg-blue-100 text-blue-700',
     in_progress: 'bg-amber-100 text-amber-700',
     completed: 'bg-emerald-100 text-emerald-700',
@@ -258,9 +259,11 @@ export default function ServiceLogs() {
               </Badge>
             )}
           </Button>
-          <Button variant="outline" onClick={exportLogs} className="rounded-xl" size="icon">
-            <Download className="h-4 w-4" />
-          </Button>
+          {canExport && (
+            <Button variant="outline" onClick={exportLogs} className="rounded-xl" size="icon">
+              <Download className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
