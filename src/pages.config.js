@@ -9,6 +9,7 @@ import Reports from './pages/Reports';
 import Schedule from './pages/Schedule';
 import ServiceLogs from './pages/ServiceLogs';
 import AuditLogs from './pages/AuditLogs';
+import CustomerLayoutSettings from './pages/CustomerLayoutSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "Schedule": Schedule,
     "ServiceLogs": ServiceLogs,
     "AuditLogs": AuditLogs,
+    "CustomerLayoutSettings": CustomerLayoutSettings,
 }
 
 export const pagesConfig = {
