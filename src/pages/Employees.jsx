@@ -40,6 +40,17 @@ export default function Employees() {
     enabled: !!user && canManageEmployees,
   });
 
+  const { data: permissionRecords = [] } = useQuery({
+    queryKey: ['permissionRecords'],
+    queryFn: () => base44.entities.Permission.list(),
+    enabled: !!user && canManageEmployees,
+  });
+
+  const getEmployeeRole = (email) => {
+    const perm = permissionRecords.find(p => p.user_email === email);
+    return perm?.role || 'employee';
+  };
+
   const filteredEmployees = employees.filter(emp => {
     const fullName = [emp.firstname, emp.lastname].filter(Boolean).join(' ');
     return (
