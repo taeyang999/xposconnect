@@ -322,14 +322,14 @@ export default function CustomerDetail() {
               <p className="text-sm font-medium text-slate-900 truncate">{customer.owner_phone_2 || ''}</p>
             </div>
           </div>
-          <div className="flex items-start gap-3 min-w-0">
+          <div className="flex items-start gap-3 min-w-0 lg:col-span-2">
             <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
               <MapPin className="h-4 w-4 text-slate-600" />
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs text-slate-500">Location</p>
-              <p className="text-sm font-medium text-slate-900 truncate">
-                {[customer.city, customer.state].filter(Boolean).join(', ')}
+              <p className="text-sm font-medium text-slate-900">
+                {[customer.address, customer.city, customer.state, customer.zip_code].filter(Boolean).join(', ')}
               </p>
             </div>
           </div>
@@ -374,24 +374,7 @@ export default function CustomerDetail() {
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-              <MapPin className="h-4 w-4 text-slate-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-slate-500">Address</p>
-              <p className="text-sm font-medium text-slate-900 truncate">{customer.address || ''}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="p-2 rounded-lg bg-slate-100 flex-shrink-0">
-              <MapPin className="h-4 w-4 text-slate-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs text-slate-500">ZIP Code</p>
-              <p className="text-sm font-medium text-slate-900 truncate">{customer.zip_code || ''}</p>
-            </div>
-          </div>
+
         </div>
 
         <div className="mt-6 pt-6 border-t border-slate-100">
