@@ -226,10 +226,12 @@ export default function Schedule() {
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
-            <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Event
-            </Button>
+            {canManage && (
+              <Button onClick={() => setShowForm(true)} className="bg-slate-900 hover:bg-slate-800">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Event
+              </Button>
+            )}
           </div>
         }
       />
@@ -250,8 +252,8 @@ export default function Schedule() {
                 getCustomerName={getCustomerName}
                 getEmployeeInitials={getEmployeeInitials}
                 getEmployeeName={getEmployeeName}
-                onEdit={handleEdit}
-                onDelete={setDeleteEvent}
+                onEdit={canManage ? handleEdit : null}
+                onDelete={canDelete ? setDeleteEvent : null}
                 onSelect={handleSelectEvent}
               />
             ))
@@ -311,8 +313,8 @@ export default function Schedule() {
                   getCustomerName={getCustomerName}
                   getEmployeeInitials={getEmployeeInitials}
                   getEmployeeName={getEmployeeName}
-                  onEdit={handleEdit}
-                  onDelete={setDeleteEvent}
+                  onEdit={canManage ? handleEdit : null}
+                  onDelete={canDelete ? setDeleteEvent : null}
                   onSelect={handleSelectEvent}
                 />
               ))
