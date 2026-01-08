@@ -234,176 +234,172 @@ export default function CustomerDetail() {
         </div>
 
         {/* Owner & Business Info */}
-        {(customer.owner_firstname || customer.owner_lastname || customer.corporation || customer.business_type) && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
-            {(customer.owner_firstname || customer.owner_lastname) && (
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-100">
-                  <User className="h-4 w-4 text-slate-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Owner</p>
-                  <p className="text-sm font-medium text-slate-900">
-                    {[customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')}
-                  </p>
-                </div>
-              </div>
-            )}
-            {customer.corporation && (
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-100">
-                  <Building2 className="h-4 w-4 text-slate-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Corporation</p>
-                  <p className="text-sm font-medium text-slate-900">{customer.corporation}</p>
-                </div>
-              </div>
-            )}
-            {customer.business_type && (
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-100">
-                  <Building2 className="h-4 w-4 text-slate-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Business Type</p>
-                  <p className="text-sm font-medium text-slate-900">{customer.business_type}</p>
-                </div>
-              </div>
-            )}
-            {customer.merchant_id && (
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-slate-100">
-                  <CreditCard className="h-4 w-4 text-slate-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Merchant ID</p>
-                  <p className="text-sm font-medium text-slate-900">{customer.merchant_id}</p>
-                </div>
-              </div>
-            )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <User className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Owner</p>
+              <p className="text-sm font-medium text-slate-900">
+                {(customer.owner_firstname || customer.owner_lastname) 
+                  ? [customer.owner_firstname, customer.owner_lastname].filter(Boolean).join(' ')
+                  : <span className="text-slate-400 italic">Not provided</span>}
+              </p>
+            </div>
           </div>
-        )}
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Building2 className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Corporation</p>
+              <p className="text-sm font-medium text-slate-900">{customer.corporation || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Building2 className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Business Type</p>
+              <p className="text-sm font-medium text-slate-900">{customer.business_type || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <CreditCard className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Merchant ID</p>
+              <p className="text-sm font-medium text-slate-900">{customer.merchant_id || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
+        </div>
 
         {/* Contact Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
-          {customer.email && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Mail className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Primary Email</p>
-                <p className="text-sm font-medium text-slate-900">{customer.email}</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Mail className="h-4 w-4 text-slate-600" />
             </div>
-          )}
-          {customer.secondary_email && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Mail className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Secondary Email</p>
-                <p className="text-sm font-medium text-slate-900">{customer.secondary_email}</p>
-              </div>
+            <div>
+              <p className="text-xs text-slate-500">Primary Email</p>
+              <p className="text-sm font-medium text-slate-900">{customer.email || <span className="text-slate-400 italic">Not provided</span>}</p>
             </div>
-          )}
-          {customer.store_phone && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Phone className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Store Phone</p>
-                <p className="text-sm font-medium text-slate-900">{customer.store_phone}</p>
-              </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Mail className="h-4 w-4 text-slate-600" />
             </div>
-          )}
-          {customer.owner_phone_1 && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Phone className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Owner's Phone #1</p>
-                <p className="text-sm font-medium text-slate-900">{customer.owner_phone_1}</p>
-              </div>
+            <div>
+              <p className="text-xs text-slate-500">Secondary Email</p>
+              <p className="text-sm font-medium text-slate-900">{customer.secondary_email || <span className="text-slate-400 italic">Not provided</span>}</p>
             </div>
-          )}
-          {customer.owner_phone_2 && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Phone className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Owner's Phone #2</p>
-                <p className="text-sm font-medium text-slate-900">{customer.owner_phone_2}</p>
-              </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Phone className="h-4 w-4 text-slate-600" />
             </div>
-          )}
-          {(customer.city || customer.state) && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <MapPin className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Location</p>
-                <p className="text-sm font-medium text-slate-900">
-                  {[customer.city, customer.state].filter(Boolean).join(', ')}
-                </p>
-              </div>
+            <div>
+              <p className="text-xs text-slate-500">Store Phone</p>
+              <p className="text-sm font-medium text-slate-900">{customer.store_phone || <span className="text-slate-400 italic">Not provided</span>}</p>
             </div>
-          )}
-          {customer.platform && (
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-slate-100">
-                <Building2 className="h-4 w-4 text-slate-600" />
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">Platform</p>
-                <p className="text-sm font-medium text-slate-900">{customer.platform}</p>
-              </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Phone className="h-4 w-4 text-slate-600" />
             </div>
-          )}
+            <div>
+              <p className="text-xs text-slate-500">Owner's Phone #1</p>
+              <p className="text-sm font-medium text-slate-900">{customer.owner_phone_1 || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Phone className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Owner's Phone #2</p>
+              <p className="text-sm font-medium text-slate-900">{customer.owner_phone_2 || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <MapPin className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Location</p>
+              <p className="text-sm font-medium text-slate-900">
+                {(customer.city || customer.state) ? [customer.city, customer.state].filter(Boolean).join(', ') : <span className="text-slate-400 italic">Not provided</span>}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <Building2 className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Platform</p>
+              <p className="text-sm font-medium text-slate-900">{customer.platform || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
         </div>
 
         {/* Additional Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6 pt-6 border-t border-slate-100">
-          {customer.assigned_employee && (
-            <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
+            {customer.assigned_employee ? (
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-slate-800 text-white text-xs font-medium">
                   {getEmployeeInitials(customer.assigned_employee)}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <p className="text-xs text-slate-500">Assigned To</p>
-                <p className="text-sm font-medium text-slate-900">{customer.assigned_employee}</p>
-              </div>
-            </div>
-          )}
-          {customer.pci_expire_date && (
-            <div className="flex items-center gap-3">
+            ) : (
               <div className="p-2 rounded-lg bg-slate-100">
-                <ShieldAlert className="h-4 w-4 text-slate-600" />
+                <User className="h-4 w-4 text-slate-600" />
               </div>
-              <div>
-                <p className="text-xs text-slate-500">PCI Expire Date</p>
-                <p className="text-sm font-medium text-slate-900">
-                  {format(parseISO(customer.pci_expire_date), 'MMM d, yyyy')}
-                </p>
-              </div>
+            )}
+            <div>
+              <p className="text-xs text-slate-500">Assigned To</p>
+              <p className="text-sm font-medium text-slate-900">{customer.assigned_employee || <span className="text-slate-400 italic">Not assigned</span>}</p>
             </div>
-          )}
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <ShieldAlert className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">PCI Expire Date</p>
+              <p className="text-sm font-medium text-slate-900">
+                {customer.pci_expire_date ? format(parseISO(customer.pci_expire_date), 'MMM d, yyyy') : <span className="text-slate-400 italic">Not provided</span>}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <MapPin className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Address</p>
+              <p className="text-sm font-medium text-slate-900">{customer.address || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-slate-100">
+              <MapPin className="h-4 w-4 text-slate-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">ZIP Code</p>
+              <p className="text-sm font-medium text-slate-900">{customer.zip_code || <span className="text-slate-400 italic">Not provided</span>}</p>
+            </div>
+          </div>
         </div>
 
-        {customer.notes && (
-          <div className="mt-6 pt-6 border-t border-slate-100">
-            <p className="text-xs text-slate-500 mb-1">Notes</p>
-            <p className="text-sm text-slate-700">{customer.notes}</p>
-          </div>
-        )}
+        <div className="mt-6 pt-6 border-t border-slate-100">
+          <p className="text-xs text-slate-500 mb-1">Notes</p>
+          <p className="text-sm text-slate-700">{customer.notes || <span className="text-slate-400 italic">No notes</span>}</p>
+        </div>
       </div>
 
       {/* Tabs */}
