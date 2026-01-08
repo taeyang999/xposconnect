@@ -50,16 +50,33 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: employees = [], isLoading: loadingEmployees, error: employeesError } = useQuery({
-    queryKey: ['employees'],
+  const { data: employees = [], isLoading: loadingEmployees } = useQuery({
+    queryKey: ['employeesForAssignment'],
     queryFn: async () => {
+      // Get permissions to extract employee emails since User list may be restricted
+      const permissions = await base44.entities.Permission.list();
+      const employeeEmails = permissions
+        .filter(p => p.user_email && p.user_email !== 'role_templates')
+        .map(p => ({
+          id: p.id,
+          email: p.user_email,
+          firstname: '',
+          lastname: '',
+          full_name: p.user_email,
+          status: 'active',
+        }));
+      
+      // Try to get full user data if possible
       try {
         const users = await base44.entities.User.list();
-        return users.filter(u => u.status !== 'inactive');
+        if (users && users.length > 0) {
+          return users.filter(u => u.status !== 'inactive');
+        }
       } catch (err) {
-        console.error('Failed to load employees:', err);
-        return [];
+        console.log('Using permissions for employee list');
       }
+      
+      return employeeEmails;
     },
   });
 
