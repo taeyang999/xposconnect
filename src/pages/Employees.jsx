@@ -215,7 +215,7 @@ export default function Employees() {
 
               <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                 {(() => {
-                  const displayRole = employee.role === 'admin' ? 'admin' : getEmployeeRole(employee.email);
+                  const displayRole = getEmployeeRole(employee.email);
                   return (
                     <Badge className={displayRole === 'admin' 
                       ? 'bg-purple-100 text-purple-700' 
