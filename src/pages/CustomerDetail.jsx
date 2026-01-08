@@ -120,6 +120,43 @@ export default function CustomerDetail() {
     enabled: !!customerId,
   });
 
+  const { data: layoutConfig } = useQuery({
+    queryKey: ['customerLayoutConfig'],
+    queryFn: async () => {
+      const configs = await base44.entities.CustomerLayoutConfig.filter({ config_name: 'default' });
+      return configs?.[0] || null;
+    },
+  });
+
+  // Helper to check if section/field is visible
+  const isSectionVisible = (sectionId) => {
+    if (!layoutConfig?.sections) return true;
+    const section = layoutConfig.sections.find(s => s.id === sectionId);
+    return section?.visible !== false;
+  };
+
+  const isFieldVisible = (fieldId) => {
+    if (!layoutConfig?.fields) return true;
+    const field = layoutConfig.fields.find(f => f.id === fieldId);
+    return field?.visible !== false;
+  };
+
+  const getSectionOrder = () => {
+    if (!layoutConfig?.sections) return ['owner_business', 'contact', 'additional', 'notes'];
+    return layoutConfig.sections
+      .filter(s => s.visible !== false)
+      .sort((a, b) => a.order - b.order)
+      .map(s => s.id);
+  };
+
+  const getFieldsForSection = (sectionId) => {
+    if (!layoutConfig?.fields) return null;
+    return layoutConfig.fields
+      .filter(f => f.section === sectionId && f.visible !== false)
+      .sort((a, b) => a.order - b.order)
+      .map(f => f.id);
+  };
+
   const getEmployeeInitials = (email) => {
     const emp = employees.find(e => e.email === email);
     if (emp?.firstname && emp?.lastname) {
