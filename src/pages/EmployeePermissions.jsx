@@ -14,7 +14,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export default function EmployeePermissions() {
   const queryClient = useQueryClient();
-  const { user: currentUser, isAdmin } = usePermissions();
+  const { isAdmin, loading } = usePermissions();
   const [saving, setSaving] = useState(false);
   const [activeRole, setActiveRole] = useState('employee');
 
@@ -217,6 +217,17 @@ export default function EmployeePermissions() {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
