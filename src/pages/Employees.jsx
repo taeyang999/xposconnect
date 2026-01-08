@@ -214,17 +214,24 @@ export default function Employees() {
               </div>
 
               <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-                <Badge className={employee.role === 'admin' 
-                  ? 'bg-purple-100 text-purple-700' 
-                  : 'bg-slate-100 text-slate-700'
-                }>
-                  {employee.role === 'admin' ? (
-                    <ShieldCheck className="h-3 w-3 mr-1" />
-                  ) : (
-                    <Shield className="h-3 w-3 mr-1" />
-                  )}
-                  {employee.role}
-                </Badge>
+                {(() => {
+                  const displayRole = employee.role === 'admin' ? 'admin' : getEmployeeRole(employee.email);
+                  return (
+                    <Badge className={displayRole === 'admin' 
+                      ? 'bg-purple-100 text-purple-700' 
+                      : displayRole === 'manager'
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'bg-slate-100 text-slate-700'
+                    }>
+                      {displayRole === 'admin' ? (
+                        <ShieldCheck className="h-3 w-3 mr-1" />
+                      ) : (
+                        <Shield className="h-3 w-3 mr-1" />
+                      )}
+                      {displayRole}
+                    </Badge>
+                  );
+                })()}
                 <Badge className={employee.status === 'active' 
                   ? 'bg-emerald-100 text-emerald-700' 
                   : 'bg-slate-100 text-slate-600'
