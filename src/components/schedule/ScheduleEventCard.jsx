@@ -35,6 +35,8 @@ export default function ScheduleEventCard({
     cancelled: 'bg-slate-100 text-slate-500',
   };
 
+  const hasActions = onEdit || onDelete;
+
   return (
     <div 
       className="bg-white rounded-xl border border-slate-200/80 p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
@@ -42,26 +44,32 @@ export default function ScheduleEventCard({
     >
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-semibold text-slate-900 text-base line-clamp-1 flex-1 pr-2">{event.title}</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 rounded-xl">
-            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(event); }} className="cursor-pointer rounded-lg">
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={(e) => { e.stopPropagation(); onDelete(event); }}
-              className="cursor-pointer rounded-lg text-red-600"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {hasActions && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 rounded-xl">
+              {onEdit && (
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(event); }} className="cursor-pointer rounded-lg">
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem 
+                  onClick={(e) => { e.stopPropagation(); onDelete(event); }}
+                  className="cursor-pointer rounded-lg text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-3">
