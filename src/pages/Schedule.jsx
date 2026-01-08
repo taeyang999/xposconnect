@@ -176,18 +176,28 @@ export default function Schedule() {
   };
 
   const handleEventDrop = async ({ event, start, end }) => {
+    const changes = {
+      start_datetime: { from: event.start_datetime, to: start.toISOString() },
+      end_datetime: { from: event.end_datetime, to: end.toISOString() },
+    };
     await base44.entities.ScheduleEvent.update(event.id, {
       start_datetime: start.toISOString(),
       end_datetime: end.toISOString(),
     });
+    await logAudit('ScheduleEvent', event.id, event.title, 'update', changes);
     queryClient.invalidateQueries({ queryKey: ['events'] });
   };
 
   const handleEventResize = async ({ event, start, end }) => {
+    const changes = {
+      start_datetime: { from: event.start_datetime, to: start.toISOString() },
+      end_datetime: { from: event.end_datetime, to: end.toISOString() },
+    };
     await base44.entities.ScheduleEvent.update(event.id, {
       start_datetime: start.toISOString(),
       end_datetime: end.toISOString(),
     });
+    await logAudit('ScheduleEvent', event.id, event.title, 'update', changes);
     queryClient.invalidateQueries({ queryKey: ['events'] });
   };
 

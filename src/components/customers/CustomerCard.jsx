@@ -48,6 +48,8 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
     navigate(createPageUrl('CustomerDetail') + `?id=${customer.id}`);
   };
 
+  const hasActions = onEdit || onDelete;
+
   return (
     <div 
       onClick={handleCardClick}
@@ -78,18 +80,24 @@ export default function CustomerCard({ customer, onEdit, onDelete }) {
                 View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(customer)} className="cursor-pointer rounded-lg">
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => onDelete(customer)} 
-              className="cursor-pointer rounded-lg text-red-600 focus:text-red-600"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
+            {onEdit && (
+              <DropdownMenuItem onClick={() => onEdit(customer)} className="cursor-pointer rounded-lg">
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
+            )}
+            {onDelete && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => onDelete(customer)} 
+                  className="cursor-pointer rounded-lg text-red-600 focus:text-red-600"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

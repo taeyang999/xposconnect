@@ -339,28 +339,28 @@ export default function Dashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Link to={createPageUrl('Customers') + '?action=new'}>
+            <Link to={createPageUrl('Customers')}>
               <div className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer text-center">
                 <Users className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-                <p className="text-sm font-medium text-slate-900">Add Customer</p>
+                <p className="text-sm font-medium text-slate-900">View Customers</p>
               </div>
             </Link>
-            <Link to={createPageUrl('Schedule') + '?action=new'}>
+            <Link to={createPageUrl('Schedule')}>
               <div className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer text-center">
                 <Calendar className="h-6 w-6 mx-auto mb-2 text-purple-600" />
-                <p className="text-sm font-medium text-slate-900">Schedule Event</p>
+                <p className="text-sm font-medium text-slate-900">View Schedule</p>
               </div>
             </Link>
-            <Link to={createPageUrl('ServiceLogs') + '?action=new'}>
+            <Link to={createPageUrl('ServiceLogs')}>
               <div className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer text-center">
                 <FileText className="h-6 w-6 mx-auto mb-2 text-amber-600" />
-                <p className="text-sm font-medium text-slate-900">Add Service Log</p>
+                <p className="text-sm font-medium text-slate-900">View Service Logs</p>
               </div>
             </Link>
-            <Link to={createPageUrl('Inventory') + '?action=new'}>
+            <Link to={createPageUrl('Inventory')}>
               <div className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition-all cursor-pointer text-center">
                 <Package className="h-6 w-6 mx-auto mb-2 text-emerald-600" />
-                <p className="text-sm font-medium text-slate-900">Add Inventory</p>
+                <p className="text-sm font-medium text-slate-900">View Inventory</p>
               </div>
             </Link>
           </div>
