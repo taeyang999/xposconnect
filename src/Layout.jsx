@@ -159,6 +159,7 @@ export default function Layout({ children, currentPageName }) {
       { name: 'Employees', href: 'Employees', icon: UserCircle, requiresPermission: 'can_manage_employees' },
       { name: 'Permissions', href: 'EmployeePermissions', icon: Shield, requiresAdmin: true },
       { name: 'Audit Logs', href: 'AuditLogs', icon: FileText, requiresAdmin: true },
+      { name: 'Customer Layout', href: 'CustomerLayoutSettings', icon: Settings, requiresAdmin: true },
     ];
 
     return adminNav.filter(item => {
