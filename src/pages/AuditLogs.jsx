@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getAllAuditLogs } from '../components/audit/auditLogger';
-import { base44 } from '@/api/base44Client';
+import { usePermissions } from '@/components/hooks/usePermissions';
 import { format, parseISO } from 'date-fns';
 import { Search, Filter, Clock, Shield } from 'lucide-react';
 import { Input } from "@/components/ui/input";
@@ -26,25 +26,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import PageHeader from '@/components/ui/PageHeader';
 
 export default function AuditLogs() {
-  const [user, setUser] = useState(null);
+  const { user, isAdmin, loading: permLoading } = usePermissions();
   const [searchQuery, setSearchQuery] = useState('');
   const [entityFilter, setEntityFilter] = useState('all');
   const [actionFilter, setActionFilter] = useState('all');
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
-
-  const isAdmin = user?.role === 'admin';
-
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['auditLogs'],
     queryFn: () => getAllAuditLogs(500),
-    enabled: !!user && isAdmin,
+    enabled: !!user && isAdmin && !permLoading,
   });
 
   const filteredLogs = logs.filter(log => {
@@ -62,6 +52,17 @@ export default function AuditLogs() {
     update: 'bg-blue-100 text-blue-700',
     delete: 'bg-red-100 text-red-700',
   };
+
+  if (permLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-slate-200 border-t-slate-600 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-500">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
