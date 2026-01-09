@@ -50,14 +50,16 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
+  const { user, loading: permLoading } = usePermissions();
 
-  const { data: employees = [] } = useQuery({
+  const { data: employees = [], isLoading: employeesLoading } = useQuery({
     queryKey: ['employeesForAssignment'],
     queryFn: async () => {
       const result = await base44.functions.getEmployeesForAssignment();
       return result?.employees || [];
     },
     staleTime: 1000 * 60 * 5,
+    enabled: !!user && !permLoading,
   });
 
   const { data: customers = [] } = useQuery({
