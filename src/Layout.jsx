@@ -24,6 +24,7 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [permissions, setPermissions] = useState(null);
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
@@ -73,8 +74,10 @@ export default function Layout({ children, currentPageName }) {
         };
         
         setPermissions(effectivePermissions);
+        setPermissionsLoaded(true);
       } catch (e) {
         console.log('User not logged in');
+        setPermissionsLoaded(true);
       }
     };
     loadUser();
@@ -131,8 +134,9 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Application admin: system admin OR Permission.role === 'admin'
-  const isAdmin = user?.role === 'admin' || permissions?.isAppAdmin;
-  const isManager = permissions?.role === 'manager';
+  // Only evaluate after permissions are loaded to avoid race condition
+  const isAdmin = permissionsLoaded ? (user?.role === 'admin' || permissions?.isAppAdmin) : false;
+  const isManager = permissionsLoaded ? permissions?.role === 'manager' : false;
 
   // Filter navigation based on permissions
   const getFilteredNavigation = () => {
@@ -179,8 +183,11 @@ export default function Layout({ children, currentPageName }) {
     });
   };
 
-  const navigation = getFilteredNavigation();
-  const adminNavigation = getFilteredAdminNavigation();
+  // Only compute navigation after permissions are loaded
+  const navigation = permissionsLoaded ? getFilteredNavigation() : [
+    { name: 'Dashboard', href: 'Dashboard', icon: LayoutDashboard, requiresPermission: null },
+  ];
+  const adminNavigation = permissionsLoaded ? getFilteredAdminNavigation() : [];
 
   const NavLink = ({ item }) => (
     <Link
