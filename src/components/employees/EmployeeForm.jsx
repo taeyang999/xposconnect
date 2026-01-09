@@ -30,18 +30,24 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
     title: '',
     hire_date: '',
     status: 'active',
-    role: 'employee',
+    app_role: 'employee',
+    can_manage_customers: true,
+    can_delete_customers: false,
+    can_view_customers: true,
+    can_manage_schedule: true,
+    can_delete_schedule: false,
+    can_view_schedule: true,
+    can_manage_service_logs: true,
+    can_delete_service_logs: false,
+    can_view_service_logs: true,
+    can_manage_inventory: false,
+    can_delete_inventory: false,
+    can_view_inventory: false,
+    can_manage_employees: false,
+    can_view_reports: false,
+    can_export_data: false,
   });
   const [saving, setSaving] = useState(false);
-
-  const { data: permission } = useQuery({
-    queryKey: ['permission', employee?.email],
-    queryFn: async () => {
-      const permissions = await base44.entities.Permission.filter({ user_email: employee.email });
-      return permissions?.[0] || null;
-    },
-    enabled: !!employee?.email,
-  });
 
   useEffect(() => {
     if (employee && open) {
@@ -53,7 +59,22 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
         title: employee.title || '',
         hire_date: employee.hire_date || '',
         status: employee.status || 'active',
-        role: permission?.role || employee.role || 'employee',
+        app_role: employee.app_role || 'employee',
+        can_manage_customers: employee.can_manage_customers ?? true,
+        can_delete_customers: employee.can_delete_customers ?? false,
+        can_view_customers: employee.can_view_customers ?? true,
+        can_manage_schedule: employee.can_manage_schedule ?? true,
+        can_delete_schedule: employee.can_delete_schedule ?? false,
+        can_view_schedule: employee.can_view_schedule ?? true,
+        can_manage_service_logs: employee.can_manage_service_logs ?? true,
+        can_delete_service_logs: employee.can_delete_service_logs ?? false,
+        can_view_service_logs: employee.can_view_service_logs ?? true,
+        can_manage_inventory: employee.can_manage_inventory ?? false,
+        can_delete_inventory: employee.can_delete_inventory ?? false,
+        can_view_inventory: employee.can_view_inventory ?? false,
+        can_manage_employees: employee.can_manage_employees ?? false,
+        can_view_reports: employee.can_view_reports ?? false,
+        can_export_data: employee.can_export_data ?? false,
       });
     } else {
       setFormData({
@@ -64,83 +85,94 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
         title: '',
         hire_date: '',
         status: 'active',
-        role: 'employee',
+        app_role: 'employee',
+        can_manage_customers: true,
+        can_delete_customers: false,
+        can_view_customers: true,
+        can_manage_schedule: true,
+        can_delete_schedule: false,
+        can_view_schedule: true,
+        can_manage_service_logs: true,
+        can_delete_service_logs: false,
+        can_view_service_logs: true,
+        can_manage_inventory: false,
+        can_delete_inventory: false,
+        can_view_inventory: false,
+        can_manage_employees: false,
+        can_view_reports: false,
+        can_export_data: false,
       });
     }
-  }, [employee, open, permission]);
+  }, [employee, open]);
+
+  const handleRoleChange = (newRole) => {
+    const presets = {
+      admin: {
+        can_manage_customers: true,
+        can_delete_customers: true,
+        can_view_customers: true,
+        can_manage_schedule: true,
+        can_delete_schedule: true,
+        can_view_schedule: true,
+        can_manage_service_logs: true,
+        can_delete_service_logs: true,
+        can_view_service_logs: true,
+        can_manage_inventory: true,
+        can_delete_inventory: true,
+        can_view_inventory: true,
+        can_manage_employees: true,
+        can_view_reports: true,
+        can_export_data: true,
+      },
+      manager: {
+        can_manage_customers: true,
+        can_delete_customers: true,
+        can_view_customers: true,
+        can_manage_schedule: true,
+        can_delete_schedule: true,
+        can_view_schedule: true,
+        can_manage_service_logs: true,
+        can_delete_service_logs: true,
+        can_view_service_logs: true,
+        can_manage_inventory: true,
+        can_delete_inventory: true,
+        can_view_inventory: true,
+        can_manage_employees: false,
+        can_view_reports: true,
+        can_export_data: true,
+      },
+      employee: {
+        can_manage_customers: true,
+        can_delete_customers: false,
+        can_view_customers: true,
+        can_manage_schedule: true,
+        can_delete_schedule: false,
+        can_view_schedule: true,
+        can_manage_service_logs: true,
+        can_delete_service_logs: false,
+        can_view_service_logs: true,
+        can_manage_inventory: false,
+        can_delete_inventory: false,
+        can_view_inventory: false,
+        can_manage_employees: false,
+        can_view_reports: false,
+        can_export_data: false,
+      },
+    };
+
+    setFormData({
+      ...formData,
+      app_role: newRole,
+      ...presets[newRole],
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const { role, ...userData } = formData;
-      await base44.entities.User.update(employee.id, userData);
-      
-      // Update or create permission record with new role
-      if (permission) {
-        await base44.entities.Permission.update(permission.id, { role });
-      } else {
-        const permissionDefaults = {
-          employee: {
-            can_manage_customers: true,
-            can_delete_customers: true,
-            can_view_customers: true,
-            can_manage_schedule: true,
-            can_delete_schedule: true,
-            can_view_schedule: true,
-            can_manage_service_logs: true,
-            can_delete_service_logs: true,
-            can_view_service_logs: true,
-            can_manage_inventory: true,
-            can_delete_inventory: true,
-            can_view_inventory: true,
-            can_manage_employees: false,
-            can_view_reports: false,
-            can_export_data: false,
-          },
-          manager: {
-            can_manage_customers: true,
-            can_delete_customers: true,
-            can_view_customers: true,
-            can_manage_schedule: true,
-            can_delete_schedule: true,
-            can_view_schedule: true,
-            can_manage_service_logs: true,
-            can_delete_service_logs: true,
-            can_view_service_logs: true,
-            can_manage_inventory: true,
-            can_delete_inventory: true,
-            can_view_inventory: true,
-            can_manage_employees: false,
-            can_view_reports: true,
-            can_export_data: true,
-          },
-          admin: {
-            can_manage_customers: true,
-            can_delete_customers: true,
-            can_view_customers: true,
-            can_manage_schedule: true,
-            can_delete_schedule: true,
-            can_view_schedule: true,
-            can_manage_service_logs: true,
-            can_delete_service_logs: true,
-            can_view_service_logs: true,
-            can_manage_inventory: true,
-            can_delete_inventory: true,
-            can_view_inventory: true,
-            can_manage_employees: true,
-            can_view_reports: true,
-            can_export_data: true,
-          },
-        };
-        await base44.entities.Permission.create({
-          user_email: employee.email,
-          role,
-          ...permissionDefaults[role],
-        });
-      }
-      
-      toast.success('Employee details updated');
+      await base44.entities.User.update(employee.id, formData);
+      toast.success('Employee updated successfully');
       onSave();
       onClose();
     } catch (error) {
@@ -230,8 +262,8 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
           <div>
             <Label>Role</Label>
             <Select
-              value={formData.role}
-              onValueChange={(value) => setFormData({ ...formData, role: value })}
+              value={formData.app_role}
+              onValueChange={handleRoleChange}
             >
               <SelectTrigger className="mt-1.5">
                 <SelectValue />
@@ -242,6 +274,11 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
                 <SelectItem value="admin">Administrator</SelectItem>
               </SelectContent>
             </Select>
+            <p className="text-xs text-slate-500 mt-1">
+              {formData.app_role === 'admin' && 'Full access to all features'}
+              {formData.app_role === 'manager' && 'Can manage operations and view reports'}
+              {formData.app_role === 'employee' && 'Standard access to daily operations'}
+            </p>
           </div>
 
           <div>

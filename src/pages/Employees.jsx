@@ -40,15 +40,8 @@ export default function Employees() {
     enabled: !!user && canManageEmployees,
   });
 
-  const { data: permissionRecords = [] } = useQuery({
-    queryKey: ['permissionRecords'],
-    queryFn: () => base44.entities.Permission.list(),
-    enabled: !!user && canManageEmployees,
-  });
-
-  const getEmployeeRole = (email) => {
-    const perm = permissionRecords.find(p => p.user_email?.toLowerCase() === email?.toLowerCase());
-    return perm?.role || 'employee';
+  const getEmployeeRole = (employee) => {
+    return employee?.app_role || 'employee';
   };
 
   const filteredEmployees = employees.filter(emp => {
@@ -170,7 +163,7 @@ export default function Employees() {
                   </Avatar>
                   <div>
                     <h3 className="font-semibold text-slate-900">{[employee.firstname, employee.lastname].filter(Boolean).join(' ') || 'Unnamed'}</h3>
-                    <p className="text-sm text-slate-500 capitalize">{getEmployeeRole(employee.email)}</p>
+                    <p className="text-sm text-slate-500 capitalize">{getEmployeeRole(employee)}</p>
                   </div>
                 </div>
                 <DropdownMenu>
@@ -215,7 +208,7 @@ export default function Employees() {
 
               <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
                 {(() => {
-                  const displayRole = getEmployeeRole(employee.email);
+                  const displayRole = getEmployeeRole(employee);
                   return (
                     <Badge className={displayRole === 'admin' 
                       ? 'bg-purple-100 text-purple-700' 
