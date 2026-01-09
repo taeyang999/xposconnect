@@ -171,7 +171,11 @@ export default function EmployeeForm({ open, onClose, employee, onSave }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await base44.entities.User.update(employee.id, formData);
+      const updateData = {
+        ...formData,
+        full_name: [formData.firstname, formData.lastname].filter(Boolean).join(' '),
+      };
+      await base44.entities.User.update(employee.id, updateData);
       toast.success('Employee updated successfully');
       onSave();
       onClose();
