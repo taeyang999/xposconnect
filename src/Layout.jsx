@@ -120,7 +120,7 @@ export default function Layout({ children, currentPageName }) {
         // For admins (system or app), always show
         if (isAdmin) return true;
         // For managers, check permission explicitly
-        if (isManager) return permissions?.[item.requiresPermission] !== false;
+        if (isManager) return permissions?.[item.requiresPermission] === true;
         // For employees, only show if permission is explicitly true
         return permissions?.[item.requiresPermission] === true;
       }
