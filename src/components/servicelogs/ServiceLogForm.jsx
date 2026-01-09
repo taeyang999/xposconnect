@@ -51,9 +51,10 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const queryClient = useQueryClient();
 
   const { data: employees = [] } = useQuery({
-    queryKey: ['employees'],
+    queryKey: ['employees-limited'],
     queryFn: async () => {
-      const users = await base44.entities.User.list();
+      const response = await base44.functions.invoke('getLimitedEmployeeInfo');
+      const users = response.data?.employees || [];
       return users.filter(u => u.status !== 'inactive');
     },
     staleTime: 1000 * 60 * 5,
