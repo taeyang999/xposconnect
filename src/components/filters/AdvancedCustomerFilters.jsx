@@ -22,10 +22,7 @@ import {
 export default function AdvancedCustomerFilters({ open, onClose, filters, onFiltersChange }) {
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: async () => {
-      const result = await base44.functions.getEmployees();
-      return result.employees || [];
-    },
+    queryFn: () => base44.entities.Profile.filter({ status: 'active' }),
   });
 
   const updateFilter = (key, value) => {
