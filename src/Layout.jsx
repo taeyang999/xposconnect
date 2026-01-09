@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from './utils';
 import { useQuery } from '@tanstack/react-query';
-import { usePermissions } from '@/components/hooks/usePermissions';
 import { 
         LayoutDashboard, Users, Calendar, Package, FileText, 
         Settings, Menu, X, LogOut, ChevronDown, Bell, Search,
@@ -23,15 +22,65 @@ import { cn } from "@/lib/utils";
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [permissions, setPermissions] = useState(null);
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef(null);
   const navigate = useNavigate();
 
-  // Use centralized permissions hook
-  const { user, isAdmin, isManager, permissions, loading: permissionsLoading } = usePermissions();
-
   useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+        
+        // Load permissions and role templates for all users
+        const [perms, templates] = await Promise.all([
+          base44.entities.Permission.filter({ user_email: currentUser.email }),
+          base44.entities.Permission.filter({ user_email: 'role_templates' })
+        ]);
+        
+        const userPerm = perms && perms.length > 0 ? perms[0] : null;
+        const roleTemplate = templates && templates.length > 0 ? templates[0] : null;
+        
+        // Get the user's role from permission record, fallback to system role
+        const userRole = userPerm?.role || (currentUser.role === 'admin' ? 'admin' : 'employee');
+        const prefix = `${userRole}_`;
+        
+        // Check if user is an application admin (system admin OR Permission.role === 'admin')
+        const isAppAdmin = currentUser.role === 'admin' || userPerm?.role === 'admin';
+        
+        // If app admin, grant all permissions; otherwise use role template
+        const effectivePermissions = {
+          role: userRole,
+          isAppAdmin: isAppAdmin,
+          can_view_customers: isAppAdmin || roleTemplate?.[`${prefix}can_view_customers`] === true,
+          can_manage_customers: isAppAdmin || roleTemplate?.[`${prefix}can_manage_customers`] === true,
+          can_delete_customers: isAppAdmin || roleTemplate?.[`${prefix}can_delete_customers`] === true,
+          can_view_schedule: isAppAdmin || roleTemplate?.[`${prefix}can_view_schedule`] === true,
+          can_manage_schedule: isAppAdmin || roleTemplate?.[`${prefix}can_manage_schedule`] === true,
+          can_delete_schedule: isAppAdmin || roleTemplate?.[`${prefix}can_delete_schedule`] === true,
+          can_view_service_logs: isAppAdmin || roleTemplate?.[`${prefix}can_view_service_logs`] === true,
+          can_manage_service_logs: isAppAdmin || roleTemplate?.[`${prefix}can_manage_service_logs`] === true,
+          can_delete_service_logs: isAppAdmin || roleTemplate?.[`${prefix}can_delete_service_logs`] === true,
+          can_view_inventory: isAppAdmin || roleTemplate?.[`${prefix}can_view_inventory`] === true,
+          can_manage_inventory: isAppAdmin || roleTemplate?.[`${prefix}can_manage_inventory`] === true,
+          can_delete_inventory: isAppAdmin || roleTemplate?.[`${prefix}can_delete_inventory`] === true,
+          can_view_reports: isAppAdmin || roleTemplate?.[`${prefix}can_view_reports`] === true,
+          can_export_data: isAppAdmin || roleTemplate?.[`${prefix}can_export_data`] === true,
+          can_manage_employees: isAppAdmin || roleTemplate?.[`${prefix}can_manage_employees`] === true,
+        };
+        
+        setPermissions(effectivePermissions);
+        setPermissionsLoaded(true);
+      } catch (e) {
+        console.log('User not logged in');
+        setPermissionsLoaded(true);
+      }
+    };
+    loadUser();
 
     const handleClickOutside = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -48,7 +97,7 @@ export default function Layout({ children, currentPageName }) {
       const result = await base44.entities.Customer.list();
       return result || [];
     },
-    enabled: !!user && !permissionsLoading,
+    enabled: !!user,
   });
 
   const { data: serviceLogs = [] } = useQuery({
@@ -57,7 +106,7 @@ export default function Layout({ children, currentPageName }) {
       const result = await base44.entities.ServiceLog.list();
       return result || [];
     },
-    enabled: !!user && !permissionsLoading,
+    enabled: !!user,
   });
 
   const getCustomerName = (customerId) => {
@@ -84,7 +133,12 @@ export default function Layout({ children, currentPageName }) {
     base44.auth.logout();
   };
 
-  // Filter navigation based on permissions (isAdmin and isManager from usePermissions hook)
+  // Application admin: system admin OR Permission.role === 'admin'
+  // Only evaluate after permissions are loaded to avoid race condition
+  const isAdmin = permissionsLoaded ? (user?.role === 'admin' || permissions?.isAppAdmin) : false;
+  const isManager = permissionsLoaded ? permissions?.role === 'manager' : false;
+
+  // Filter navigation based on permissions
   const getFilteredNavigation = () => {
     const baseNav = [
       { name: 'Dashboard', href: 'Dashboard', icon: LayoutDashboard, requiresPermission: null },
@@ -130,10 +184,10 @@ export default function Layout({ children, currentPageName }) {
   };
 
   // Only compute navigation after permissions are loaded
-  const navigation = !permissionsLoading ? getFilteredNavigation() : [
+  const navigation = permissionsLoaded ? getFilteredNavigation() : [
     { name: 'Dashboard', href: 'Dashboard', icon: LayoutDashboard, requiresPermission: null },
   ];
-  const adminNavigation = !permissionsLoading ? getFilteredAdminNavigation() : [];
+  const adminNavigation = permissionsLoaded ? getFilteredAdminNavigation() : [];
 
   const NavLink = ({ item }) => (
     <Link
