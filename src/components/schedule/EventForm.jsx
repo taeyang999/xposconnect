@@ -45,8 +45,8 @@ export default function EventForm({ open, onClose, event, onSave }) {
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
-      const users = await base44.entities.User.list();
-      return users.filter(u => u.status !== 'inactive');
+      const result = await base44.functions.getEmployees();
+      return result.employees || [];
     },
   });
 
