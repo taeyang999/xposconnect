@@ -102,7 +102,7 @@ export default function ServiceLogs() {
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => base44.entities.Profile.filter({ status: 'active' }),
+    queryFn: () => base44.entities.User.list(),
   });
 
   const getCustomerName = (customerId) => {
