@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { usePermissions } from '@/components/hooks/usePermissions';
 import { logAudit } from '../audit/auditLogger';
 import { format } from 'date-fns';
 import { Button } from "@/components/ui/button";
@@ -50,16 +49,14 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const queryClient = useQueryClient();
-  const { user, loading: permLoading } = usePermissions();
 
-  const { data: employees = [], isLoading: employeesLoading } = useQuery({
+  const { data: employees = [] } = useQuery({
     queryKey: ['employeesForAssignment'],
     queryFn: async () => {
       const result = await base44.functions.getEmployeesForAssignment();
       return result?.employees || [];
     },
     staleTime: 1000 * 60 * 5,
-    enabled: !!user && !permLoading,
   });
 
   const { data: customers = [] } = useQuery({
@@ -386,7 +383,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
               onValueChange={(value) => setFormData({ ...formData, assigned_employee: value })}
             >
               <SelectTrigger className="mt-1.5">
-                <SelectValue placeholder={employeesLoading ? "Loading employees..." : "Select employee"} />
+                <SelectValue placeholder="Select employee" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={null}>Unassigned</SelectItem>
