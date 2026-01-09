@@ -55,8 +55,17 @@ export function usePermissions() {
     return roleTemplates[templateKey];
   };
 
+  // Helper to get user's individual permission from Permission entity
+  const getUserPermission = (permKey) => {
+    if (!userPermissions) return undefined;
+    return userPermissions[permKey];
+  };
+
+  // Determine user's effective role from Permission entity or User.app_role
+  const effectiveRole = userPermissions?.role || user?.app_role || 'employee';
+
   // Get effective permissions based on role
-  // Priority: 1. User's explicit setting, 2. Role template, 3. Hardcoded default
+  // Priority: 1. User's Permission entity setting, 2. Role template, 3. Hardcoded default
   const getEffectivePermissions = () => {
     if (!user) return {};
 
@@ -81,44 +90,44 @@ export function usePermissions() {
       };
     }
 
-    // For managers - use role template if available
-    if (isManager) {
+    // For managers - check Permission entity first, then role template
+    if (isManager || effectiveRole === 'manager') {
       return {
-        can_manage_customers: user.can_manage_customers ?? getTemplatePermission('manager', 'can_manage_customers') ?? true,
-        can_delete_customers: user.can_delete_customers ?? getTemplatePermission('manager', 'can_delete_customers') ?? true,
-        can_view_customers: user.can_view_customers ?? getTemplatePermission('manager', 'can_view_customers') ?? true,
-        can_manage_schedule: user.can_manage_schedule ?? getTemplatePermission('manager', 'can_manage_schedule') ?? true,
-        can_delete_schedule: user.can_delete_schedule ?? getTemplatePermission('manager', 'can_delete_schedule') ?? true,
-        can_view_schedule: user.can_view_schedule ?? getTemplatePermission('manager', 'can_view_schedule') ?? true,
-        can_manage_service_logs: user.can_manage_service_logs ?? getTemplatePermission('manager', 'can_manage_service_logs') ?? true,
-        can_delete_service_logs: user.can_delete_service_logs ?? getTemplatePermission('manager', 'can_delete_service_logs') ?? true,
-        can_view_service_logs: user.can_view_service_logs ?? getTemplatePermission('manager', 'can_view_service_logs') ?? true,
-        can_manage_inventory: user.can_manage_inventory ?? getTemplatePermission('manager', 'can_manage_inventory') ?? true,
-        can_delete_inventory: user.can_delete_inventory ?? getTemplatePermission('manager', 'can_delete_inventory') ?? true,
-        can_view_inventory: user.can_view_inventory ?? getTemplatePermission('manager', 'can_view_inventory') ?? true,
-        can_manage_employees: user.can_manage_employees ?? getTemplatePermission('manager', 'can_manage_employees') ?? false,
-        can_view_reports: user.can_view_reports ?? getTemplatePermission('manager', 'can_view_reports') ?? true,
-        can_export_data: user.can_export_data ?? getTemplatePermission('manager', 'can_export_data') ?? true,
+        can_manage_customers: getUserPermission('can_manage_customers') ?? getTemplatePermission('manager', 'can_manage_customers') ?? true,
+        can_delete_customers: getUserPermission('can_delete_customers') ?? getTemplatePermission('manager', 'can_delete_customers') ?? true,
+        can_view_customers: getUserPermission('can_view_customers') ?? getTemplatePermission('manager', 'can_view_customers') ?? true,
+        can_manage_schedule: getUserPermission('can_manage_schedule') ?? getTemplatePermission('manager', 'can_manage_schedule') ?? true,
+        can_delete_schedule: getUserPermission('can_delete_schedule') ?? getTemplatePermission('manager', 'can_delete_schedule') ?? true,
+        can_view_schedule: getUserPermission('can_view_schedule') ?? getTemplatePermission('manager', 'can_view_schedule') ?? true,
+        can_manage_service_logs: getUserPermission('can_manage_service_logs') ?? getTemplatePermission('manager', 'can_manage_service_logs') ?? true,
+        can_delete_service_logs: getUserPermission('can_delete_service_logs') ?? getTemplatePermission('manager', 'can_delete_service_logs') ?? true,
+        can_view_service_logs: getUserPermission('can_view_service_logs') ?? getTemplatePermission('manager', 'can_view_service_logs') ?? true,
+        can_manage_inventory: getUserPermission('can_manage_inventory') ?? getTemplatePermission('manager', 'can_manage_inventory') ?? true,
+        can_delete_inventory: getUserPermission('can_delete_inventory') ?? getTemplatePermission('manager', 'can_delete_inventory') ?? true,
+        can_view_inventory: getUserPermission('can_view_inventory') ?? getTemplatePermission('manager', 'can_view_inventory') ?? true,
+        can_manage_employees: getUserPermission('can_manage_employees') ?? getTemplatePermission('manager', 'can_manage_employees') ?? false,
+        can_view_reports: getUserPermission('can_view_reports') ?? getTemplatePermission('manager', 'can_view_reports') ?? true,
+        can_export_data: getUserPermission('can_export_data') ?? getTemplatePermission('manager', 'can_export_data') ?? true,
       };
     }
 
-    // Regular employees - use role template if available
+    // Regular employees - check Permission entity first, then role template
     return {
-      can_manage_customers: user.can_manage_customers ?? getTemplatePermission('employee', 'can_manage_customers') ?? true,
-      can_delete_customers: user.can_delete_customers ?? getTemplatePermission('employee', 'can_delete_customers') ?? false,
-      can_view_customers: user.can_view_customers ?? getTemplatePermission('employee', 'can_view_customers') ?? true,
-      can_manage_schedule: user.can_manage_schedule ?? getTemplatePermission('employee', 'can_manage_schedule') ?? true,
-      can_delete_schedule: user.can_delete_schedule ?? getTemplatePermission('employee', 'can_delete_schedule') ?? false,
-      can_view_schedule: user.can_view_schedule ?? getTemplatePermission('employee', 'can_view_schedule') ?? true,
-      can_manage_service_logs: user.can_manage_service_logs ?? getTemplatePermission('employee', 'can_manage_service_logs') ?? true,
-      can_delete_service_logs: user.can_delete_service_logs ?? getTemplatePermission('employee', 'can_delete_service_logs') ?? false,
-      can_view_service_logs: user.can_view_service_logs ?? getTemplatePermission('employee', 'can_view_service_logs') ?? true,
-      can_manage_inventory: user.can_manage_inventory ?? getTemplatePermission('employee', 'can_manage_inventory') ?? false,
-      can_delete_inventory: user.can_delete_inventory ?? getTemplatePermission('employee', 'can_delete_inventory') ?? false,
-      can_view_inventory: user.can_view_inventory ?? getTemplatePermission('employee', 'can_view_inventory') ?? false,
-      can_manage_employees: user.can_manage_employees ?? getTemplatePermission('employee', 'can_manage_employees') ?? false,
-      can_view_reports: user.can_view_reports ?? getTemplatePermission('employee', 'can_view_reports') ?? false,
-      can_export_data: user.can_export_data ?? getTemplatePermission('employee', 'can_export_data') ?? false,
+      can_manage_customers: getUserPermission('can_manage_customers') ?? getTemplatePermission('employee', 'can_manage_customers') ?? true,
+      can_delete_customers: getUserPermission('can_delete_customers') ?? getTemplatePermission('employee', 'can_delete_customers') ?? false,
+      can_view_customers: getUserPermission('can_view_customers') ?? getTemplatePermission('employee', 'can_view_customers') ?? true,
+      can_manage_schedule: getUserPermission('can_manage_schedule') ?? getTemplatePermission('employee', 'can_manage_schedule') ?? true,
+      can_delete_schedule: getUserPermission('can_delete_schedule') ?? getTemplatePermission('employee', 'can_delete_schedule') ?? false,
+      can_view_schedule: getUserPermission('can_view_schedule') ?? getTemplatePermission('employee', 'can_view_schedule') ?? true,
+      can_manage_service_logs: getUserPermission('can_manage_service_logs') ?? getTemplatePermission('employee', 'can_manage_service_logs') ?? true,
+      can_delete_service_logs: getUserPermission('can_delete_service_logs') ?? getTemplatePermission('employee', 'can_delete_service_logs') ?? false,
+      can_view_service_logs: getUserPermission('can_view_service_logs') ?? getTemplatePermission('employee', 'can_view_service_logs') ?? true,
+      can_manage_inventory: getUserPermission('can_manage_inventory') ?? getTemplatePermission('employee', 'can_manage_inventory') ?? false,
+      can_delete_inventory: getUserPermission('can_delete_inventory') ?? getTemplatePermission('employee', 'can_delete_inventory') ?? false,
+      can_view_inventory: getUserPermission('can_view_inventory') ?? getTemplatePermission('employee', 'can_view_inventory') ?? false,
+      can_manage_employees: getUserPermission('can_manage_employees') ?? getTemplatePermission('employee', 'can_manage_employees') ?? false,
+      can_view_reports: getUserPermission('can_view_reports') ?? getTemplatePermission('employee', 'can_view_reports') ?? false,
+      can_export_data: getUserPermission('can_export_data') ?? getTemplatePermission('employee', 'can_export_data') ?? false,
     };
   };
 
