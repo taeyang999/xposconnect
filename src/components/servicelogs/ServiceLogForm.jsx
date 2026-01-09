@@ -53,7 +53,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
     queryFn: async () => {
-      const users = await base44.entities.User.list();
+      const users = await base44.functions.getEmployeesForAssignment();
       return users.filter(u => u.status !== 'inactive');
     },
     staleTime: 1000 * 60 * 5,
