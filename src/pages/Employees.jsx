@@ -25,7 +25,7 @@ import EmployeeForm from '@/components/employees/EmployeeForm';
 import InviteEmployeeForm from '@/components/employees/InviteEmployeeForm';
 
 export default function Employees() {
-  const { user, permissions, isAdmin, loading: permissionsLoading } = usePermissions();
+  const { user, permissions, isAdmin, isSystemAdmin, loading: permissionsLoading } = usePermissions();
   const [showForm, setShowForm] = useState(false);
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState(null);
@@ -34,9 +34,19 @@ export default function Employees() {
 
   const canManageEmployees = isAdmin || permissions?.can_manage_employees || false;
 
+  // System admins use direct User.list(), others use backend function
   const { data: employees = [], isLoading } = useQuery({
-    queryKey: ['employees'],
-    queryFn: () => base44.entities.User.list('-created_date'),
+    queryKey: ['employees', isSystemAdmin],
+    queryFn: async () => {
+      if (isSystemAdmin) {
+        // System admin can directly list all users
+        return await base44.entities.User.list('-created_date');
+      } else {
+        // Non-system-admin users use the backend function to get limited info
+        const response = await base44.functions.invoke('getLimitedEmployeeInfo');
+        return response.data?.employees || [];
+      }
+    },
     enabled: !!user && canManageEmployees,
   });
 
@@ -96,10 +106,12 @@ export default function Employees() {
         title="Employees"
         description="Manage team members and their access"
         actions={
-          <Button onClick={() => setShowInviteForm(true)} className="bg-slate-900 hover:bg-slate-800">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Invite Employee
-          </Button>
+          isSystemAdmin && (
+            <Button onClick={() => setShowInviteForm(true)} className="bg-slate-900 hover:bg-slate-800">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Invite Employee
+            </Button>
+          )
         }
       />
 
@@ -139,10 +151,12 @@ export default function Employees() {
           title={searchQuery ? 'No employees found' : 'No employees yet'}
           description={searchQuery 
             ? 'Try adjusting your search'
-            : 'Invite your first team member to get started'
+            : isSystemAdmin 
+              ? 'Invite your first team member to get started'
+              : 'No employees have been added yet.'
           }
           action={
-            !searchQuery && (
+            !searchQuery && isSystemAdmin && (
               <Button onClick={() => setShowInviteForm(true)} className="bg-slate-900 hover:bg-slate-800">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Invite Employee
@@ -166,19 +180,21 @@ export default function Employees() {
                     <p className="text-sm text-slate-500 capitalize">{getEmployeeRole(employee)}</p>
                   </div>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48 rounded-xl">
-                    <DropdownMenuItem onClick={() => handleEdit(employee)} className="cursor-pointer rounded-lg">
-                      <Pencil className="h-4 w-4 mr-2" />
-                      Edit Details
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {isSystemAdmin && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 rounded-xl">
+                      <DropdownMenuItem onClick={() => handleEdit(employee)} className="cursor-pointer rounded-lg">
+                        <Pencil className="h-4 w-4 mr-2" />
+                        Edit Details
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -237,20 +253,24 @@ export default function Employees() {
         </div>
       )}
 
-      {/* Employee Edit Form */}
-      <EmployeeForm
-        open={showForm}
-        onClose={() => { setShowForm(false); setEditingEmployee(null); }}
-        employee={editingEmployee}
-        onSave={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
-      />
+      {/* Employee Edit Form - Only for system admins */}
+      {isSystemAdmin && (
+        <EmployeeForm
+          open={showForm}
+          onClose={() => { setShowForm(false); setEditingEmployee(null); }}
+          employee={editingEmployee}
+          onSave={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
+        />
+      )}
 
-      {/* Invite Employee Form */}
-      <InviteEmployeeForm
-        open={showInviteForm}
-        onClose={() => setShowInviteForm(false)}
-        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
-      />
+      {/* Invite Employee Form - Only for system admins */}
+      {isSystemAdmin && (
+        <InviteEmployeeForm
+          open={showInviteForm}
+          onClose={() => setShowInviteForm(false)}
+          onSuccess={() => queryClient.invalidateQueries({ queryKey: ['employees'] })}
+        />
+      )}
     </div>
   );
 }
