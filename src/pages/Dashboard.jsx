@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { 
   Users, Calendar, Package, FileText, 
   TrendingUp, Clock, AlertCircle, CheckCircle2,
-  ArrowRight, Activity, Database, RefreshCw
+  ArrowRight, Activity
 } from 'lucide-react';
-import { toast } from 'sonner';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import StatCard from '@/components/ui/StatCard';
 import PageHeader from '@/components/ui/PageHeader';
@@ -19,9 +18,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
-  const [migrating, setMigrating] = useState(false);
-  const [migrationResult, setMigrationResult] = useState(null);
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -32,33 +28,6 @@ export default function Dashboard() {
   }, []);
 
   const isAdmin = user?.role === 'admin';
-
-  // Debug: Fetch Profile data to verify migration
-  const { data: profiles = [], refetch: refetchProfiles } = useQuery({
-    queryKey: ['profiles'],
-    queryFn: () => base44.entities.Profile.list(),
-    enabled: isAdmin && !!user,
-  });
-
-  const handleMigration = async () => {
-    setMigrating(true);
-    setMigrationResult(null);
-    try {
-      const result = await base44.functions.migrateUsersToProfiles();
-      setMigrationResult(result);
-      if (result.success) {
-        toast.success(`Migration complete: ${result.created} created, ${result.updated} updated`);
-        refetchProfiles();
-      } else {
-        toast.error(`Migration failed: ${result.error}`);
-      }
-    } catch (error) {
-      toast.error('Migration error: ' + error.message);
-      setMigrationResult({ success: false, error: error.message });
-    } finally {
-      setMigrating(false);
-    }
-  };
 
   const { data: customers = [], isLoading: loadingCustomers } = useQuery({
     queryKey: ['customers'],
@@ -145,114 +114,6 @@ export default function Dashboard() {
           {format(new Date(), 'EEEE, MMMM d, yyyy')}
         </p>
       </div>
-
-      {/* Debug Panel - Admin Only */}
-      {isAdmin && (
-        <Card className="mb-8 border-slate-200/80 bg-slate-50">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Database className="h-5 w-5 text-slate-600" />
-              Profile Migration & Debug
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-white rounded-lg border">
-                <p className="text-sm text-slate-500 mb-1">Total Profiles</p>
-                <p className="text-2xl font-bold text-slate-900">{profiles.length}</p>
-              </div>
-              <div className="p-4 bg-white rounded-lg border">
-                <p className="text-sm text-slate-500 mb-1">Active Profiles</p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  {profiles.filter(p => p.status === 'active').length}
-                </p>
-              </div>
-              <div className="p-4 bg-white rounded-lg border">
-                <p className="text-sm text-slate-500 mb-1">Inactive Profiles</p>
-                <p className="text-2xl font-bold text-slate-600">
-                  {profiles.filter(p => p.status === 'inactive').length}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex gap-3">
-              <Button 
-                onClick={handleMigration} 
-                disabled={migrating}
-                className="bg-slate-900 hover:bg-slate-800"
-              >
-                {migrating ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    Migrating...
-                  </>
-                ) : (
-                  <>
-                    <Database className="h-4 w-4 mr-2" />
-                    Run Migration
-                  </>
-                )}
-              </Button>
-              <Button 
-                onClick={() => refetchProfiles()} 
-                variant="outline"
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh Profiles
-              </Button>
-            </div>
-
-            {migrationResult && (
-              <div className={`p-4 rounded-lg border ${migrationResult.success ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                <p className="font-semibold text-sm mb-2">
-                  {migrationResult.success ? '✅ Migration Result:' : '❌ Migration Failed:'}
-                </p>
-                {migrationResult.success ? (
-                  <div className="text-sm space-y-1">
-                    <p>Total Users: {migrationResult.total}</p>
-                    <p>Created: {migrationResult.created}</p>
-                    <p>Updated: {migrationResult.updated}</p>
-                    <p>Skipped: {migrationResult.skipped}</p>
-                  </div>
-                ) : (
-                  <p className="text-sm text-red-700">{migrationResult.error}</p>
-                )}
-              </div>
-            )}
-
-            {profiles.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border rounded-lg">
-                <table className="w-full text-sm">
-                  <thead className="bg-slate-100 sticky top-0">
-                    <tr>
-                      <th className="text-left p-2 font-semibold">Email</th>
-                      <th className="text-left p-2 font-semibold">Name</th>
-                      <th className="text-left p-2 font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white">
-                    {profiles.map((profile) => (
-                      <tr key={profile.id} className="border-t">
-                        <td className="p-2">{profile.email}</td>
-                        <td className="p-2">
-                          {profile.firstname && profile.lastname 
-                            ? `${profile.firstname} ${profile.lastname}` 
-                            : profile.full_name || '-'}
-                        </td>
-                        <td className="p-2">
-                          <Badge className={profile.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}>
-                            {profile.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
 
       {/* Alerts Section */}
       {!isLoading && (todayEvents.length > 0 || expiringWarranties.length > 0 || overdueServices.length > 0) && (
