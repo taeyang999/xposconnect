@@ -4,10 +4,11 @@ import { base44 } from '@/api/base44Client';
 export function usePermissions() {
   const [user, setUser] = useState(null);
   const [roleTemplates, setRoleTemplates] = useState(null);
+  const [userPermissions, setUserPermissions] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUserAndTemplates = async () => {
+    const loadUserAndPermissions = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
@@ -17,13 +18,22 @@ export function usePermissions() {
         if (templates && templates.length > 0) {
           setRoleTemplates(templates[0]);
         }
+        
+        // Load user-specific permissions from Permission entity
+        if (currentUser?.email) {
+          const userPerms = await base44.entities.Permission.filter({ user_email: currentUser.email });
+          if (userPerms && userPerms.length > 0) {
+            // Get the most recent permission record for this user
+            setUserPermissions(userPerms[userPerms.length - 1]);
+          }
+        }
       } catch (e) {
         console.log('User not logged in');
       } finally {
         setLoading(false);
       }
     };
-    loadUserAndTemplates();
+    loadUserAndPermissions();
   }, []);
 
   // System admin: Base44 built-in role === 'admin'
