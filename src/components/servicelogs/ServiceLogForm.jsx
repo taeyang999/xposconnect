@@ -386,7 +386,7 @@ export default function ServiceLogForm({ open, onClose, serviceLog, customerId, 
               onValueChange={(value) => setFormData({ ...formData, assigned_employee: value })}
             >
               <SelectTrigger className="mt-1.5">
-                <SelectValue placeholder="Select employee" />
+                <SelectValue placeholder={employeesLoading ? "Loading employees..." : "Select employee"} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={null}>Unassigned</SelectItem>
