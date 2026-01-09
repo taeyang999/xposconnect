@@ -2,10 +2,10 @@ import { base44 } from './base44Client.js';
 
 export default async function getEmployeesForAssignment() {
   // Get the current user making the request
-  const currentUser = await base44.auth.me();
+  const currentUser = await base44.auth.currentUser();
   
   if (!currentUser) {
-    return { employees: [] };
+    throw new Error('User not authenticated');
   }
   
   // Check if user is a system admin (built-in Base44 admin role)
