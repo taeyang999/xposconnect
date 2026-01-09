@@ -120,7 +120,7 @@ export default function CustomerDetail() {
 
   const { data: employees = [] } = useQuery({
     queryKey: ['employees'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: () => base44.functions.getEmployeesForAssignment(),
   });
 
   const { data: auditLogs = [] } = useQuery({
